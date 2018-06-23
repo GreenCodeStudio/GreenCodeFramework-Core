@@ -1,7 +1,8 @@
 <?php
+
 error_reporting(E_ALL);
 spl_autoload_register(function ($class_name) {
-    include __DIR__.'/../'.$class_name . '.php';
+    include __DIR__.'/../'.$class_name.'.php';
 });
 
 include __DIR__.'/../../vendor/autoload.php';
