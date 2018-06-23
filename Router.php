@@ -25,6 +25,8 @@ class Router {
                     $reflectionMethod->invokeArgs($controller, array_slice($exploded, 3));
                 } else
                     throw new \Core\Exceptions\NotFoundException();
+                $controller->debugOutput = ob_get_clean();
+                ob_start();
                 $controller->postAction();
             }ob_flush();
         } catch (\Core\Exceptions\NotFoundException $e) {
