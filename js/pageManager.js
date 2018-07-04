@@ -1,6 +1,8 @@
 export const pageManager = {
     initPage(initInfo) {
         console.log(initInfo);
+        let page = document.querySelector('.page');
+        this._loadedEvent(page, initInfo.data, initInfo.controllerName, initInfo.methodName);
     },
     _onLoad: {},
     onLoad(callback, controller = null, method = null) {
@@ -12,15 +14,15 @@ export const pageManager = {
         }
         this._onLoad[controller][method].push(callback);
     },
-    _loadedEvent(controller = null, method = null,) {
-        if (this._onLoad[controller][method])
-            for (var callback of this._onLoad[controller][method])
-                callback();
-        if (this._onLoad[controller][method])
-            for (var callback of this._onLoad[controller][null])
-                callback();
-        if (this._onLoad[controller][method])
-            for (var callback of this._onLoad[null][null])
-                callback();
+    _loadedEvent(page, data, controller = null, method = null) {
+        if (this._onLoad[controller] && this._onLoad[controller][method])
+            for (let callback of this._onLoad[controller][method])
+                callback(page, data);
+        if (this._onLoad[controller] && this._onLoad[controller][null])
+            for (let callback of this._onLoad[controller][null])
+                callback(page, data);
+        if (this._onLoad[null] && this._onLoad[null][null])
+            for (let callback of this._onLoad[null][null])
+                callback(page, data);
     }
 };
