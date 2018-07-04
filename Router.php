@@ -2,9 +2,11 @@
 
 namespace Core;
 
-class Router {
+class Router
+{
 
-    public static function route($url) {
+    public static function route($url)
+    {
         ob_start();
         try {
             $exploded = explode('/', $url);
@@ -15,27 +17,32 @@ class Router {
             if (empty($methodName))
                 $methodName = 'index';
             if (getenv('cached_code')) {
-                
+
             } else {
                 $controllerClassName = static::findController($controllerName);
                 $controller = new $controllerClassName();
                 $reflectionMethod = new \ReflectionMethod($controllerClassName, $methodName);
                 $controller->preAction();
                 if (method_exists($controller, $methodName)) {
+                    $controller->initInfo->controllerName = $controllerName;
+                    $controller->initInfo->methodName = $methodName;
+                    $controller->initInfo->methodArguments = array_slice($exploded, 3);
                     $reflectionMethod->invokeArgs($controller, array_slice($exploded, 3));
                 } else
                     throw new \Core\Exceptions\NotFoundException();
                 $controller->debugOutput = ob_get_clean();
                 ob_start();
                 $controller->postAction();
-            }ob_flush();
+            }
+            ob_flush();
         } catch (\Core\Exceptions\NotFoundException $e) {
             http_response_code(404);
             ob_clean();
         }
     }
 
-    private static function findController($name) {
+    private static function findController($name)
+    {
         $modules = scandir(__DIR__.'/../');
         foreach ($modules as $module) {
             if ($module == '.' || $module == '..') {

@@ -2,14 +2,27 @@
 
 namespace Core;
 
-abstract class AbstractController {
+abstract class AbstractController
+{
+    public $initInfo;
 
-    public function preAction() {
-        
+    public function __construct()
+    {
+        $this->initInfo = new \stdClass();
     }
 
-    public function postAction() {
-        
+    public function preAction()
+    {
+
     }
 
+    public function postAction()
+    {
+
+    }
+
+    public function getInitInfo()
+    {
+        return $this->initInfo;
+    }
 }
