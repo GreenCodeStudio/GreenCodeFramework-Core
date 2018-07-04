@@ -28,6 +28,11 @@ class Router
                     $controller->initInfo->methodName = $methodName;
                     $controller->initInfo->methodArguments = array_slice($exploded, 3);
                     $reflectionMethod->invokeArgs($controller, array_slice($exploded, 3));
+
+                    if (method_exists($controller, $methodName.'_data')) {
+                        $reflectionMethodData = new \ReflectionMethod($controllerClassName, $methodName.'_data');
+                        $controller->initInfo->data = $reflectionMethodData->invokeArgs($controller, array_slice($exploded, 3));
+                    }
                 } else
                     throw new \Core\Exceptions\NotFoundException();
                 $controller->debugOutput = ob_get_clean();

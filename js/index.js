@@ -1,14 +1,14 @@
 import {pageManager} from "./pageManager";
-import {formManager} from "./form";
 
-pageManager.onLoad((page, data) => {
+pageManager.onLoad(async (page, data) => {
     let forms = document.querySelectorAll('.dataForm');
     for (var form of forms) {
         if (data[form.dataset.name]) {
             console.log('loadForm');
+            let {formManager} = await import("./form");
+            formManager.load(form, data[form.dataset.name]);
         }
     }
-    formManager.load()
 });
 
 pageManager.initPage(window.controllerInitInfo);
