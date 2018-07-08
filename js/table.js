@@ -5,7 +5,7 @@ export class tableManager {
     }
 
     async refresh() {
-        let data = await this.datasource(this);
+        let data = await this.datasource.get(this);
         this.loadData(data);
     }
 
