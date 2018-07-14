@@ -12,11 +12,22 @@ class Router
             $exploded = explode('/', $url);
             $type = 'Controllers';
             if ($exploded[1] == 'ajax') {
-                array_splice($exploded, 1, 1);
+                $controllerName = $exploded[2] ?? '';
+                $methodName = $exploded[3] ?? '';
+                $args = [];
+                foreach ($_POST['args'] as $arg) {
+                    $args[] = json_decode($arg, false);
+                }
                 $type = 'Ajax';
+                global $debugType;
+                $debugType = 'object';
+            } else {
+                $controllerName = $exploded[1] ?? '';
+                $methodName = $exploded[2] ?? '';
+                $args = array_slice($exploded, 3);
             }
-            $controllerName = preg_replace('/[^a-zA-Z0-9_]/', '', $exploded[1] ?? '');
-            $methodName = preg_replace('/[^a-zA-Z0-9_]/', '', $exploded[2] ?? '');
+            $controllerName = preg_replace('/[^a-zA-Z0-9_]/', '', $controllerName);
+            $methodName = preg_replace('/[^a-zA-Z0-9_]/', '', $methodName);
             if (empty($controllerName))
                 $controllerName = 'Start';
             if (empty($methodName))
@@ -37,7 +48,7 @@ class Router
 
                 if (method_exists($controller, $methodName.'_data')) {
                     $reflectionMethodData = new \ReflectionMethod($controllerClassName, $methodName.'_data');
-                    $controller->initInfo->data = $reflectionMethodData->invokeArgs($controller, array_slice($exploded, 3));
+                    $controller->initInfo->data = $reflectionMethodData->invokeArgs($controller, $args);
                 }
             } else
                 throw new \Core\Exceptions\NotFoundException();
@@ -45,7 +56,9 @@ class Router
 
             if ($type == 'Ajax') {
                 header('Content-type: application/json');
-                echo json_encode(['data' => $returned]);
+                global $debugArray;
+                ob_end_clean();
+                echo json_encode(['data' => $returned, 'debug' => $debugArray]);
             } else {
                 $controller->debugOutput = ob_get_clean();
                 ob_start();

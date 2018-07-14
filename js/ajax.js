@@ -1,3 +1,11 @@
+function showServerDebug(decoded) {
+    if (decoded.debug) {
+        for (let dump of decoded.debug) {
+            console.log(dump);
+        }
+    }
+}
+
 function AjaxFunction(controller, method, ...args) {
     return new Promise((resolve, reject) => {
         var xhr = new XMLHttpRequest();
@@ -7,8 +15,19 @@ function AjaxFunction(controller, method, ...args) {
             postData += '&args[]=' + encodeURIComponent(JSON.stringify(arg));
         }
         xhr.setRequestHeader('content-type', 'application/x-www-form-urlencoded');
-        xhr.onreadystatechange = (a) => {
-
+        xhr.onreadystatechange = e => {
+            if (xhr.readyState == 4) {
+                if (xhr.status == 200) {
+                    try {
+                        let decoded = JSON.parse(xhr.responseText);
+                        showServerDebug(decoded);
+                        resolve(decoded.data);
+                    } catch (ex) {
+                        reject(ex);
+                    }
+                } else
+                    reject(new Error('Http status:' + xhr.status + ' ' + xhr.statusText));
+            }
         };
         xhr.send(postData);
     });
