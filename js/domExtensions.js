@@ -3,7 +3,7 @@ HTMLDocument.prototype.create = function (name, attributes = {}) {
     return element;
 };
 HTMLElement.prototype.add = function (name, attributes = {}) {
-    let element = this.documentElement.create(name, attributes);
+    let element = this.ownerDocument.create(name, attributes);
     this.appendChild(element);
     return element;
 };

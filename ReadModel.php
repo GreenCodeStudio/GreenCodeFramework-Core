@@ -17,7 +17,7 @@ class ReadModel
     {
         static::$defaultTable = $defaultTable;
     }
-    public function getDataTable(){
+    public function getDataTable($options){
 
     }
 }

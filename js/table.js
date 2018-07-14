@@ -1,12 +1,13 @@
 import './domExtensions';
+
 export class tableManager {
     constructor(table, datasource) {
         this.table = table;
         this.datasource = datasource;
-        this.start=0;
-        this.limit=50;
-        this.search='';
-        this.sort='';
+        this.start = 0;
+        this.limit = 50;
+        this.search = '';
+        this.sort = '';
     }
 
     async refresh() {
@@ -15,16 +16,17 @@ export class tableManager {
     }
 
     loadData(data) {
-        let tbody = this.form.tBodies[0];
+        let tbody = this.table.tBodies[0];
         if (!tbody) {
-            tbody = this.form.add('tbody');
+            tbody = this.table.add('tbody');
         }
         tbody.children.removeAll();
 
-        for(let row of data.rows){
-            let tr=tbody.add('tr');
-            for(let th in this.form.thead.firstElementChild.children){
-                let td=tr.add('td');
+        for (let row of data.rows) {
+            let tr = tbody.add('tr');
+            for (let th of this.table.tHead.firstElementChild.children) {
+                let td = tr.add('td');
+                td.textContent = row[th.dataset.value];
             }
         }
     }

@@ -12,15 +12,16 @@ class Router
             $exploded = explode('/', $url);
             $type = 'Controllers';
             if ($exploded[1] == 'ajax') {
+                $type = 'Ajax';
+                global $debugType;
+                $debugType = 'object';
+
                 $controllerName = $exploded[2] ?? '';
                 $methodName = $exploded[3] ?? '';
                 $args = [];
                 foreach ($_POST['args'] as $arg) {
                     $args[] = json_decode($arg, false);
                 }
-                $type = 'Ajax';
-                global $debugType;
-                $debugType = 'object';
             } else {
                 $controllerName = $exploded[1] ?? '';
                 $methodName = $exploded[2] ?? '';
@@ -44,7 +45,7 @@ class Router
                 $controller->initInfo->controllerName = $controllerName;
                 $controller->initInfo->methodName = $methodName;
                 $controller->initInfo->methodArguments = array_slice($exploded, 3);
-                $returned = $reflectionMethod->invokeArgs($controller, array_slice($exploded, 3));
+                $returned = $reflectionMethod->invokeArgs($controller, $args);
 
                 if (method_exists($controller, $methodName.'_data')) {
                     $reflectionMethodData = new \ReflectionMethod($controllerClassName, $methodName.'_data');
