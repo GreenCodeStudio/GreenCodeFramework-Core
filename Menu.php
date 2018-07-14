@@ -23,11 +23,25 @@ class Menu
             if (is_file($filename)) {
                 $xml = simplexml_load_string(file_get_contents($filename));
                 foreach ($xml->children() as $element) {
-                    $root[] = $element;
+                    $root[] = $this->getAsStdclass($element);
                 }
             }
         }
-        $root = json_decode(json_encode(['element'=>$root]));
         return $root;
+    }
+
+    private function getAsStdclass(\SimpleXMLElement $element)
+    {
+        $ret = new \StdClass();
+        foreach ($element->children() as $name => $value) {
+            if ($name == 'menu') {
+                $ret->menu = [];
+                foreach ($value->children() as $childElement) {
+                    $ret->menu[] = $this->getAsStdclass($childElement);
+                }
+            } else
+                $ret->$name = $value->__toString();
+        }
+        return $ret;
     }
 }
