@@ -30,17 +30,6 @@ class DB
         }
     }
 
-    static function query(string $sql, $params = [])
-    {
-        static::connect();
-        $sth = static::$pdo->prepare($sql, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
-        $params2 = [];
-        foreach ($params as $name => $value) {
-            $params2[':'.$name] = $value;
-        }
-        $sth->execute($params);
-    }
-
     static function rollBack()
     {
         static::connect();
@@ -73,7 +62,34 @@ class DB
         if (is_int($val))
             return (int)$val;
         return "'".static::$pdo->quote($val)."'";
-
+    }
+    static function clearName(string $name){
+        return preg_replace('/[^a-zA-Z0-9]/','',$name);
     }
 
+    static function update(string $table, $data, $id)
+    {
+        static::connect();
+        $table = static::clearName($table);
+        $update = [];
+        $dataSql = ['id' => $id];
+        foreach ($data as $name => $value) {
+            $name = static::clearName($name);
+            $update[] = " `$name` = :$name";
+            $dataSql[$name] = $value;
+        }
+        $updateJoined = implode(',', $update);
+        static::query("UPDATE `$table` SET $updateJoined WHERE id = :id", $dataSql);
+    }
+
+    static function query(string $sql, $params = [])
+    {
+        static::connect();
+        $sth = static::$pdo->prepare($sql, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
+        $params2 = [];
+        foreach ($params as $name => $value) {
+            $params2[':'.$name] = $value;
+        }
+        $sth->execute($params);
+    }
 }

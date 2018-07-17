@@ -39,9 +39,9 @@ class Router
                 $controllerClassName = static::findController($controllerName, $type);
             }
             $controller = new $controllerClassName();
-            $reflectionMethod = new \ReflectionMethod($controllerClassName, $methodName);
             $controller->preAction();
             if (method_exists($controller, $methodName)) {
+                $reflectionMethod = new \ReflectionMethod($controllerClassName, $methodName);
                 $controller->initInfo->controllerName = $controllerName;
                 $controller->initInfo->methodName = $methodName;
                 $controller->initInfo->methodArguments = array_slice($exploded, 3);

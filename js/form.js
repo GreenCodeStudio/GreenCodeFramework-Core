@@ -1,3 +1,5 @@
+import {AjaxTask} from './ajaxTask';
+
 export const formManager = {
     load(form, data) {
         let formElements = form.elements;
@@ -8,5 +10,18 @@ export const formManager = {
                 elem.value = '';
             }
         }
+    },
+    initEvents() {
+        document.querySelectorAll('form.dataForm').forEach(form => form.addEventListener('submit', event => this.formSubmitted(event, form)));
+    },
+    formSubmitted(e, form) {
+        var data = {};
+        let formElements = form.elements;
+        for (var elem of formElements) {
+            data[elem.name] = elem.value;
+        }
+        new AjaxTask(form.dataset.controller, form.dataset.method, data);
+        e.preventDefault();
+        return false;
     }
 };
