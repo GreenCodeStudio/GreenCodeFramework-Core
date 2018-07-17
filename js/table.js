@@ -26,7 +26,16 @@ export class tableManager {
             let tr = tbody.add('tr');
             for (let th of this.table.tHead.firstElementChild.children) {
                 let td = tr.add('td');
-                td.textContent = row[th.dataset.value];
+                if (th.dataset.value)
+                    td.textContent = row[th.dataset.value];
+                else if (th.classList.contains('tableActions')) {
+                    let tableCopy = th.querySelector('.tableCopy');
+                    if (tableCopy) {
+                        td.innerHTML = th.querySelector('.tableCopy').innerHTML;
+                        var links = td.querySelectorAll('a');
+                        links.forEach(a => a.href = a.href.replace(/\/$/, '') + '/' + row.id);
+                    }
+                }
             }
         }
     }
