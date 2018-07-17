@@ -17,7 +17,15 @@ class ReadModel
     {
         static::$defaultTable = $defaultTable;
     }
-    public function getDataTable($options){
 
+    public function getDataTable($options)
+    {
+
+    }
+
+    public function getById(int $id)
+    {
+        $defaultTable = static::$defaultTable;
+        return DB::get("SELECT * FROM $defaultTable WHERE id = ?", [$id])[0] ?? null;
     }
 }
