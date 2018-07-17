@@ -7,7 +7,7 @@ pageManager.onLoad(async (page, data) => {
         formManager.initEvents();
 
         for (let form of forms) {
-            if (data[form.dataset.name]) {
+            if (data && data[form.dataset.name]) {
                 console.log('loadForm');
                 formManager.load(form, data[form.dataset.name]);
             }

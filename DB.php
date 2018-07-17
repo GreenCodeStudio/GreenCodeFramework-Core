@@ -63,9 +63,6 @@ class DB
             return (int)$val;
         return "'".static::$pdo->quote($val)."'";
     }
-    static function clearName(string $name){
-        return preg_replace('/[^a-zA-Z0-9]/','',$name);
-    }
 
     static function update(string $table, $data, $id)
     {
@@ -82,6 +79,11 @@ class DB
         static::query("UPDATE `$table` SET $updateJoined WHERE id = :id", $dataSql);
     }
 
+    static function clearName(string $name)
+    {
+        return preg_replace('/[^a-zA-Z0-9]/', '', $name);
+    }
+
     static function query(string $sql, $params = [])
     {
         static::connect();
@@ -91,5 +93,24 @@ class DB
             $params2[':'.$name] = $value;
         }
         $sth->execute($params);
+    }
+
+    static function insert(string $table, $data)
+    {
+        static::connect();
+        $table = static::clearName($table);
+        $cols = [];
+        $values = [];
+        $dataSql = [];
+        foreach ($data as $name => $value) {
+            $name = static::clearName($name);
+            $cols[] = " `$name` ";
+            $values[] = " :$name ";
+            $dataSql[$name] = $value;
+        }
+        $colsJoined = implode(',', $cols);
+        $valuesJoined = implode(',', $values);
+        static::query("INSERT INTO `$table` ($colsJoined) VALUES ($valuesJoined)", $dataSql);
+        return static::$pdo->lastInsertId();
     }
 }
