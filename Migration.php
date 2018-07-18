@@ -29,21 +29,43 @@ class Migration
                         }
 
                     }
+                    dump($old[$name]['index']);
+                    foreach ($old[$name]['index'] as $indexOld) {
+                        $findedIdentical = false;
+                        foreach ($tableNew->index as $i => $indexNew) {
 
+                            if ($this->isIndexIdentical($indexNew, $indexOld)) {
+                                $findedIdentical = true;
+                                $indexNew->addAttribute('findedIdentical', true);
+                                break;
+                            }
+                        }
+                        dump($findedIdentical);
+                        dump($indexOld);
+                        if (!$findedIdentical) {
+                            $key = $indexOld[0]['Key_name'];
+                            if ($key == 'PRIMARY')
+                                $sqls[] = "DROP PRIMARY KEY";
+                            else
+                                $sqls[] = "DROP INDEX ".$indexOld[0]['Key_name'];
+                        }
+                    }
 
                     foreach ($tableNew->index as $indexNew) {
-                        foreach ($old[$name]['index'] as $indexOld) {
-dump($indexOld,$indexNew);
+                        if (!$indexNew->attributes()->findedIdentical) {
+                            $sqls[] = $this->addIndexSQL($indexNew);
                         }
                     }
                     $sqlsString = implode(',', $sqls);
                     $sql = "ALTER TABLE `$name` $sqlsString";
+                    dump($sql);
                     DB::query($sql);
                 } else {
                     $this->createTable($name, $tableNew);
                 }
                 DB::commit();
             } catch (\Throwable $ex) {
+                dump($ex);
                 DB::rollBack();
             }
         }
@@ -55,7 +77,11 @@ dump($indexOld,$indexNew);
         $tables = [];
         foreach ($tablesList as $table) {
             $tables[$table[0]]['columns'] = DB::get("SHOW COLUMNS FROM ".$table[0]);
-            $tables[$table[0]]['index'] = DB::get("SHOW INDEX FROM ".$table[0]);
+            $tables[$table[0]]['index'] = [];
+            $indexes = DB::get("SHOW INDEX FROM ".$table[0]);
+            foreach ($indexes as $index) {
+                $tables[$table[0]]['index'][$index['Key_name']][$index['Seq_in_index'] - 1] = $index;
+            }
         }
         return $tables;
     }
@@ -91,6 +117,61 @@ dump($indexOld,$indexNew);
         if (!empty($column->autoincrement) && $column->autoincrement->__toString() == 'YES')
             $col .= " AUTO_INCREMENT";
         return $col;
+    }
+
+    private function isIndexIdentical($indexNew, $indexOld)
+    {
+        dump($indexNew, $indexOld);
+        dump(1);
+        dump($indexNew->type ?? 'INDEX');
+        dump($this->getOldIndexType($indexOld));
+        if (($indexNew->type ?? 'INDEX').'' != $this->getOldIndexType($indexOld))
+            return false;
+        dump(2);
+        if (count($indexNew->element) != count($indexOld))
+            return false;
+        dump(3);
+        $i = 0;
+        foreach ($indexNew->element as $newElement) {
+            dump(4);
+            dump($i);
+            if ($newElement->__toString() != $indexOld[$i]['Column_name']) {
+                return false;
+            }
+            $i++;
+        }
+        dump(5);
+        return true;
+    }
+
+    function getOldIndexType($indexOld)
+    {
+        if ($indexOld[0]['Key_name'] == 'PRIMARY')
+            return 'PRIMARY';
+        else if ($indexOld[0]['Non_unique'] == 1) {
+            return 'INDEX';
+        } else {
+            return 'UNIQUE';
+        }
+    }
+
+    /**
+     * @param $indexNew
+     */
+    protected function addIndexSQL($indexNew)
+    {
+        if ($indexNew->type.'' == 'PRIMARY')
+            $indexSql = "ADD PRIMARY KEY";
+        else if ($indexNew->type.'' == 'UNIQUE')
+            $indexSql = "ADD UNIQUE";
+        else
+            $indexSql = "ADD INDEX";
+        $columns = [];
+        foreach ($indexNew->element as $element) {
+            $columns[] = '`'.$element.'`';
+        }
+        $indexSql .= ' ('.implode(',', $columns).')';
+        return $indexSql;
     }
 
     /**
