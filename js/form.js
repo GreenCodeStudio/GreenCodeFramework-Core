@@ -20,7 +20,9 @@ export const formManager = {
         for (var elem of formElements) {
             data[elem.name] = elem.value;
         }
-        new AjaxTask(form.dataset.controller, form.dataset.method, data);
+        let task = new AjaxTask();
+        task.newTask(form.dataset.controller, form.dataset.method, data);
+        task.start();
         e.preventDefault();
         return false;
     }

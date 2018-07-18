@@ -1,4 +1,5 @@
 import {pageManager} from "./pageManager";
+import {AjaxTask} from './ajaxTask';
 
 pageManager.onLoad(async (page, data) => {
     let forms = document.querySelectorAll('.dataForm');
@@ -22,6 +23,9 @@ pageManager.onLoad(async (page, data) => {
         table.datatable.refresh();
     }
 
+});
+addEventListener('focus', () => {
+    AjaxTask.refresh();
 });
 
 pageManager.initPage(window.controllerInitInfo);
