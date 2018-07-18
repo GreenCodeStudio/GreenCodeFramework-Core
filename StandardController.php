@@ -6,6 +6,8 @@ class StandardController extends AbstractController
 {
 
     private $views = [];
+    private $breadcrumb = [['title' => 'Strona główna', 'url' => '/']];
+
 
     public function postAction()
     {
@@ -31,6 +33,20 @@ class StandardController extends AbstractController
         }
         if ($group == 'main')
             echo '</div>';
+    }
+
+    protected function showBreadcrumb()
+    {
+        echo '<ul>';
+        foreach ($this->breadcrumb as $crumb) {
+            echo '<li><a href="'.htmlspecialchars($crumb['url']).'">'.htmlspecialchars($crumb['title']).'</a></li>';
+        }
+        echo '</ul>';
+    }
+
+    protected function pushBreadcrumb($crumb)
+    {
+        $this->breadcrumb[] = $crumb;
     }
 
 }
