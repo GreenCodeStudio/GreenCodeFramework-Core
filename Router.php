@@ -40,16 +40,24 @@ class Router
             }
             $controller = new $controllerClassName();
             $controller->preAction();
+            $error = null;
+            $returned = null;
             if (method_exists($controller, $methodName)) {
-                $reflectionMethod = new \ReflectionMethod($controllerClassName, $methodName);
-                $controller->initInfo->controllerName = $controllerName;
-                $controller->initInfo->methodName = $methodName;
-                $controller->initInfo->methodArguments = array_slice($exploded, 3);
-                $returned = $reflectionMethod->invokeArgs($controller, $args);
+                try {
+                    $reflectionMethod = new \ReflectionMethod($controllerClassName, $methodName);
 
-                if (method_exists($controller, $methodName.'_data')) {
-                    $reflectionMethodData = new \ReflectionMethod($controllerClassName, $methodName.'_data');
-                    $controller->initInfo->data = $reflectionMethodData->invokeArgs($controller, $args);
+                    $controller->initInfo->controllerName = $controllerName;
+                    $controller->initInfo->methodName = $methodName;
+                    $controller->initInfo->methodArguments = array_slice($exploded, 3);
+                    $returned = $reflectionMethod->invokeArgs($controller, $args);
+
+                    if (method_exists($controller, $methodName.'_data')) {
+                        $reflectionMethodData = new \ReflectionMethod($controllerClassName, $methodName.'_data');
+                        $controller->initInfo->data = $reflectionMethodData->invokeArgs($controller, $args);
+                    }
+                } catch (\Throwable $exception) {
+                    $error = static::exceptionToArray($exception);
+                    dump($error);
                 }
             } else
                 throw new \Core\Exceptions\NotFoundException();
@@ -59,7 +67,7 @@ class Router
                 header('Content-type: application/json');
                 global $debugArray;
                 ob_end_clean();
-                echo json_encode(['data' => $returned, 'debug' => $debugArray]);
+                echo json_encode(['data' => $returned, 'error' => $error, 'debug' => $debugArray]);
             } else {
                 $controller->debugOutput = ob_get_clean();
                 ob_start();
@@ -87,6 +95,11 @@ class Router
             }
         }
         throw new \Core\Exceptions\NotFoundException();
+    }
+
+    private static function exceptionToArray(\Throwable $exception)
+    {
+        return ['type'=>get_class($exception), 'message'=>$exception->getMessage(), 'code'=>$exception->getCode()];
     }
 
 }

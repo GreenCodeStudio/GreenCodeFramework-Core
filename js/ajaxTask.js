@@ -67,6 +67,8 @@ export class AjaxTask {
     }
 
     static refresh() {
+        if (!document.querySelector('.tasks'))
+            return;
         for (let identificator in AjaxTask.tasks) {
             let task = AjaxTask.tasks[identificator];
             task.refreshHtml();

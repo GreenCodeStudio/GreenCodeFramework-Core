@@ -21,7 +21,12 @@ function AjaxFunction(controller, method, ...args) {
                     try {
                         let decoded = JSON.parse(xhr.responseText);
                         showServerDebug(decoded);
-                        resolve(decoded.data);
+                        if (!decoded.error)
+                            resolve(decoded.data);
+                        else {
+                            decoded.error.data = decoded.data;
+                            reject(decoded.error)
+                        }
                     } catch (ex) {
                         reject(ex);
                     }
