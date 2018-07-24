@@ -38,5 +38,13 @@ if ('serviceWorker' in navigator) {
         });
     });
 }
-
+var deferredPwaPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+    // Prevent Chrome 67 and earlier from automatically showing the prompt
+    e.preventDefault();
+    // Stash the event so it can be triggered later.
+    deferredPwaPrompt = e;
+    e.prompt();
+});
+setTimeout(()=>navigator.serviceWorker.controller.postMessage("installOffline"),20000);
 pageManager.initPage(window.controllerInitInfo);

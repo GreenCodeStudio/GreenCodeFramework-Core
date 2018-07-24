@@ -19,7 +19,7 @@ class Router
                 $controllerName = $exploded[2] ?? '';
                 $methodName = $exploded[3] ?? '';
                 $args = [];
-                foreach ($_POST['args'] as $arg) {
+                foreach ($_POST['args']??[] as $arg) {
                     $args[] = json_decode($arg, false);
                 }
             } else {
