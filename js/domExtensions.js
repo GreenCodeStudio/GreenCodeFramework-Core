@@ -1,5 +1,13 @@
 HTMLDocument.prototype.create = function (name, attributes = {}) {
     let element = this.createElement(name);
+    for (let attrName in attributes) {
+        if (attrName === 'classList') {
+            for (let x of attributes.classList)
+                element.classList.add(x);
+        } else {
+            element.setAttribute(attrName, attributes[attrName]);
+        }
+    }
     return element;
 };
 HTMLElement.prototype.add = function (name, attributes = {}) {
