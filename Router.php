@@ -19,7 +19,7 @@ class Router
                 $controllerName = $exploded[2] ?? '';
                 $methodName = $exploded[3] ?? '';
                 $args = [];
-                foreach ($_POST['args']??[] as $arg) {
+                foreach ($_POST['args'] ?? [] as $arg) {
                     $args[] = json_decode($arg, false);
                 }
             } else {
@@ -99,7 +99,7 @@ class Router
 
     private static function exceptionToArray(\Throwable $exception)
     {
-        return ['type'=>get_class($exception), 'message'=>$exception->getMessage(), 'code'=>$exception->getCode()];
+        return ['type' => get_class($exception), 'message' => $exception->getMessage(), 'code' => $exception->getCode()];
     }
 
 }

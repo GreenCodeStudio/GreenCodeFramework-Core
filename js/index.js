@@ -1,5 +1,6 @@
 import {pageManager} from "./pageManager";
 import {AjaxTask} from './ajaxTask';
+import {setEvent} from "./events";
 
 pageManager.onLoad(async (page, data) => {
     let forms = document.querySelectorAll('.dataForm');
@@ -28,11 +29,11 @@ addEventListener('focus', () => {
     AjaxTask.refresh();
 });
 if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function() {
-        navigator.serviceWorker.register('/serviceWorker.js').then(function(registration) {
+    window.addEventListener('load', function () {
+        navigator.serviceWorker.register('/serviceWorker.js').then(function (registration) {
             // Registration was successful
             console.log('ServiceWorker registration successful with scope: ', registration.scope);
-        }, function(err) {
+        }, function (err) {
             // registration failed :(
             console.log('ServiceWorker registration failed: ', err);
         });
@@ -46,5 +47,10 @@ window.addEventListener('beforeinstallprompt', (e) => {
     deferredPwaPrompt = e;
     e.prompt();
 });
-setTimeout(()=>navigator.serviceWorker.controller.postMessage("installOffline"),20000);
+setTimeout(() => navigator.serviceWorker.controller.postMessage("installOffline"), 20000);
 pageManager.initPage(window.controllerInitInfo);
+
+setEvent('click', 'a', function (e) {
+    e.preventDefault();
+    pageManager.goto(this.href);
+});

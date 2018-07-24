@@ -24,5 +24,13 @@ export const pageManager = {
         if (this._onLoad[null] && this._onLoad[null][null])
             for (let callback of this._onLoad[null][null])
                 callback(page, data);
+    },
+    goto(url) {
+        return new Promise((resolve, reject) => {
+            let xhr = new XMLHttpRequest();
+            xhr.setRequestHeader('x-json', 1);
+            xhr.open(url, 'get');
+            xhr.send();
+        });
     }
 };
