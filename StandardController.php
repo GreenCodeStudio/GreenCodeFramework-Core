@@ -14,6 +14,11 @@ class StandardController extends AbstractController
         require __DIR__.'/../Common/Views/template.php';
     }
 
+    public function getViews()
+    {
+        return $this->views;
+    }
+
     protected function addView(string $module, string $name, $data = null, string $group = 'main')
     {
         ob_start();

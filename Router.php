@@ -70,9 +70,13 @@ class Router
                 echo json_encode(['data' => $returned, 'error' => $error, 'debug' => $debugArray]);
             } else {
                 $controller->debugOutput = ob_get_clean();
-                ob_start();
-                $controller->postAction();
-                ob_flush();
+                if ($_SERVER['HTTP_X_JSON']) {
+                    echo json_encode(['views' => $controller->getViews(), 'data' => $controller->initInfo, 'error' => $error]);
+                } else {
+                    ob_start();
+                    $controller->postAction();
+                    ob_flush();
+                }
             }
         } catch (\Core\Exceptions\NotFoundException $e) {
             http_response_code(404);

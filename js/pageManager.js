@@ -28,8 +28,8 @@ export const pageManager = {
     goto(url) {
         return new Promise((resolve, reject) => {
             let xhr = new XMLHttpRequest();
+            xhr.open('get', url);
             xhr.setRequestHeader('x-json', 1);
-            xhr.open(url, 'get');
             xhr.send();
         });
     }
