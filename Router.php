@@ -71,7 +71,7 @@ class Router
             } else {
                 $controller->debugOutput = ob_get_clean();
                 if (isset($_SERVER['HTTP_X_JSON'])) {
-                    echo json_encode(['views' => $controller->getViews(), 'data' => $controller->initInfo, 'error' => $error]);
+                    echo json_encode(['views' => $controller->getViews(),'breadcrumb' => $controller->getBreadcrumb(), 'data' => $controller->initInfo, 'error' => $error]);
                 } else {
                     ob_start();
                     $controller->postAction();

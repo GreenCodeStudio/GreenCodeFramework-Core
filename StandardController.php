@@ -19,6 +19,11 @@ class StandardController extends AbstractController
         return $this->views;
     }
 
+    public function getBreadcrumb()
+    {
+        return $this->breadcrumb;
+    }
+
     protected function addView(string $module, string $name, $data = null, string $group = 'main')
     {
         ob_start();

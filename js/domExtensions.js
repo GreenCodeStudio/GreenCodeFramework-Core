@@ -4,6 +4,9 @@ HTMLDocument.prototype.create = function (name, attributes = {}) {
         if (attrName === 'classList') {
             for (let x of attributes.classList)
                 element.classList.add(x);
+        }
+        if (attrName === 'text') {
+            element.textContent = attributes.text;
         } else {
             element.setAttribute(attrName, attributes[attrName]);
         }

@@ -54,7 +54,8 @@ export const pageManager = {
                         }
                     }
                 }
-                pageManager.initPage(data.data);
+                this.initPage(data.data);
+                this._updateBreadcrumb(data.breadcrumb);
                 resolve();
             };
             xhr.onerror = (ex) => {
@@ -62,5 +63,27 @@ export const pageManager = {
             };
             xhr.send();
         });
+    },
+    _updateBreadcrumb(breadcrumb) {
+        let existingBreadcrumb = document.querySelector('.breadcrumb ul');
+        while (existingBreadcrumb.children.length > breadcrumb.length) {
+            existingBreadcrumb.lastChild.remove();
+        }
+        for (let i = 0; i < breadcrumb.length; i++) {
+            let crumb = breadcrumb[i];
+            let existing = existingBreadcrumb.children[i];
+            if(existing) {
+                let existingA = existing.firstElementChild;
+                if (existingA.textContent == crumb.title && existingA.attributes['href'].value == crumb.url)
+                    continue;//nie zmieniamy, jest ten sam
+            }
+            while (existingBreadcrumb.children.length > i) {
+                existingBreadcrumb.lastChild.remove();
+            }
+            let li = existingBreadcrumb.add('li');
+            li.add('a', {href: crumb.url, text: crumb.title});
+        }
+        let last = breadcrumb[breadcrumb.length - 1];
+        document.title = last.title;
     }
 };
