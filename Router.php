@@ -2,6 +2,10 @@
 
 namespace Core;
 
+use mindplay\annotations\AnnotationCache;
+use mindplay\annotations\Annotations;
+
+include __DIR__.'/Annotations.php';
 class Router
 {
 
@@ -34,7 +38,7 @@ class Router
             if (empty($methodName))
                 $methodName = 'index';
             if (getenv('cached_code')) {
-
+                // $controllerClassName = static::findControllerCached($controllerName, $type);
             } else {
                 $controllerClassName = static::findController($controllerName, $type);
             }
@@ -57,7 +61,9 @@ class Router
                     }
                 } catch (\Throwable $exception) {
                     $error = static::exceptionToArray($exception);
-                    dump($error);
+                    if (getenv('debug') == 'true') {
+                        dump($exception);
+                    }
                 }
             } else
                 throw new \Core\Exceptions\NotFoundException();
@@ -71,7 +77,7 @@ class Router
             } else {
                 $controller->debugOutput = ob_get_clean();
                 if (isset($_SERVER['HTTP_X_JSON'])) {
-                    echo json_encode(['views' => $controller->getViews(),'breadcrumb' => $controller->getBreadcrumb(), 'data' => $controller->initInfo, 'error' => $error]);
+                    echo json_encode(['views' => $controller->getViews(), 'breadcrumb' => $controller->getBreadcrumb(), 'data' => $controller->initInfo, 'error' => $error]);
                 } else {
                     ob_start();
                     $controller->postAction();
@@ -105,5 +111,59 @@ class Router
     {
         return ['type' => get_class($exception), 'message' => $exception->getMessage(), 'code' => $exception->getCode()];
     }
+
+    public static function listControllers(string $type)
+    {
+        $ret = [];
+        $modules = scandir(__DIR__.'/../');
+        foreach ($modules as $module) {
+            if ($module == '.' || $module == '..') {
+                continue;
+            }
+            if (is_dir(__DIR__.'/../'.$module.'/'.$type)) {
+                $controllers = scandir(__DIR__.'/../'.$module.'/'.$type);
+                dump($controllers);
+                foreach ($controllers as $controllerFile) {
+                    $info = self::getControllerInfo($type, $module, $controllerFile);
+                    if ($info != null) {
+                        $ret[$info->name] = $info;
+                    }
+                }
+
+            }
+        }
+        return $ret;
+    }
+
+
+    static function getControllerInfo($type, $module, $controllerFile): ?object
+    {
+        if (empty(Annotations::$config['cache']))
+            Annotations::$config['cache'] = new AnnotationCache(__DIR__.'/../../cache');
+        if (preg_match('/^(.*)\.php$/', $controllerFile, $matches)) {
+            $name = $matches[1];
+            $controllerInfo = new \StdClass();
+            $controllerInfo->name = $name;
+            $controllerInfo->methods = [];
+            try {
+                $classPath = "\\$module\\$type\\$name";
+                $classReflect = new \ReflectionClass($classPath);
+                $methods = $classReflect->getMethods();
+                foreach ($methods as $methodReflect) {
+                    if (!$methodReflect->isPublic()) continue;
+                    $annotations = Annotations::ofMethod($classPath, $methodReflect->getName());
+                    dump($annotations);
+                    dump($methodReflect);
+                }
+                dump($classReflect);
+            } catch (\Throwable $ex) {
+                dump($ex);
+                return null;
+            }
+            return $controllerInfo;
+        }
+        return null;
+    }
+
 
 }
