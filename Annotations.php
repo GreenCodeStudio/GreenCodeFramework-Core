@@ -6,10 +6,16 @@
  * Time: 20:02
  */
 
+/**
+ * @usage('method'=>true)
+ */
 class OfflineDataOnlyAnnotation extends \mindplay\annotations\Annotation
 {
 }
 
+/**
+ * @usage('method'=>true)
+ */
 class OfflineConstantAnnotation extends \mindplay\annotations\Annotation
 {
 }

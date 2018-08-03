@@ -6,6 +6,7 @@ use mindplay\annotations\AnnotationCache;
 use mindplay\annotations\Annotations;
 
 include __DIR__.'/Annotations.php';
+
 class Router
 {
 
@@ -122,7 +123,6 @@ class Router
             }
             if (is_dir(__DIR__.'/../'.$module.'/'.$type)) {
                 $controllers = scandir(__DIR__.'/../'.$module.'/'.$type);
-                dump($controllers);
                 foreach ($controllers as $controllerFile) {
                     $info = self::getControllerInfo($type, $module, $controllerFile);
                     if ($info != null) {
@@ -151,13 +151,13 @@ class Router
                 $methods = $classReflect->getMethods();
                 foreach ($methods as $methodReflect) {
                     if (!$methodReflect->isPublic()) continue;
+                    $methodInfo = new \StdClass();
                     $annotations = Annotations::ofMethod($classPath, $methodReflect->getName());
-                    dump($annotations);
-                    dump($methodReflect);
+                    $methodInfo->name = $methodReflect->getName();
+                    $methodInfo->annotations = $annotations;
+                    $controllerInfo->methods[$methodReflect->getName()] = $methodInfo;
                 }
-                dump($classReflect);
             } catch (\Throwable $ex) {
-                dump($ex);
                 return null;
             }
             return $controllerInfo;

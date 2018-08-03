@@ -54,3 +54,5 @@ setEvent('click', 'a', function (e) {
     e.preventDefault();
     pageManager.goto(this.href);
 });
+import {Ajax} from "./ajax";
+window.dbgAjax=Ajax;
