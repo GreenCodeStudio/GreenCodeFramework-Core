@@ -28,6 +28,6 @@ abstract class AbstractController
 
     public function hasPermission()
     {
-        return false;
+       return \Authorization\Authorization::isLogged();
     }
 }
