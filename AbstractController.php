@@ -25,4 +25,9 @@ abstract class AbstractController
     {
         return $this->initInfo;
     }
+
+    public function hasPermission()
+    {
+        return false;
+    }
 }

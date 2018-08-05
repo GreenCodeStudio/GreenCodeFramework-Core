@@ -44,6 +44,9 @@ class Router
                 $controllerClassName = static::findController($controllerName, $type);
             }
             $controller = new $controllerClassName();
+            if(!$controller->hasPermission($methodName)){
+                return self::route('/Authorization');
+            }
             $controller->preAction();
             $error = null;
             $returned = null;

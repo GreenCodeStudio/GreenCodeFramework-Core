@@ -33,6 +33,7 @@ if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('/serviceWorker.js').then(function (registration) {
             // Registration was successful
             console.log('ServiceWorker registration successful with scope: ', registration.scope);
+            setTimeout(() => navigator.serviceWorker.controller.postMessage("installOffline"), 20000);
         }, function (err) {
             // registration failed :(
             console.log('ServiceWorker registration failed: ', err);
@@ -47,7 +48,6 @@ window.addEventListener('beforeinstallprompt', (e) => {
     deferredPwaPrompt = e;
     e.prompt();
 });
-setTimeout(() => navigator.serviceWorker.controller.postMessage("installOffline"), 20000);
 pageManager.initPage(window.controllerInitInfo);
 
 setEvent('click', 'a', function (e) {
