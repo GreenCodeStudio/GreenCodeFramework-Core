@@ -117,6 +117,8 @@ class DB
     }
     static function insertMultiple(string $table, array $data)
     {
+        if(empty($data))
+            return;
         static::connect();
         $table = static::clearName($table);
         $cols = [];
