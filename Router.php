@@ -44,7 +44,7 @@ class Router
                 $controllerClassName = static::findController($controllerName, $type);
             }
             $controller = new $controllerClassName();
-            if(!$controller->hasPermission($methodName)){
+            if (!$controller->hasPermission($methodName)) {
                 return self::route('/Authorization');
             }
             $controller->preAction();
@@ -76,8 +76,9 @@ class Router
             if ($type == 'Ajax') {
                 header('Content-type: application/json');
                 global $debugArray;
+                $output = ob_get_contents();
                 ob_end_clean();
-                echo json_encode(['data' => $returned, 'error' => $error, 'debug' => $debugArray]);
+                echo json_encode(['data' => $returned, 'error' => $error, 'debug' => $debugArray, 'output' => $output]);
             } else {
                 $controller->debugOutput = ob_get_clean();
                 if (isset($_SERVER['HTTP_X_JSON'])) {
@@ -113,7 +114,7 @@ class Router
 
     private static function exceptionToArray(\Throwable $exception)
     {
-        return ['type' => get_class($exception), 'message' => $exception->getMessage(), 'code' => $exception->getCode(), 'stack'=>$exception->getTrace()];
+        return ['type' => get_class($exception), 'message' => $exception->getMessage(), 'code' => $exception->getCode(), 'stack' => $exception->getTrace()];
     }
 
     public static function listControllers(string $type)
@@ -168,5 +169,46 @@ class Router
         return null;
     }
 
+    public static function routeConsole($controllerName, $methodName, $args)
+    {
+        ob_start();
+        try {
+            $error = null;
+            $returned = null;
+            if (getenv('cached_code')) {
+                // $controllerClassName = static::findControllerCached($controllerName, $type);
+            } else {
+                $controllerClassName = static::findController($controllerName, 'Console');
+            }
+            $controller = new $controllerClassName();
+            if (method_exists($controller, $methodName)) {
+                try {
+                    $reflectionMethod = new \ReflectionMethod($controllerClassName, $methodName);
+
+                    $controller->initInfo->controllerName = $controllerName;
+                    $controller->initInfo->methodName = $methodName;
+                    $controller->initInfo->methodArguments = $args;
+                    $returned = $reflectionMethod->invokeArgs($controller, $args);
+                    if (method_exists($controller, $methodName.'_data')) {
+                        $reflectionMethodData = new \ReflectionMethod($controllerClassName, $methodName.'_data');
+                        $controller->initInfo->data = $reflectionMethodData->invokeArgs($controller, $args);
+                    }
+                } catch (\Throwable $exception) {
+                    $error = static::exceptionToArray($exception);
+                    if (getenv('debug') == 'true') {
+                        dump($exception);
+                    }
+                }
+            } else
+                throw new \Core\Exceptions\NotFoundException();
+            global $debugArray;
+            $output = ob_get_contents();
+            ob_end_clean();
+            echo json_encode(['data' => $returned, 'error' => $error, 'debug' => $debugArray, 'output' => $output]);
+
+        } catch (\Core\Exceptions\NotFoundException $e) {
+
+        }
+    }
 
 }
