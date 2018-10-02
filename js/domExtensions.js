@@ -1,11 +1,14 @@
 HTMLDocument.prototype.create = function (name, attributes = {}) {
     let element = this.createElement(name);
     for (let attrName in attributes) {
-        if (attrName === 'classList') {
+        if (attrName === 'className') {
+            element.className = attributes[attrName];
+        }
+        else if (attrName === 'classList') {
             for (let x of attributes.classList)
                 element.classList.add(x);
         }
-        if (attrName === 'text') {
+       else if (attrName === 'text') {
             element.textContent = attributes.text;
         } else {
             element.setAttribute(attrName, attributes[attrName]);

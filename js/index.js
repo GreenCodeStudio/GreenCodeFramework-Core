@@ -1,6 +1,7 @@
 import {pageManager} from "./pageManager";
 import {AjaxTask} from './ajaxTask';
 import {setEvent} from "./events";
+import {Ajax} from "./ajax";
 
 pageManager.onLoad(async (page, data) => {
     let forms = document.querySelectorAll('.dataForm');
@@ -28,7 +29,7 @@ pageManager.onLoad(async (page, data) => {
 addEventListener('focus', () => {
     AjaxTask.refresh();
 });
-if ('serviceWorker' in navigator) {
+if ('serviceWorker' in navigator && !window.DEBUG) {
     window.addEventListener('load', function () {
         navigator.serviceWorker.register('/serviceWorker.js').then(function (registration) {
             // Registration was successful
@@ -54,5 +55,4 @@ setEvent('click', 'a', function (e) {
     e.preventDefault();
     pageManager.goto(this.href);
 });
-import {Ajax} from "./ajax";
-window.dbgAjax=Ajax;
+window.dbgAjax = Ajax;

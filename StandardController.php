@@ -24,6 +24,12 @@ class StandardController extends AbstractController
         return $this->breadcrumb;
     }
 
+    public function getTitle()
+    {
+        $breadcrumb = $this->breadcrumb;
+        return end($breadcrumb)['title'];
+    }
+
     protected function addView(string $module, string $name, $data = null, string $group = 'main')
     {
         ob_start();

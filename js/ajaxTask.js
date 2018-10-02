@@ -41,12 +41,15 @@ export class AjaxTask {
         this.html = document.create('div', {className: 'task'});
         this.html.add('div', {text: 'Zapis formularza'});
         this.statusHtml = this.html.add('div', {text: this.stateText});
-        let tasks = document.querySelector('.tasks');
-        tasks.insertBefore(this.html, tasks.firstChild);
+        let tasksList = document.querySelector('.tasksList');
+        tasksList.insertBefore(this.html, tasksList.firstChild);
     }
 
     refreshHtml() {
         this.statusHtml.textContent = this.stateText;
+if(!this.state){
+setTimeout(()=>{this.html.remove()},1000);
+}
     }
 
     start() {

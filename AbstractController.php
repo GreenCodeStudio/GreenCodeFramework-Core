@@ -26,8 +26,13 @@ abstract class AbstractController
         return $this->initInfo;
     }
 
+    public function isDebug()
+    {
+        return (getenv('debug')??'')=='true';
+    }
+
     public function hasPermission()
     {
-       return \Authorization\Authorization::isLogged();
+        return \Authorization\Authorization::isLogged();
     }
 }
