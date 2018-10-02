@@ -18,7 +18,26 @@ export const formManager = {
         var data = {};
         let formElements = form.elements;
         for (var elem of formElements) {
-            data[elem.name] = elem.value;
+            if(elem.type=='checkbox'){
+                if(!elem.checked)
+                    continue;
+            }
+            let nameParsed = /^([^\]]+)\[/.exec(elem.name);
+            if (nameParsed) {
+                let obj = data;
+                let nameLeft = elem.name.replace(/^[^\]]+\[/, '[');
+                while (/^\[[^\]]*\]/.test(nameLeft)) {
+                    if (!(obj[nameParsed[1]] instanceof Object)) {
+                        obj[nameParsed[1]] = {};
+                    }
+                    obj = obj[nameParsed[1]];
+                    nameParsed = /^\[([^\]]*)\]/.exec(nameLeft);
+                    nameLeft = nameLeft.replace(/^\[[^\]]*\]/, '');
+                }
+                obj[nameParsed[1]] = elem.value;
+            }
+            else
+                data[elem.name] = elem.value;
         }
         let task = new AjaxTask();
         task.newTask(form.dataset.controller, form.dataset.method, data);
