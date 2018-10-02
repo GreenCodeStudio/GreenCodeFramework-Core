@@ -1,7 +1,8 @@
 function showServerDebug(decoded) {
     if (decoded.debug) {
         for (let dump of decoded.debug) {
-            console.log(dump);
+            let params=[...dump.vars, dump.backtrace];
+            console.log.apply(null,params);
         }
     }
 }

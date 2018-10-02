@@ -81,11 +81,13 @@ class DB
 
     static function clearName(string $name)
     {
-        return preg_replace('/[^a-zA-Z0-9]/', '', $name);
+        return preg_replace('/[^a-zA-Z0-9_]/', '', $name);
     }
 
     static function query(string $sql, $params = [])
     {
+        dump($sql);
+        dump($params);
         static::connect();
         $sth = static::$pdo->prepare($sql, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
         $params2 = [];
@@ -111,6 +113,36 @@ class DB
         $colsJoined = implode(',', $cols);
         $valuesJoined = implode(',', $values);
         static::query("INSERT INTO `$table` ($colsJoined) VALUES ($valuesJoined)", $dataSql);
+        return static::$pdo->lastInsertId();
+    }
+    static function insertMultiple(string $table, array $data)
+    {
+        static::connect();
+        $table = static::clearName($table);
+        $cols = [];
+        $dataSql = [];
+        $example=[];
+        foreach($data as $row){
+            $example+=$row;
+        }
+
+        foreach ($example as $name => $value) {
+            $name = static::clearName($name);
+            $cols[] = " `$name` ";
+        }
+        $valuesJoinedArray=[];
+        foreach($data as $i=>$row){
+            $values = [];
+            foreach ($example as $name => $value) {
+                $nameCleared = static::clearName($name).'_'.$i;
+                $values[] = " :$nameCleared ";
+                $dataSql[$nameCleared] = $row[$name]??NULL;
+            }
+            $valuesJoinedArray[] = '('.implode(',', $values).')';
+        }
+        $colsJoined = implode(',', $cols);
+        $valuesJoinedJoined=implode(',', $valuesJoinedArray);
+        static::query("INSERT INTO `$table` ($colsJoined) VALUES $valuesJoinedJoined", $dataSql);
         return static::$pdo->lastInsertId();
     }
 }

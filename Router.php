@@ -113,7 +113,7 @@ class Router
 
     private static function exceptionToArray(\Throwable $exception)
     {
-        return ['type' => get_class($exception), 'message' => $exception->getMessage(), 'code' => $exception->getCode()];
+        return ['type' => get_class($exception), 'message' => $exception->getMessage(), 'code' => $exception->getCode(), 'stack'=>$exception->getTrace()];
     }
 
     public static function listControllers(string $type)
