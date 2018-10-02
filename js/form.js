@@ -8,7 +8,10 @@ export const formManager = {
             if (elem.type == 'checkbox') {
                 elem.checked = value
             } else {
-                elem.value = value;
+                if (value == undefined)
+                    elem.value = '';
+                else
+                    elem.value = value;
 
             }
         }
