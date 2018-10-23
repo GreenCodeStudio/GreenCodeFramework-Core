@@ -4,8 +4,8 @@ import {modal} from '../../Common/js/modal'
 export const pageManager = {
     initPage(initInfo) {
         console.log(initInfo);
-        if(initInfo.code==403){
-            modal('Brak uprawnień','error');
+        if (initInfo.code == 403) {
+            modal('Brak uprawnień', 'error');
         }
         let page = document.querySelector('.page');
         this._loadedEvent(page, initInfo.data, initInfo.controllerName, initInfo.methodName);
@@ -37,14 +37,14 @@ export const pageManager = {
             setTimeout(() => {
                 document.querySelectorAll('[data-views="main"] > .page.removing').forEach(x => x.remove());
             }, 500);
-
+            let startDate = new Date();
             let xhr = new XMLHttpRequest();
             xhr.open('get', url);
             xhr.setRequestHeader('x-json', 1);
             xhr.onload = () => {
                 let data = JSON.parse(xhr.responseText);
-                if(xhr.status==403){
-                    modal('Brak uprawnień','error');
+                if (xhr.status == 403) {
+                    modal('Brak uprawnień', 'error');
                     reject(data.error);
                     return;
                 }
@@ -55,6 +55,11 @@ export const pageManager = {
                     let viewName = viewsContainer.dataset.views;
                     if (viewName === 'main') {
                         viewsContainer = viewsContainer.add('div', {classList: ['page']});
+                        let diffTime = new Date() - startDate;
+                        if (diffTime < 200) {//dla animacji
+                            viewsContainer.classList.add('stillLoading')
+                            setInterval(viewsContainer.classList.remove.bind(viewsContainer.classList, 'stillLoading'), 200 - diffTime);
+                        }
                     }
                     if (data.views[viewName]) {
                         viewsContainer.innerHTML = '';
@@ -68,7 +73,7 @@ export const pageManager = {
                     let debugOutput = document.createElement('div');
                     debugOutput.className = 'debugOutput';
                     debugOutput.innerHTML = data.debug;
-                    let main=document.querySelector('[data-views="main"]');
+                    let main = document.querySelector('[data-views="main"]');
                     main.prepend(debugOutput);
                 }
                 this.initPage(data.data);
