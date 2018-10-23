@@ -66,6 +66,7 @@ class Router
                     }
                 } catch (NoPermissionException $e) {
                     http_response_code(403);
+                    $controller->initInfo->code=403;
                     ob_clean();
                 } catch (\Throwable $exception) {
                     $error = static::exceptionToArray($exception);

@@ -4,6 +4,9 @@ import {modal} from '../../Common/js/modal'
 export const pageManager = {
     initPage(initInfo) {
         console.log(initInfo);
+        if(initInfo.code==403){
+            modal('Brak uprawnień','error');
+        }
         let page = document.querySelector('.page');
         this._loadedEvent(page, initInfo.data, initInfo.controllerName, initInfo.methodName);
     },
