@@ -3,7 +3,7 @@ import "./domExtensions";
 
 export class AjaxTask {
     constructor() {
-
+this._onCompleted=[];
 
     }
 
@@ -47,9 +47,11 @@ export class AjaxTask {
 
     refreshHtml() {
         this.statusHtml.textContent = this.stateText;
-if(!this.state){
-setTimeout(()=>{this.html.remove()},1000);
-}
+        if (!this.state) {
+            setTimeout(() => {
+                this.html.remove()
+            }, 1000);
+        }
     }
 
     start() {
@@ -60,6 +62,7 @@ setTimeout(()=>{this.html.remove()},1000);
             delete localStorage[this.identificator];
             delete localStorage[this.identificator + '-state'];
             delete AjaxTask.tasks[this.identificator];
+            this._onCompleted.forEach(x=>x());
             this.refreshHtml();
         });
         this.ajax.catch(ex => {
@@ -83,6 +86,13 @@ setTimeout(()=>{this.html.remove()},1000);
                     task.restore(identificator);
                 }
             }
+        }
+    }
+    then(fun){
+        if(!this.state){
+            fun();
+        }else{
+            this._onCompleted.push(fun);
         }
     }
 }

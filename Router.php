@@ -2,6 +2,7 @@
 
 namespace Core;
 
+use Authorization\Exceptions\NoPermissionException;
 use mindplay\annotations\AnnotationCache;
 use mindplay\annotations\Annotations;
 
@@ -63,6 +64,9 @@ class Router
                         $reflectionMethodData = new \ReflectionMethod($controllerClassName, $methodName.'_data');
                         $controller->initInfo->data = $reflectionMethodData->invokeArgs($controller, $args);
                     }
+                } catch (NoPermissionException $e) {
+                    http_response_code(403);
+                    ob_clean();
                 } catch (\Throwable $exception) {
                     $error = static::exceptionToArray($exception);
                     if (getenv('debug') == 'true') {
@@ -73,16 +77,16 @@ class Router
                 throw new \Core\Exceptions\NotFoundException();
 
 
+            global $debugArray;
             if ($type == 'Ajax') {
                 header('Content-type: application/json');
-                global $debugArray;
                 $output = ob_get_contents();
                 ob_end_clean();
                 echo json_encode(['data' => $returned, 'error' => $error, 'debug' => $debugArray, 'output' => $output]);
             } else {
                 $controller->debugOutput = ob_get_clean();
                 if (isset($_SERVER['HTTP_X_JSON'])) {
-                    echo json_encode(['views' => $controller->getViews(), 'breadcrumb' => $controller->getBreadcrumb(), 'data' => $controller->initInfo, 'error' => $error]);
+                    echo json_encode(['views' => $controller->getViews(), 'breadcrumb' => $controller->getBreadcrumb(),'debug' => $controller->debugOutput, 'data' => $controller->initInfo, 'error' => $error]);
                 } else {
                     ob_start();
                     $controller->postAction();

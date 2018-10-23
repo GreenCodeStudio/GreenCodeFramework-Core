@@ -1,4 +1,5 @@
 import {AjaxTask} from './ajaxTask';
+import {pageManager} from "../../Core/js/pageManager";
 
 export const formManager = {
     load(form, data) {
@@ -63,6 +64,11 @@ export const formManager = {
         let task = new AjaxTask();
         task.newTask(form.dataset.controller, form.dataset.method, data);
         task.start();
+        if (form.dataset.goto) {
+            task.then(() => {
+                pageManager.goto(form.dataset.goto)
+            });
+        }
         e.preventDefault();
         return false;
     }

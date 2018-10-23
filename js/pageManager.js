@@ -1,4 +1,5 @@
 import './domExtensions';
+import {modal} from '../../Common/js/modal'
 
 export const pageManager = {
     initPage(initInfo) {
@@ -39,6 +40,11 @@ export const pageManager = {
             xhr.setRequestHeader('x-json', 1);
             xhr.onload = () => {
                 let data = JSON.parse(xhr.responseText);
+                if(xhr.status==403){
+                    modal('Brak uprawnień','error');
+                    reject(data.error);
+                    return;
+                }
                 history.pushState(data, '', url);
 
                 let viewsContainers = document.querySelectorAll('[data-views]');
@@ -53,6 +59,14 @@ export const pageManager = {
                             viewsContainer.innerHTML += html;
                         }
                     }
+                }
+                document.querySelectorAll('.debugOutput').forEach(x => x.remove());
+                if (data.debug) {
+                    let debugOutput = document.createElement('div');
+                    debugOutput.className = 'debugOutput';
+                    debugOutput.innerHTML = data.debug;
+                    let main=document.querySelector('[data-views="main"]');
+                    main.prepend(debugOutput);
                 }
                 this.initPage(data.data);
                 this._updateBreadcrumb(data.breadcrumb);
@@ -72,7 +86,7 @@ export const pageManager = {
         for (let i = 0; i < breadcrumb.length; i++) {
             let crumb = breadcrumb[i];
             let existing = existingBreadcrumb.children[i];
-            if(existing) {
+            if (existing) {
                 let existingA = existing.firstElementChild;
                 if (existingA.textContent == crumb.title && existingA.attributes['href'].value == crumb.url)
                     continue;//nie zmieniamy, jest ten sam

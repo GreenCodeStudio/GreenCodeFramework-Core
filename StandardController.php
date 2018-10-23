@@ -41,7 +41,7 @@ class StandardController extends AbstractController
     protected function showViews(string $group)
     {
         if ($group == 'main' && !empty($this->debugOutput))
-            echo '<div>'.$this->debugOutput.'</div>';
+            echo '<div class="debugOutput">'.$this->debugOutput.'</div>';
         if ($group == 'main')
             echo '<div class="page">';
         foreach ($this->views[$group] ?? [] as $html) {
