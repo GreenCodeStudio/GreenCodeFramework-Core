@@ -29,6 +29,7 @@ pageManager.onLoad(async (page, data) => {
 addEventListener('focus', () => {
     AjaxTask.refresh();
 });
+AjaxTask.refresh();
 if ('serviceWorker' in navigator && !window.DEBUG) {
     window.addEventListener('load', function () {
         navigator.serviceWorker.register('/serviceWorker.js').then(function (registration) {

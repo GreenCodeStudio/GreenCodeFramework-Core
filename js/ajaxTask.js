@@ -3,8 +3,7 @@ import "./domExtensions";
 
 export class AjaxTask {
     constructor() {
-this._onCompleted=[];
-
+        this._onCompleted = [];
     }
 
     newTask(controller, method, ...args) {
@@ -41,12 +40,27 @@ this._onCompleted=[];
         this.html = document.create('div', {className: 'task'});
         this.html.add('div', {text: 'Zapis formularza'});
         this.statusHtml = this.html.add('div', {text: this.stateText});
+        this._htmlButtons();
         let tasksList = document.querySelector('.tasksList');
         tasksList.insertBefore(this.html, tasksList.firstChild);
     }
 
+    _htmlButtons() {
+        if (this.state == 'error') {
+            let btnDelete = this.statusHtml.add('div', {className: 'button', text: 'Usuń'});
+            btnDelete.onclick = () => {
+                this._delete(true);
+            };
+            let btnRefresh = this.statusHtml.add('div', {className: 'button', text: 'odświerz'});
+            btnRefresh.onclick = () => {
+                this.start();
+            };
+        }
+    }
+
     refreshHtml() {
         this.statusHtml.textContent = this.stateText;
+        this._htmlButtons();
         if (!this.state) {
             setTimeout(() => {
                 this.html.remove()
@@ -54,16 +68,23 @@ this._onCompleted=[];
         }
     }
 
+    _delete(force = false) {
+        delete localStorage[this.identificator];
+        delete localStorage[this.identificator + '-state'];
+        delete AjaxTask.tasks[this.identificator];
+        if (force)
+            this.html.remove();
+        else
+            this.refreshHtml();
+    }
+
     start() {
         localStorage[this.identificator + '-state'] = 'started';
         this.ajax = Ajax(this.controller, this.method, ...this.args);
         this.refreshHtml();
         this.ajax.then(data => {
-            delete localStorage[this.identificator];
-            delete localStorage[this.identificator + '-state'];
-            delete AjaxTask.tasks[this.identificator];
-            this._onCompleted.forEach(x=>x());
-            this.refreshHtml();
+            this._onCompleted.forEach(x => x());
+            this._delete();
         });
         this.ajax.catch(ex => {
             this.statusHtml.textContent = 'Błąd';
@@ -88,10 +109,11 @@ this._onCompleted=[];
             }
         }
     }
-    then(fun){
-        if(!this.state){
+
+    then(fun) {
+        if (!this.state) {
             fun();
-        }else{
+        } else {
             this._onCompleted.push(fun);
         }
     }
