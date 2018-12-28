@@ -11,117 +11,6 @@ include __DIR__.'/Annotations.php';
 class Router
 {
 
-    public static function route($url)
-    {
-        ob_start();
-        try {
-            $exploded = explode('/', $url);
-            $type = 'Controllers';
-            if ($exploded[1] == 'ajax') {
-                $type = 'Ajax';
-                global $debugType;
-                $debugType = 'object';
-
-                $controllerName = $exploded[2] ?? '';
-                $methodName = $exploded[3] ?? '';
-                $args = [];
-                foreach ($_POST['args'] ?? [] as $arg) {
-                    $args[] = json_decode($arg, false);
-                }
-            } else {
-                $controllerName = $exploded[1] ?? '';
-                $methodName = $exploded[2] ?? '';
-                $args = array_slice($exploded, 3);
-            }
-            $controllerName = preg_replace('/[^a-zA-Z0-9_]/', '', $controllerName);
-            $methodName = preg_replace('/[^a-zA-Z0-9_]/', '', $methodName);
-            if (empty($controllerName))
-                $controllerName = 'Start';
-            if (empty($methodName))
-                $methodName = 'index';
-            if (getenv('cached_code')) {
-                // $controllerClassName = static::findControllerCached($controllerName, $type);
-            } else {
-                $controllerClassName = static::findController($controllerName, $type);
-            }
-            $controller = new $controllerClassName();
-            if (!$controller->hasPermission($methodName)) {
-                return self::route('/Authorization');
-            }
-            $controller->preAction();
-            $error = null;
-            $returned = null;
-            if (method_exists($controller, $methodName)) {
-                try {
-                    $reflectionMethod = new \ReflectionMethod($controllerClassName, $methodName);
-
-                    $controller->initInfo->controllerName = $controllerName;
-                    $controller->initInfo->methodName = $methodName;
-                    $controller->initInfo->methodArguments = array_slice($exploded, 3);
-                    $returned = $reflectionMethod->invokeArgs($controller, $args);
-
-                    if (method_exists($controller, $methodName.'_data')) {
-                        $reflectionMethodData = new \ReflectionMethod($controllerClassName, $methodName.'_data');
-                        $controller->initInfo->data = $reflectionMethodData->invokeArgs($controller, $args);
-                    }
-                } catch (NoPermissionException $e) {
-                    http_response_code(403);
-                    $controller->initInfo->code=403;
-                    ob_clean();
-                } catch (\Throwable $exception) {
-                    $error = static::exceptionToArray($exception);
-                    if (getenv('debug') == 'true') {
-                        dump($exception);
-                    }
-                }
-            } else
-                throw new \Core\Exceptions\NotFoundException();
-
-
-            global $debugArray;
-            if ($type == 'Ajax') {
-                header('Content-type: application/json');
-                $output = ob_get_contents();
-                ob_end_clean();
-                echo json_encode(['data' => $returned, 'error' => $error, 'debug' => $debugArray, 'output' => $output]);
-            } else {
-                $controller->debugOutput = ob_get_clean();
-                if (isset($_SERVER['HTTP_X_JSON'])) {
-                    echo json_encode(['views' => $controller->getViews(), 'breadcrumb' => $controller->getBreadcrumb(),'debug' => $controller->debugOutput, 'data' => $controller->initInfo, 'error' => $error]);
-                } else {
-                    ob_start();
-                    $controller->postAction();
-                    ob_flush();
-                }
-            }
-        } catch (\Core\Exceptions\NotFoundException $e) {
-            http_response_code(404);
-            ob_clean();
-        }
-    }
-
-    private static function findController(string $name, string $type = 'Controllers')
-    {
-        $modules = scandir(__DIR__.'/../');
-        foreach ($modules as $module) {
-            if ($module == '.' || $module == '..') {
-                continue;
-            }
-            $filename = __DIR__.'/../'.$module.'/'.$type.'/'.$name.'.php';
-            if (is_file($filename)) {
-                include_once $filename;
-                $className = "\\$module\\$type\\$name";
-                return $className;
-            }
-        }
-        throw new \Core\Exceptions\NotFoundException();
-    }
-
-    private static function exceptionToArray(\Throwable $exception)
-    {
-        return ['type' => get_class($exception), 'message' => $exception->getMessage(), 'code' => $exception->getCode(), 'stack' => $exception->getTrace()];
-    }
-
     public static function listControllers(string $type)
     {
         $ret = [];
@@ -143,7 +32,6 @@ class Router
         }
         return $ret;
     }
-
 
     static function getControllerInfo($type, $module, $controllerFile): ?object
     {
@@ -214,6 +102,140 @@ class Router
         } catch (\Core\Exceptions\NotFoundException $e) {
 
         }
+    }
+
+    private static function findController(string $name, string $type = 'Controllers')
+    {
+        $modules = scandir(__DIR__.'/../');
+        foreach ($modules as $module) {
+            if ($module == '.' || $module == '..') {
+                continue;
+            }
+            $filename = __DIR__.'/../'.$module.'/'.$type.'/'.$name.'.php';
+            if (is_file($filename)) {
+                include_once $filename;
+                $className = "\\$module\\$type\\$name";
+                return $className;
+            }
+        }
+        throw new \Core\Exceptions\NotFoundException();
+    }
+
+    private static function exceptionToArray(\Throwable $exception)
+    {
+        return ['type' => get_class($exception), 'message' => $exception->getMessage(), 'code' => $exception->getCode(), 'stack' => $exception->getTrace()];
+    }
+
+    static function dispatchController($type, $controllerName, $methodName, $args)
+    {
+        if (getenv('cached_code')) {
+            // $controllerClassName = static::findControllerCached($controllerName, $type);
+        } else {
+            $controllerClassName = static::findController($controllerName, $type);
+        }
+        $controller = new $controllerClassName();
+        if (!$controller->hasPermission($methodName)) {
+            return self::route('/Authorization');
+        }
+        $controller->preAction();
+        $returned = null;
+        if (method_exists($controller, $methodName)) {
+
+            $reflectionMethod = new \ReflectionMethod($controllerClassName, $methodName);
+
+            $controller->initInfo->controllerName = $controllerName;
+            $controller->initInfo->methodName = $methodName;
+            $controller->initInfo->methodArguments = $args;
+            $returned = $reflectionMethod->invokeArgs($controller, $args);
+
+            if (method_exists($controller, $methodName.'_data')) {
+                $reflectionMethodData = new \ReflectionMethod($controllerClassName, $methodName.'_data');
+                $controller->initInfo->data = $reflectionMethodData->invokeArgs($controller, $args);
+            }
+
+            return [$returned, $controller];
+        } else
+            throw new \Core\Exceptions\NotFoundException();
+
+    }
+
+    public static function route($url)
+    {
+        ob_start();
+
+        list($type, $controllerName, $methodName, $args) = self::parseUrl($url);
+        try {
+            list($returned, $controller) = static::dispatchController($type, $controllerName, $methodName, $args);
+
+            $controller->debugOutput = ob_get_clean();
+            ob_end_clean();
+            if ($type == 'Ajax') {
+                header('Content-type: application/json');
+                global $debugArray;
+                echo json_encode(['data' => $returned, 'error' => null, 'debug' => $debugArray, 'output' => $controller->debugOutput]);
+            } else {
+                if (isset($_SERVER['HTTP_X_JSON'])) {
+                    echo json_encode(['views' => $controller->getViews(), 'breadcrumb' => $controller->getBreadcrumb(), 'debug' => $controller->debugOutput, 'data' => $controller->initInfo, 'error' => null]);
+                } else {
+                    $controller->postAction();
+                }
+            }
+        } catch (\Core\Exceptions\NotFoundException $ex) {
+            http_response_code(404);
+            ob_clean();
+        } catch (NoPermissionException $ex) {
+            http_response_code(403);
+            ob_clean();
+        } catch (\Throwable $ex) {
+            if (getenv('debug') == 'true') {
+                $controller->debugOutput = ob_get_clean();
+                ob_end_clean();
+                if ($type == 'Ajax') {
+                    header('Content-type: application/json');
+                    global $debugArray;
+                    echo json_encode(['data' => null, 'error' => static::exceptionToArray($ex), 'debug' => $debugArray, 'output' => $controller->debugOutput]);
+                } else {
+                    if (isset($_SERVER['HTTP_X_JSON'])) {
+                        echo json_encode(['views' => $controller->getViews(), 'breadcrumb' => $controller->getBreadcrumb(), 'debug' => $controller->debugOutput, 'data' => null, 'error' => static::exceptionToArray($ex)]);
+                    } else {
+                        dump($ex);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * @param $url
+     * @return array
+     */
+    protected static function parseUrl($url): array
+    {
+        $exploded = explode('/', $url);
+        $type = 'Controllers';
+        if ($exploded[1] == 'ajax') {
+            $type = 'Ajax';
+            global $debugType;
+            $debugType = 'object';
+
+            $controllerName = $exploded[2] ?? '';
+            $methodName = $exploded[3] ?? '';
+            $args = [];
+            foreach ($_POST['args'] ?? [] as $arg) {
+                $args[] = json_decode($arg, false);
+            }
+        } else {
+            $controllerName = $exploded[1] ?? '';
+            $methodName = $exploded[2] ?? '';
+            $args = array_slice($exploded, 3);
+        }
+        $controllerName = preg_replace('/[^a-zA-Z0-9_]/', '', $controllerName);
+        $methodName = preg_replace('/[^a-zA-Z0-9_]/', '', $methodName);
+        if (empty($controllerName))
+            $controllerName = 'Start';
+        if (empty($methodName))
+            $methodName = 'index';
+        return array($type, $controllerName, $methodName, $args);
     }
 
 }

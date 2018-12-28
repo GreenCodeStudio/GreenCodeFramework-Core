@@ -11,5 +11,27 @@ namespace Core;
 
 class DBModel
 {
+    protected static $defaultTable;
+
+    public function __construct($defaultTable)
+    {
+        static::$defaultTable = $defaultTable;
+    }
+
+    public function getById(int $id)
+    {
+        $defaultTable = static::$defaultTable;
+        return DB::get("SELECT * FROM $defaultTable WHERE id = ?", [$id])[0] ?? null;
+    }
+
+    public function update(int $id, $data)
+    {
+        DB::update(static::$defaultTable, $data, $id);
+    }
+
+    public function insert($data)
+    {
+        return DB::insert(static::$defaultTable, $data);
+    }
 
 }
