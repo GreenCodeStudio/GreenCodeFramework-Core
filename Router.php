@@ -180,15 +180,16 @@ class Router
                 }
             }
         } catch (\Throwable $ex) {
+            $responseCode = 500;
             if ($ex instanceof \Core\Exceptions\NotFoundException)
-                http_response_code(404);
+                $responseCode = 404;
             else if ($ex instanceof \Authorization\Exceptions\NoPermissionException)
-                http_response_code(403);
-            else
-                http_response_code(500);
+                $responseCode = 403;
+            http_response_code($responseCode);
+
             $debugEnabled = getenv('debug') == 'true';
             dump($ex);
-            $controller->debugOutput = ob_get_clean();
+            $debugOutput = ob_get_clean();
             ob_end_clean();
             if ($type == 'Ajax') {
                 header('Content-type: application/json');
@@ -196,9 +197,11 @@ class Router
                 echo json_encode(['error' => static::exceptionToArray($ex), 'debug' => $debugEnabled ? $debugArray : [], 'output' => $debugEnabled ? $controller->debugOutput : '']);
             } else {
                 if (isset($_SERVER['HTTP_X_JSON'])) {
-                    echo json_encode(['debug' => $debugEnabled ? $controller->debugOutput : '', 'error' => static::exceptionToArray($ex)]);
+                    echo json_encode(['debug' => $debugEnabled ? $debugOutput : '', 'error' => static::exceptionToArray($ex)]);
                 } else {
-
+                    list($returnedError, $controllerError) = static::dispatchController('Controllers', 'Error', 'index', []);
+                    $controllerError->initInfo->code = $responseCode;
+                    $controllerError->postAction();
                 }
             }
 
