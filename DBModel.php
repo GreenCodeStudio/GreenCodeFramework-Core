@@ -11,6 +11,10 @@ namespace Core;
 
 class DBModel
 {
+    public const ArchiveMode_OnlyExisting = 1;
+    public const ArchiveMode_OnlyRemoved = 2;
+    public const ArchiveMode_All = 3;
+    public $archiveMode = self::ArchiveMode_All;
     protected static $defaultTable;
 
     public function __construct($defaultTable)
