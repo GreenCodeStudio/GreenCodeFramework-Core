@@ -2,7 +2,6 @@
 
 namespace Core;
 
-use Authorization\Exceptions\NoPermissionException;
 use mindplay\annotations\AnnotationCache;
 use mindplay\annotations\Annotations;
 
@@ -180,28 +179,29 @@ class Router
                     $controller->postAction();
                 }
             }
-        } catch (\Core\Exceptions\NotFoundException $ex) {
-            http_response_code(404);
-            ob_clean();
-        } catch (NoPermissionException $ex) {
-            http_response_code(403);
-            ob_clean();
         } catch (\Throwable $ex) {
-            if (getenv('debug') == 'true') {
-                $controller->debugOutput = ob_get_clean();
-                ob_end_clean();
-                if ($type == 'Ajax') {
-                    header('Content-type: application/json');
-                    global $debugArray;
-                    echo json_encode(['data' => null, 'error' => static::exceptionToArray($ex), 'debug' => $debugArray, 'output' => $controller->debugOutput]);
+            if ($ex instanceof \Core\Exceptions\NotFoundException)
+                http_response_code(404);
+            else if ($ex instanceof \Authorization\Exceptions\NoPermissionException)
+                http_response_code(403);
+            else
+                http_response_code(500);
+            $debugEnabled = getenv('debug') == 'true';
+            dump($ex);
+            $controller->debugOutput = ob_get_clean();
+            ob_end_clean();
+            if ($type == 'Ajax') {
+                header('Content-type: application/json');
+                global $debugArray;
+                echo json_encode(['error' => static::exceptionToArray($ex), 'debug' => $debugEnabled ? $debugArray : [], 'output' => $debugEnabled ? $controller->debugOutput : '']);
+            } else {
+                if (isset($_SERVER['HTTP_X_JSON'])) {
+                    echo json_encode(['debug' => $debugEnabled ? $controller->debugOutput : '', 'error' => static::exceptionToArray($ex)]);
                 } else {
-                    if (isset($_SERVER['HTTP_X_JSON'])) {
-                        echo json_encode(['views' => $controller->getViews(), 'breadcrumb' => $controller->getBreadcrumb(), 'debug' => $controller->debugOutput, 'data' => null, 'error' => static::exceptionToArray($ex)]);
-                    } else {
-                        dump($ex);
-                    }
+
                 }
             }
+
         }
     }
 

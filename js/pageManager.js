@@ -7,6 +7,12 @@ export const pageManager = {
         if (initInfo.code == 403) {
             modal('Brak uprawnień', 'error');
         }
+        if (initInfo.code == 404) {
+            modal('Nie znaleziono', 'error');
+        }
+        if (initInfo.code == 500) {
+            modal('Wystąpił błąd', 'error');
+        }
         let page = document.querySelector('.page');
         this._loadedEvent(page, initInfo.data, initInfo.controllerName, initInfo.methodName);
     },
@@ -45,6 +51,16 @@ export const pageManager = {
                 let data = JSON.parse(xhr.responseText);
                 if (xhr.status == 403) {
                     modal('Brak uprawnień', 'error');
+                    reject(data.error);
+                    return;
+                }
+                if (xhr.status == 404) {
+                    modal('Nie znaleziono', 'error');
+                    reject(data.error);
+                    return;
+                }
+                if (xhr.status == 500) {
+                    modal('Wystąpił błąd', 'error');
                     reject(data.error);
                     return;
                 }
