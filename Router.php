@@ -47,9 +47,11 @@ class Router
                 $methods = $classReflect->getMethods();
                 foreach ($methods as $methodReflect) {
                     if (!$methodReflect->isPublic()) continue;
+                    if ('\\'.$methodReflect->class!=$classPath) continue;
                     $methodInfo = new \StdClass();
                     $annotations = Annotations::ofMethod($classPath, $methodReflect->getName());
                     $methodInfo->name = $methodReflect->getName();
+                    $methodInfo->parameters = $methodReflect->getParameters();
                     $methodInfo->annotations = $annotations;
                     $controllerInfo->methods[$methodReflect->getName()] = $methodInfo;
                 }

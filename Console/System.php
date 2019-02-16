@@ -37,6 +37,15 @@ class System extends \Core\AbstractController
             if (!empty($controller->methods)) {
                 foreach ($controller->methods as $method) {
                     $method->controllerName = $controller->name;
+                    foreach ($method->parameters as &$parameter) {
+                        $name = $parameter->name;
+                        $isOptional = $parameter->isOptional();
+                        $defaultValue = $isOptional ? $parameter->getDefaultValue() : NULL;
+                        $parameter = new \stdClass();
+                        $parameter->name = $name;
+                        $parameter->defaultValue = $defaultValue;
+                        $parameter->isOptional = $isOptional;
+                    }
                     $methods[] = $method;
                 }
             }
