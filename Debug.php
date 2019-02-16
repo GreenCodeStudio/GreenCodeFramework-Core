@@ -25,7 +25,9 @@ function dump()
         echo "\r\n";
     } else {
         ob_start();
-        var_dump($args);
+        foreach ($args as $arg) {
+            var_dump($arg);
+        }
         $vars=ob_get_contents();
         ob_clean();
         $debugArray[] = ['backtrace' => $backtrace, 'vars' => $vars];
