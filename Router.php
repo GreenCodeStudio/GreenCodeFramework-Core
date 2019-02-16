@@ -169,6 +169,7 @@ class Router
                     echo json_encode(['debug' => $debugEnabled ? $debugOutput : '', 'error' => static::exceptionToArray($ex)]);
                 } else {
                     list($returnedError, $controllerError) = static::dispatchController('Controllers', 'Error', 'index', []);
+                    $controllerError->initInfo->error = static::exceptionToArray($ex);
                     $controllerError->initInfo->code = $responseCode;
                     $controllerError->postAction();
                 }
