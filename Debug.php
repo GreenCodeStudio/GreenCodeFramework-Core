@@ -24,7 +24,11 @@ function dump()
         echo "\r\n";
         echo "\r\n";
     } else {
-        $debugArray[] = ['backtrace' => $backtrace, 'vars' => $args];
+        ob_start();
+        var_dump($args);
+        $vars=ob_get_contents();
+        ob_clean();
+        $debugArray[] = ['backtrace' => $backtrace, 'vars' => $vars];
     }
 }
 
