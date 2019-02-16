@@ -47,7 +47,7 @@ class Router
                 $methods = $classReflect->getMethods();
                 foreach ($methods as $methodReflect) {
                     if (!$methodReflect->isPublic()) continue;
-                    if ('\\'.$methodReflect->class!=$classPath) continue;
+                    if ('\\'.$methodReflect->class != $classPath) continue;
                     $methodInfo = new \StdClass();
                     $annotations = Annotations::ofMethod($classPath, $methodReflect->getName());
                     $methodInfo->name = $methodReflect->getName();
@@ -127,39 +127,6 @@ class Router
         return ['type' => get_class($exception), 'message' => $exception->getMessage(), 'code' => $exception->getCode(), 'stack' => $exception->getTrace()];
     }
 
-    static function dispatchController($type, $controllerName, $methodName, $args)
-    {
-        if (getenv('cached_code')) {
-            // $controllerClassName = static::findControllerCached($controllerName, $type);
-        } else {
-            $controllerClassName = static::findController($controllerName, $type);
-        }
-        $controller = new $controllerClassName();
-        if (!$controller->hasPermission($methodName)) {
-            return self::route('/Authorization');
-        }
-        $controller->preAction();
-        $returned = null;
-        if (method_exists($controller, $methodName)) {
-
-            $reflectionMethod = new \ReflectionMethod($controllerClassName, $methodName);
-
-            $controller->initInfo->controllerName = $controllerName;
-            $controller->initInfo->methodName = $methodName;
-            $controller->initInfo->methodArguments = $args;
-            $returned = $reflectionMethod->invokeArgs($controller, $args);
-
-            if (method_exists($controller, $methodName.'_data')) {
-                $reflectionMethodData = new \ReflectionMethod($controllerClassName, $methodName.'_data');
-                $controller->initInfo->data = $reflectionMethodData->invokeArgs($controller, $args);
-            }
-
-            return [$returned, $controller];
-        } else
-            throw new \Core\Exceptions\NotFoundException();
-
-    }
-
     public static function route($url)
     {
         ob_start();
@@ -196,7 +163,7 @@ class Router
             if ($type == 'Ajax') {
                 header('Content-type: application/json');
                 global $debugArray;
-                echo json_encode(['error' => static::exceptionToArray($ex), 'debug' => $debugEnabled ? $debugArray : [], 'output' => $debugEnabled ? $controller->debugOutput : '']);
+                echo json_encode(['error' => static::exceptionToArray($ex), 'debug' => $debugEnabled ? $debugArray : [], 'output' => $debugEnabled ? ($controller->debugOutput??'') : '']);
             } else {
                 if (isset($_SERVER['HTTP_X_JSON'])) {
                     echo json_encode(['debug' => $debugEnabled ? $debugOutput : '', 'error' => static::exceptionToArray($ex)]);
@@ -241,6 +208,43 @@ class Router
         if (empty($methodName))
             $methodName = 'index';
         return array($type, $controllerName, $methodName, $args);
+    }
+
+    static function dispatchController($type, $controllerName, $methodName, $args)
+    {
+        if (getenv('cached_code')) {
+            // $controllerClassName = static::findControllerCached($controllerName, $type);
+        } else {
+            $controllerClassName = static::findController($controllerName, $type);
+        }
+        $controller = new $controllerClassName();
+        if (!$controller->hasPermission($methodName)) {
+            if (\Authorization\Authorization::isLogged()) {
+                throw new \Authorization\Exceptions\NoPermissionException();
+            } else {
+                return self::dispatchController($type, 'Authorization', 'index', []);
+            }
+        }
+        $controller->preAction();
+        $returned = null;
+        if (method_exists($controller, $methodName)) {
+
+            $reflectionMethod = new \ReflectionMethod($controllerClassName, $methodName);
+
+            $controller->initInfo->controllerName = $controllerName;
+            $controller->initInfo->methodName = $methodName;
+            $controller->initInfo->methodArguments = $args;
+            $returned = $reflectionMethod->invokeArgs($controller, $args);
+
+            if (method_exists($controller, $methodName.'_data')) {
+                $reflectionMethodData = new \ReflectionMethod($controllerClassName, $methodName.'_data');
+                $controller->initInfo->data = $reflectionMethodData->invokeArgs($controller, $args);
+            }
+
+            return [$returned, $controller];
+        } else
+            throw new \Core\Exceptions\NotFoundException();
+
     }
 
 }
