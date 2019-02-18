@@ -1,4 +1,4 @@
-import './domExtensions';
+import "prototype-extensions";
 import {modal} from '../../Common/js/modal'
 
 export const pageManager = {

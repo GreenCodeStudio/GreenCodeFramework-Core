@@ -1,4 +1,4 @@
-import './domExtensions';
+import "prototype-extensions";
 
 export class tableManager {
     constructor(table, datasource) {

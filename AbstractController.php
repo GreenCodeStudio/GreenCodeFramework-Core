@@ -35,7 +35,7 @@ abstract class AbstractController
 
     public function hasPermission()
     {
-        return \Authorization\Authorization::isLogged();
+        return true;
     }
 
     public function can(string $group, string $permission)

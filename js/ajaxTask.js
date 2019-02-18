@@ -1,5 +1,5 @@
 import {Ajax} from "./ajax";
-import "./domExtensions";
+import "prototype-extensions";
 
 export class AjaxTask {
     constructor() {
