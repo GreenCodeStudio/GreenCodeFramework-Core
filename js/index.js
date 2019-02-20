@@ -50,8 +50,8 @@ window.addEventListener('beforeinstallprompt', (e) => {
     deferredPwaPrompt = e;
     e.prompt();
 });
-pageManager.initPage(window.controllerInitInfo);
 
+setTimeout(()=>pageManager.initPage(window.controllerInitInfo));
 setEvent('click', 'a', function (e) {
     e.preventDefault();
     pageManager.goto(this.href);
