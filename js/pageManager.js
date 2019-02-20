@@ -70,7 +70,7 @@ export const pageManager = {
                 for (let viewsContainer of viewsContainers) {
                     let viewName = viewsContainer.dataset.views;
                     if (viewName === 'main') {
-                        viewsContainer = viewsContainer.add('div', {classList: ['page']});
+                        viewsContainer = viewsContainer.addChild('div', {classList: ['page']});
                         let diffTime = new Date() - startDate;
                         if (diffTime < 200) {//dla animacji
                             viewsContainer.classList.add('stillLoading')
@@ -118,8 +118,8 @@ export const pageManager = {
             while (existingBreadcrumb.children.length > i) {
                 existingBreadcrumb.lastChild.remove();
             }
-            let li = existingBreadcrumb.add('li');
-            li.add('a', {href: crumb.url, text: crumb.title});
+            let li = existingBreadcrumb.addChild('li');
+            li.addChild('a', {href: crumb.url, text: crumb.title});
         }
         let last = breadcrumb[breadcrumb.length - 1];
         document.title = last.title;

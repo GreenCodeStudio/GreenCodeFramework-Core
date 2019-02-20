@@ -38,8 +38,8 @@ export class AjaxTask {
 
     generateHtml() {
         this.html = document.create('div', {className: 'task'});
-        this.html.add('div', {text: 'Zapis formularza'});
-        this.statusHtml = this.html.add('div', {text: this.stateText});
+        this.html.addChild('div', {text: 'Zapis formularza'});
+        this.statusHtml = this.html.addChild('div', {text: this.stateText});
         this._htmlButtons();
         let tasksList = document.querySelector('.tasksList');
         tasksList.insertBefore(this.html, tasksList.firstChild);
@@ -47,11 +47,11 @@ export class AjaxTask {
 
     _htmlButtons() {
         if (this.state == 'error') {
-            let btnDelete = this.statusHtml.add('div', {className: 'button', text: 'Usuń'});
+            let btnDelete = this.statusHtml.addChild('div', {className: 'button', text: 'Usuń'});
             btnDelete.onclick = () => {
                 this._delete(true);
             };
-            let btnRefresh = this.statusHtml.add('div', {className: 'button', text: 'odświerz'});
+            let btnRefresh = this.statusHtml.addChild('div', {className: 'button', text: 'odświerz'});
             btnRefresh.onclick = () => {
                 this.start();
             };

@@ -18,14 +18,14 @@ export class tableManager {
     loadData(data) {
         let tbody = this.table.tBodies[0];
         if (!tbody) {
-            tbody = this.table.add('tbody');
+            tbody = this.table.addChild('tbody');
         }
         tbody.children.removeAll();
 
         for (let row of data.rows) {
-            let tr = tbody.add('tr');
+            let tr = tbody.addChild('tr');
             for (let th of this.table.tHead.firstElementChild.children) {
-                let td = tr.add('td');
+                let td = tr.addChild('td');
                 if (th.dataset.value)
                     td.textContent = row[th.dataset.value];
                 else if (th.classList.contains('tableActions')) {
