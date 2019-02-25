@@ -18,4 +18,9 @@ class OfflineDataOnlyAnnotation extends \mindplay\annotations\Annotation
  */
 class OfflineConstantAnnotation extends \mindplay\annotations\Annotation
 {
+}/**
+ * @usage('method'=>true)
+ */
+class NoAjaxLoaderAnnotation extends \mindplay\annotations\Annotation
+{
 }

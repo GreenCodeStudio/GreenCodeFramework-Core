@@ -77,16 +77,12 @@ class Router
             $controller = new $controllerClassName();
             if (method_exists($controller, $methodName)) {
                 try {
-                    $reflectionMethod = new \ReflectionMethod($controllerClassName, $methodName);
 
                     $controller->initInfo->controllerName = $controllerName;
                     $controller->initInfo->methodName = $methodName;
                     $controller->initInfo->methodArguments = $args;
-                    $returned = $reflectionMethod->invokeArgs($controller, $args);
-                    if (method_exists($controller, $methodName.'_data')) {
-                        $reflectionMethodData = new \ReflectionMethod($controllerClassName, $methodName.'_data');
-                        $controller->initInfo->data = $reflectionMethodData->invokeArgs($controller, $args);
-                    }
+                    $reflectionMethod = new \ReflectionMethod($controllerClassName, $controller->initInfo->methodName);
+                    static::runMethod($controllerClassName, $controller, $reflectionMethod);
                 } catch (\Throwable $exception) {
                     $error = static::exceptionToArray($exception);
                     if (getenv('debug') == 'true') {
@@ -122,6 +118,23 @@ class Router
         throw new \Core\Exceptions\NotFoundException();
     }
 
+    /**
+     * @param string $controllerClassName
+     * @param $controller
+     * @return mixed
+     * @throws \ReflectionException
+     */
+    protected static function runMethod(string $controllerClassName, $controller, $reflectionMethod): mixed
+    {
+        $returned = $reflectionMethod->invokeArgs($controller, $controller->initInfo->methodArguments);
+
+        if (method_exists($controller, $controller->initInfo->methodName.'_data')) {
+            $reflectionMethodData = new \ReflectionMethod($controllerClassName, $controller->initInfo->methodName.'_data');
+            $controller->initInfo->data = $reflectionMethodData->invokeArgs($controller, $controller->initInfo->methodArguments);
+        }
+        return $returned;
+    }
+
     private static function exceptionToArray(\Throwable $exception)
     {
         return ['type' => get_class($exception), 'message' => $exception->getMessage(), 'code' => $exception->getCode(), 'stack' => $exception->getTrace()];
@@ -133,8 +146,9 @@ class Router
 
         list($type, $controllerName, $methodName, $args) = self::parseUrl($url);
         try {
-            list($returned, $controller) = static::dispatchController($type, $controllerName, $methodName, $args);
-
+            list($controllerClassName, $controller) = static::dispatchController($type, $controllerName, $methodName, $args);
+            $reflectionMethod = new \ReflectionMethod($controllerClassName, $controller->initInfo->methodName);
+            $returned = self::runMethod($controllerClassName, $controller, $reflectionMethod);
             $controller->debugOutput = ob_get_clean();
             ob_end_clean();
             if ($type == 'Ajax') {
@@ -163,12 +177,14 @@ class Router
             if ($type == 'Ajax') {
                 header('Content-type: application/json');
                 global $debugArray;
-                echo json_encode(['error' => static::exceptionToArray($ex), 'debug' => $debugEnabled ? $debugArray : [], 'output' => $debugEnabled ? ($controller->debugOutput??'') : '']);
+                echo json_encode(['error' => static::exceptionToArray($ex), 'debug' => $debugEnabled ? $debugArray : [], 'output' => $debugEnabled ? ($controller->debugOutput ?? '') : '']);
             } else {
                 if (isset($_SERVER['HTTP_X_JSON'])) {
                     echo json_encode(['debug' => $debugEnabled ? $debugOutput : '', 'error' => static::exceptionToArray($ex)]);
                 } else {
-                    list($returnedError, $controllerError) = static::dispatchController('Controllers', 'Error', 'index', []);
+                    list($controllerClassNameError, $controllerError) = static::dispatchController('Controllers', 'Error', 'index', []);
+                    $reflectionMethod = new \ReflectionMethod($controllerClassName, $controller->initInfo->methodName);
+                    self::runMethod($controllerClassName, $controller, $reflectionMethod);
                     $controllerError->initInfo->error = static::exceptionToArray($ex);
                     $controllerError->initInfo->code = $responseCode;
                     $controllerError->postAction();
@@ -230,19 +246,12 @@ class Router
         $returned = null;
         if (method_exists($controller, $methodName)) {
 
-            $reflectionMethod = new \ReflectionMethod($controllerClassName, $methodName);
 
             $controller->initInfo->controllerName = $controllerName;
             $controller->initInfo->methodName = $methodName;
             $controller->initInfo->methodArguments = $args;
-            $returned = $reflectionMethod->invokeArgs($controller, $args);
-
-            if (method_exists($controller, $methodName.'_data')) {
-                $reflectionMethodData = new \ReflectionMethod($controllerClassName, $methodName.'_data');
-                $controller->initInfo->data = $reflectionMethodData->invokeArgs($controller, $args);
-            }
-
-            return [$returned, $controller];
+            Annotations::ofMethod($classPath, $methodReflect->getName());
+            return [$controllerClassName, $controller];
         } else
             throw new \Core\Exceptions\NotFoundException();
 
