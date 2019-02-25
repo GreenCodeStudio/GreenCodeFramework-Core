@@ -34,8 +34,7 @@ class Router
 
     static function getControllerInfo($type, $module, $controllerFile): ?object
     {
-        if (empty(Annotations::$config['cache']))
-            Annotations::$config['cache'] = new AnnotationCache(__DIR__.'/../../cache');
+        self::initAnnotationsCache();
         if (preg_match('/^(.*)\.php$/', $controllerFile, $matches)) {
             $name = $matches[1];
             $controllerInfo = new \StdClass();
@@ -81,8 +80,7 @@ class Router
                     $controller->initInfo->controllerName = $controllerName;
                     $controller->initInfo->methodName = $methodName;
                     $controller->initInfo->methodArguments = $args;
-                    $reflectionMethod = new \ReflectionMethod($controllerClassName, $controller->initInfo->methodName);
-                    static::runMethod($controllerClassName, $controller, $reflectionMethod);
+                    static::runMethod($controllerClassName, $controller);
                 } catch (\Throwable $exception) {
                     $error = static::exceptionToArray($exception);
                     if (getenv('debug') == 'true') {
@@ -124,8 +122,9 @@ class Router
      * @return mixed
      * @throws \ReflectionException
      */
-    protected static function runMethod(string $controllerClassName, $controller, $reflectionMethod): mixed
+    protected static function runMethod(string $controllerClassName, $controller)
     {
+        $reflectionMethod = new \ReflectionMethod($controllerClassName, $controller->initInfo->methodName);
         $returned = $reflectionMethod->invokeArgs($controller, $controller->initInfo->methodArguments);
 
         if (method_exists($controller, $controller->initInfo->methodName.'_data')) {
@@ -147,8 +146,13 @@ class Router
         list($type, $controllerName, $methodName, $args) = self::parseUrl($url);
         try {
             list($controllerClassName, $controller) = static::dispatchController($type, $controllerName, $methodName, $args);
-            $reflectionMethod = new \ReflectionMethod($controllerClassName, $controller->initInfo->methodName);
-            $returned = self::runMethod($controllerClassName, $controller, $reflectionMethod);
+            self::initAnnotationsCache();
+            $annotations = Annotations::ofMethod($controllerClassName, $methodName);
+            foreach ($annotations as $annotation) {
+                if (isset($_SERVER['HTTP_X_JSON']) && is_a($annotation, \NoAjaxLoaderAnnotation))
+                    return ['needFullReload' => true];
+            }
+            $returned = self::runMethod($controllerClassName, $controller);
             $controller->debugOutput = ob_get_clean();
             ob_end_clean();
             if ($type == 'Ajax') {
@@ -183,8 +187,7 @@ class Router
                     echo json_encode(['debug' => $debugEnabled ? $debugOutput : '', 'error' => static::exceptionToArray($ex)]);
                 } else {
                     list($controllerClassNameError, $controllerError) = static::dispatchController('Controllers', 'Error', 'index', []);
-                    $reflectionMethod = new \ReflectionMethod($controllerClassName, $controller->initInfo->methodName);
-                    self::runMethod($controllerClassName, $controller, $reflectionMethod);
+                    self::runMethod($controllerClassName, $controller);
                     $controllerError->initInfo->error = static::exceptionToArray($ex);
                     $controllerError->initInfo->code = $responseCode;
                     $controllerError->postAction();
@@ -250,11 +253,16 @@ class Router
             $controller->initInfo->controllerName = $controllerName;
             $controller->initInfo->methodName = $methodName;
             $controller->initInfo->methodArguments = $args;
-            Annotations::ofMethod($classPath, $methodReflect->getName());
             return [$controllerClassName, $controller];
         } else
             throw new \Core\Exceptions\NotFoundException();
 
+    }
+
+    protected static function initAnnotationsCache(): void
+    {
+        if (empty(Annotations::$config['cache']))
+            Annotations::$config['cache'] = new AnnotationCache(__DIR__.'/../../cache');
     }
 
 }
