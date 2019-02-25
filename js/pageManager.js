@@ -64,6 +64,10 @@ export const pageManager = {
                     reject(data.error);
                     return;
                 }
+                if (data.needFullReload) {
+                    document.location = url;
+                    return;
+                }
                 history.pushState(data, '', url);
 
                 let viewsContainers = document.querySelectorAll('[data-views]');

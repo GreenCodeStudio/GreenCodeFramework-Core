@@ -62,6 +62,12 @@ class Router
         return null;
     }
 
+    protected static function initAnnotationsCache(): void
+    {
+        if (empty(Annotations::$config['cache']))
+            Annotations::$config['cache'] = new AnnotationCache(__DIR__.'/../../cache');
+    }
+
     public static function routeConsole($controllerName, $methodName, $args)
     {
         ob_start();
@@ -147,10 +153,12 @@ class Router
         try {
             list($controllerClassName, $controller) = static::dispatchController($type, $controllerName, $methodName, $args);
             self::initAnnotationsCache();
-            $annotations = Annotations::ofMethod($controllerClassName, $methodName);
+            $annotations = Annotations::ofMethod($controller, $methodName);
             foreach ($annotations as $annotation) {
-                if (isset($_SERVER['HTTP_X_JSON']) && is_a($annotation, \NoAjaxLoaderAnnotation))
-                    return ['needFullReload' => true];
+                if (isset($_SERVER['HTTP_X_JSON']) && is_a($annotation, 'NoAjaxLoaderAnnotation')) {
+                    echo json_encode(['needFullReload' => true]);
+                    return;
+                }
             }
             $returned = self::runMethod($controllerClassName, $controller);
             $controller->debugOutput = ob_get_clean();
@@ -257,12 +265,6 @@ class Router
         } else
             throw new \Core\Exceptions\NotFoundException();
 
-    }
-
-    protected static function initAnnotationsCache(): void
-    {
-        if (empty(Annotations::$config['cache']))
-            Annotations::$config['cache'] = new AnnotationCache(__DIR__.'/../../cache');
     }
 
 }
