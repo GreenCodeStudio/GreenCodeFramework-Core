@@ -86,7 +86,7 @@ class Router
                     $controller->initInfo->controllerName = $controllerName;
                     $controller->initInfo->methodName = $methodName;
                     $controller->initInfo->methodArguments = $args;
-                    static::runMethod($controllerClassName, $controller);
+                    $returned = static::runMethod($controllerClassName, $controller);
                 } catch (\Throwable $exception) {
                     $error = static::exceptionToArray($exception);
                     if (getenv('debug') == 'true') {
