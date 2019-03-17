@@ -52,7 +52,7 @@ class Migration
 
                     foreach ($tableNew->index as $indexNew) {
                         if (!$indexNew->attributes()->findedIdentical) {
-                            $sqls[] = $this->addIndexSQL($indexNew);
+                            $sqls[] = "ADD ".$this->addIndexSQL($indexNew);
                         }
                     }
                     $sqlsString = implode(',', $sqls);
@@ -151,13 +151,13 @@ class Migration
     protected function addIndexSQL($indexNew)
     {
         if ($indexNew->type.'' == 'PRIMARY')
-            $indexSql = "ADD PRIMARY KEY";
+            $indexSql = "PRIMARY KEY";
         else if ($indexNew->type.'' == 'UNIQUE')
-            $indexSql = "ADD UNIQUE";
+            $indexSql = "UNIQUE";
         else if ($indexNew->type.'' == 'FOREIGN')
-            $indexSql = "ADD FOREIGN KEY";
+            $indexSql = "FOREIGN KEY";
         else
-            $indexSql = "ADD INDEX";
+            $indexSql = "INDEX";
         $columns = [];
         foreach ($indexNew->element as $element) {
             $columns[] = DB::safeKey($element);
@@ -184,24 +184,11 @@ class Migration
             $cols[] = $this->createColumnSql($column);
         }
         foreach ($content->index as $index) {
-            $cols[] = $this->createIndexSql($index);
+            $cols[] = $this->addIndexSQL($index);
         }
         $colsString = implode(',', $cols);
         $sql = "CREATE TABLE `$name`($colsString)";
         dump($sql);
         DB::query($sql);
-    }
-
-    protected function createIndexSql($index)
-    {
-        $cols = [];
-        $type = 'INDEX';
-        if ($index->type == 'PRIMARY')
-            $type = 'PRIMARY KEY';
-        foreach ($index->element as $item) {
-            $cols[] = "`$item`";
-        }
-        $colsJoined = implode(',', $cols);
-        return "$type ($colsJoined)";
     }
 }
