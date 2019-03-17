@@ -24,11 +24,10 @@ function dump()
         echo "\r\n";
         echo "\r\n";
     } else {
-        ob_start();
+        $vars=[];
         foreach ($args as $arg) {
-            var_dump($arg);
+            $vars[]= print_r($arg,true);
         }
-        $vars=ob_get_contents();
         ob_clean();
         $debugArray[] = ['backtrace' => $backtrace, 'vars' => $vars];
     }

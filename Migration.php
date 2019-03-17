@@ -29,7 +29,6 @@ class Migration
                         }
 
                     }
-                    dump($old[$name]['index']);
                     foreach ($old[$name]['index'] as $indexOld) {
                         $findedIdentical = false;
                         foreach ($tableNew->index as $i => $indexNew) {
@@ -40,8 +39,6 @@ class Migration
                                 break;
                             }
                         }
-                        dump($findedIdentical);
-                        dump($indexOld);
                         if (!$findedIdentical) {
                             $key = $indexOld[0]['Key_name'];
                             if ($key == 'PRIMARY')
@@ -121,26 +118,17 @@ class Migration
 
     private function isIndexIdentical($indexNew, $indexOld)
     {
-        dump($indexNew, $indexOld);
-        dump(1);
-        dump($indexNew->type ?? 'INDEX');
-        dump($this->getOldIndexType($indexOld));
         if (($indexNew->type ?? 'INDEX').'' != $this->getOldIndexType($indexOld))
             return false;
-        dump(2);
         if (count($indexNew->element) != count($indexOld))
             return false;
-        dump(3);
         $i = 0;
         foreach ($indexNew->element as $newElement) {
-            dump(4);
-            dump($i);
             if ($newElement->__toString() != $indexOld[$i]['Column_name']) {
                 return false;
             }
             $i++;
         }
-        dump(5);
         return true;
     }
 

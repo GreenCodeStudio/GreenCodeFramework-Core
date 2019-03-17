@@ -86,8 +86,6 @@ class DB
 
     static function query(string $sql, $params = [])
     {
-        dump($sql);
-        dump($params);
         static::connect();
         $sth = static::$pdo->prepare($sql, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
         $params2 = [];
