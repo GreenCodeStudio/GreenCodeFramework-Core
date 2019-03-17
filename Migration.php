@@ -43,8 +43,10 @@ class Migration
                             $key = $indexOld[0]['Key_name'];
                             if ($key == 'PRIMARY')
                                 $sqls[] = "DROP PRIMARY KEY";
-                            else
-                                $sqls[] = "DROP INDEX ".$indexOld[0]['Key_name'];
+                            else {
+                                $safe = DB::safeKey($indexOld[0]['Key_name']);
+                                $sqls[] = "DROP INDEX $safe";
+                            }
                         }
                     }
 
@@ -152,13 +154,22 @@ class Migration
             $indexSql = "ADD PRIMARY KEY";
         else if ($indexNew->type.'' == 'UNIQUE')
             $indexSql = "ADD UNIQUE";
+        else if ($indexNew->type.'' == 'FOREIGN')
+            $indexSql = "ADD FOREIGN KEY";
         else
             $indexSql = "ADD INDEX";
         $columns = [];
         foreach ($indexNew->element as $element) {
-            $columns[] = '`'.$element.'`';
+            $columns[] = DB::safeKey($element);
         }
         $indexSql .= ' ('.implode(',', $columns).')';
+        if ($indexNew->type.'' == 'FOREIGN') {
+            $refColumns = [];
+            foreach ($indexNew->reference->element as $refElement) {
+                $refColumns[] = DB::safeKey($refElement);
+            }
+            $indexSql .= " REFERENCES ".DB::safeKey($indexNew->reference->attributes()->name)." (".implode(',', $refColumns).")";
+        }
         return $indexSql;
     }
 

@@ -63,6 +63,11 @@ class DB
             return (int)$val;
         return "'".static::$pdo->quote($val)."'";
     }
+    static function safeKey($val)
+    {
+        static::connect();
+        return "`".preg_replace('/[^A-Za-z0-9_]+/', '', $val)."`";
+    }
 
     static function update(string $table, $data, $id)
     {
