@@ -8,6 +8,7 @@ class DB
      * @var \PDO
      */
     private static $pdo = null;
+    private static $dialect = 'mysql';
 
     static function get(string $sql, $params = [])
     {
@@ -27,6 +28,7 @@ class DB
         if (static::$pdo === null) {
             static::$pdo = new \PDO(getenv('db'), getenv('dbUser'), getenv('dbPass'));
             static::$pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+            static::$dialect = getenv('dbDialect');
         }
     }
 
@@ -63,11 +65,6 @@ class DB
             return (int)$val;
         return "'".static::$pdo->quote($val)."'";
     }
-    static function safeKey($val)
-    {
-        static::connect();
-        return "`".preg_replace('/[^A-Za-z0-9_]+/', '', $val)."`";
-    }
 
     static function update(string $table, $data, $id)
     {
@@ -77,16 +74,27 @@ class DB
         $dataSql = ['id' => $id];
         foreach ($data as $name => $value) {
             $name = static::clearName($name);
-            $update[] = " `$name` = :$name";
+            $nameSafe = static::safeKey($name);
+            $update[] = " $nameSafe = :$name";
             $dataSql[$name] = $value;
         }
         $updateJoined = implode(',', $update);
-        static::query("UPDATE `$table` SET $updateJoined WHERE id = :id", $dataSql);
+        $tableSafe = static::safeKey($table);
+        static::query("UPDATE $tableSafe SET $updateJoined WHERE id = :id", $dataSql);
     }
 
     static function clearName(string $name)
     {
         return preg_replace('/[^a-zA-Z0-9_]/', '', $name);
+    }
+
+    static function safeKey($val)
+    {
+        static::connect();
+        $clean = preg_replace('/[^A-Za-z0-9_]+/', '', $val);
+        if (static::$dialect == 'mysql')
+            return '`'.$clean.'`'; else
+            return '"'.$clean.'"';
     }
 
     static function query(string $sql, $params = [])
@@ -109,44 +117,47 @@ class DB
         $dataSql = [];
         foreach ($data as $name => $value) {
             $name = static::clearName($name);
-            $cols[] = " `$name` ";
+            $nameSafe = static::safeKey($name);
+            $cols[] = " $nameSafe ";
             $values[] = " :$name ";
             $dataSql[$name] = $value;
         }
         $colsJoined = implode(',', $cols);
         $valuesJoined = implode(',', $values);
-        static::query("INSERT INTO `$table` ($colsJoined) VALUES ($valuesJoined)", $dataSql);
+        $tableSafe = static::safeKey($table);
+        static::query("INSERT INTO $tableSafe ($colsJoined) VALUES ($valuesJoined)", $dataSql);
         return static::$pdo->lastInsertId();
     }
+
     static function insertMultiple(string $table, array $data)
     {
-        if(empty($data))
+        if (empty($data))
             return;
         static::connect();
         $table = static::clearName($table);
         $cols = [];
         $dataSql = [];
-        $example=[];
-        foreach($data as $row){
-            $example+=$row;
+        $example = [];
+        foreach ($data as $row) {
+            $example += $row;
         }
 
         foreach ($example as $name => $value) {
             $name = static::clearName($name);
             $cols[] = " `$name` ";
         }
-        $valuesJoinedArray=[];
-        foreach($data as $i=>$row){
+        $valuesJoinedArray = [];
+        foreach ($data as $i => $row) {
             $values = [];
             foreach ($example as $name => $value) {
                 $nameCleared = static::clearName($name).'_'.$i;
                 $values[] = " :$nameCleared ";
-                $dataSql[$nameCleared] = $row[$name]??NULL;
+                $dataSql[$nameCleared] = $row[$name] ?? NULL;
             }
             $valuesJoinedArray[] = '('.implode(',', $values).')';
         }
         $colsJoined = implode(',', $cols);
-        $valuesJoinedJoined=implode(',', $valuesJoinedArray);
+        $valuesJoinedJoined = implode(',', $valuesJoinedArray);
         static::query("INSERT INTO `$table` ($colsJoined) VALUES $valuesJoinedJoined", $dataSql);
         return static::$pdo->lastInsertId();
     }

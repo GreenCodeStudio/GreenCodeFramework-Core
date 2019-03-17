@@ -2,8 +2,16 @@
 
 namespace Core;
 
-class Migration
+abstract class Migration
 {
+    public static function factory()
+    {
+        if(getenv('dbDialect')=='mysql')
+            return new MigrationMysql();
+        else
+            return new MigrationMssql();
+    }
+
     function upgrade()
     {
         $old = $this->readOldStructure();
@@ -16,13 +24,13 @@ class Migration
                     foreach ($tableNew->column as $colNew) {
                         $oldCol = null;
                         foreach ($old[$name]['columns'] as $oldtableCol) {
-                            if ($oldtableCol['Field'] == $colNew->name->__toString()) {
+                            if ($oldtableCol['COLUMN_NAME'] == $colNew->name->__toString()) {
                                 $oldCol = $oldtableCol;
                                 break;
                             }
                         }
                         if ($oldCol) {
-                            $sqls[] = 'CHANGE `'.$colNew->name.'` '.$this->createColumnSql($colNew);
+                            $sqls[] = 'CHANGE '.DB::safeKey($colNew->name).' '.$this->createColumnSql($colNew);
 
                         } else {
                             $sqls[] = 'ADD '.$this->createColumnSql($colNew);
@@ -72,12 +80,13 @@ class Migration
 
     function readOldStructure()
     {
-        $tablesList = DB::get("SHOW TABLES");
+        $schema=getenv('dbSchema');
+        $tablesList = DB::get("SELECT TABLE_NAME as name FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = ?", [$schema]);
         $tables = [];
         foreach ($tablesList as $table) {
-            $tables[$table[0]]['columns'] = DB::get("SHOW COLUMNS FROM ".$table[0]);
-            $tables[$table[0]]['index'] = [];
-            $indexes = DB::get("SHOW INDEX FROM ".$table[0]);
+            $tables[$table['name']]['columns'] = DB::get("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?", [$schema, $table['name']]);
+            $tables[$table['name']]['index'] = [];
+            $indexes = DB::get("SHOW INDEX FROM ".$table['name']);
             foreach ($indexes as $index) {
                 $tables[$table[0]]['index'][$index['Key_name']][$index['Seq_in_index'] - 1] = $index;
             }
@@ -110,7 +119,8 @@ class Migration
      */
     protected function createColumnSql($column)
     {
-        $col = '`'.$column->name.'` '.$column->type.' '.($column->null == 'YES' ? 'NULL' : 'NOT NULL');
+        $safename=DB::safeKey($column->name);
+        $col = $safename.' '.$column->type.' '.($column->null == 'YES' ? 'NULL' : 'NOT NULL');
         if (!empty($column->default))
             $col .= ' DEFAULT '.DB::safe($column->default->__toString());
         if (!empty($column->autoincrement) && $column->autoincrement->__toString() == 'YES')
@@ -187,7 +197,8 @@ class Migration
             $cols[] = $this->addIndexSQL($index);
         }
         $colsString = implode(',', $cols);
-        $sql = "CREATE TABLE `$name`($colsString)";
+        $safename=DB::safeKey($name);
+        $sql = "CREATE TABLE $safename ($colsString)";
         dump($sql);
         DB::query($sql);
     }
