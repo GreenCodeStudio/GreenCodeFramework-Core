@@ -120,10 +120,10 @@ abstract class Migration
     protected function createColumnSql($column)
     {
         $safename=DB::safeKey($column->name);
-        $col = $safename.' '.$column->type.' '.($column->null == 'YES' ? 'NULL' : 'NOT NULL');
+        $col = $safename.' '.$column->type.' '.(strtolower($column->null) == 'yes' ? 'NULL' : 'NOT NULL');
         if (!empty($column->default))
             $col .= ' DEFAULT '.DB::safe($column->default->__toString());
-        if (!empty($column->autoincrement) && $column->autoincrement->__toString() == 'YES')
+        if (!empty($column->autoincrement) && strtolower($column->autoincrement) == 'yes')
             $col .= " AUTO_INCREMENT";
         return $col;
     }
