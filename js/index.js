@@ -10,6 +10,8 @@ pageManager.onLoad(async (page, data) => {
         formManager.initEvents();
 
         for (let form of forms) {
+            if (data.selects)
+                formManager.loadSelects(data.selects);
             if (data && data[form.dataset.name]) {
                 console.log('loadForm');
                 formManager.load(form, data[form.dataset.name]);
@@ -51,7 +53,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
     e.prompt();
 });
 
-setTimeout(()=>pageManager.initPage(window.controllerInitInfo));
+setTimeout(() => pageManager.initPage(window.controllerInitInfo));
 setEvent('click', 'a', function (e) {
     e.preventDefault();
     pageManager.goto(this.href);

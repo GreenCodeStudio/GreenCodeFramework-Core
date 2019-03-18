@@ -14,8 +14,8 @@ class DBModel
     public const ArchiveMode_OnlyExisting = 1;
     public const ArchiveMode_OnlyRemoved = 2;
     public const ArchiveMode_All = 3;
-    public $archiveMode = self::ArchiveMode_All;
     protected static $defaultTable;
+    public $archiveMode = self::ArchiveMode_All;
 
     public function __construct($defaultTable)
     {
@@ -38,4 +38,9 @@ class DBModel
         return DB::insert(static::$defaultTable, $data);
     }
 
+    public function getSelect()
+    {
+        $defaultTable = static::$defaultTable;
+        return DB::get("SELECT id, id as title FROM $defaultTable");
+    }
 }

@@ -16,6 +16,16 @@ export const formManager = {
 
             }
         }
+    }, loadSelects(data) {
+        let selects = document.querySelectorAll('select[data-foreign-key]');
+        for (let select of selects) {
+            if (data[select.dataset.foreignKey]) {
+                select.children.removeAll();
+                for (var option of data[select.dataset.foreignKey]) {
+                    select.addChild('option', {value: option.id, text: option.title});
+                }
+            }
+        }
     },
     initEvents() {
         document.querySelectorAll('form.dataForm').forEach(form => form.addEventListener('submit', event => this.formSubmitted(event, form)));
