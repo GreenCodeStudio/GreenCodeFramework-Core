@@ -8,7 +8,15 @@ function dump()
     global $debugArray;
     if ($debugType == 'html') {
 
-        showDbg($backtrace);
+        echo '<div style="background:#ffb; color:#113;border:solid 2px #113;">';
+        $pathExploded = explode('/', str_replace('\\', '/', $backtrace[0]['file']));
+        echo '<span title="'.htmlspecialchars($backtrace[0]['file']).'">';
+        echo "\r\n";
+        echo htmlspecialchars(end($pathExploded)).' ('.$backtrace[0]['line'].')';
+        echo "\r\n";
+        echo '</span>';
+        echo '</div><pre style="background:#113; color:#ffb;margin-top:0;">';
+        echo "\r\n";
         foreach ($args as $arg) {
             var_dump($arg);
         }
@@ -24,39 +32,54 @@ function dump()
         echo "\r\n";
         echo "\r\n";
     } else {
-        $vars=[];
+        $vars = [];
         foreach ($args as $arg) {
-            $vars[]= print_r($arg,true);
+            $vars[] = print_r($arg, true);
         }
         ob_clean();
         $debugArray[] = ['backtrace' => $backtrace, 'vars' => $vars];
     }
 }
 
-function showDbg($backtrace)
-{
-    echo '<div style="background:#ffb; color:#113;border:solid 2px #113;">';
-    $pathExploded = explode('/', str_replace('\\', '/', $backtrace[0]['file']));
-    echo '<span title="'.htmlspecialchars($backtrace[0]['file']).'">';
-    echo "\r\n";
-    echo htmlspecialchars(end($pathExploded)).' ('.$backtrace[0]['line'].')';
-    echo "\r\n";
-    echo '</span>';
-    echo '</div><pre style="background:#113; color:#ffb;margin-top:0;">';
-    echo "\r\n";
-}
-
 function dumpTime()
 {
+    $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+    $args = func_get_args();
+    global $debugType;
+    global $debugArray;
     global $_dbgTime;
     $t = microtime(true);
-    $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-    showDbg($backtrace);
     if (empty($_dbgTime))
-        echo 'Start';
+        $txt = 'Start';
     else
-        echo number_format(($t - $_dbgTime) * 1000, 6).'ms';
-    echo "\r\n";
-    echo '</pre>';
+        $txt = number_format(($t - $_dbgTime) * 1000, 6).'ms';
+
+    if ($debugType == 'html') {
+
+        echo '<div style="background:#ffb; color:#113;border:solid 2px #113;">';
+        $pathExploded = explode('/', str_replace('\\', '/', $backtrace[0]['file']));
+        echo '<span title="'.htmlspecialchars($backtrace[0]['file']).'">';
+        echo "\r\n";
+        echo htmlspecialchars(end($pathExploded)).' ('.$backtrace[0]['line'].')';
+        echo "\r\n";
+        echo '</span>';
+        echo '</div><pre style="background:#113; color:#ffb;margin-top:0;">';
+        echo "\r\n";
+        echo $txt;
+        echo "\r\n";
+        echo '</pre>';
+    } else if ($debugType == 'text') {
+
+        $pathExploded = explode('/', str_replace('\\', '/', $backtrace[0]['file']));
+        echo '----'.end($pathExploded).'----';
+        echo $txt;
+        echo "\r\n";
+        echo "\r\n";
+    } else {
+        $vars = [$txt];
+
+        ob_clean();
+        $debugArray[] = ['backtrace' => $backtrace, 'vars' => $vars];
+    }
     $_dbgTime = microtime(true);
 }
