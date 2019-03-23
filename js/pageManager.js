@@ -3,7 +3,7 @@ import {modal} from '../../Common/js/modal'
 
 export const pageManager = {
     _constrollers: {},
-    initPage(initInfo) {
+    initPage(initInfo, page) {
         console.log(initInfo);
         if (initInfo.code == 403) {
             modal('Brak uprawnień', 'error');
@@ -14,7 +14,6 @@ export const pageManager = {
         if (initInfo.code == 500) {
             modal('Wystąpił błąd', 'error');
         }
-        let page = document.querySelector('.page');
         let controller = this._constrollers[initInfo.controllerName];
         if (controller) {
             if (typeof controller == 'function')
@@ -75,11 +74,13 @@ export const pageManager = {
                     modal('Wystąpił błąd', 'error');
                     reject(data.error);
                 } else {
+                    let page;
                     let viewsContainers = document.querySelectorAll('[data-views]');
                     for (let viewsContainer of viewsContainers) {
                         let viewName = viewsContainer.dataset.views;
                         if (viewName === 'main') {
                             viewsContainer = viewsContainer.addChild('div', {classList: ['page']});
+                            page = viewsContainer;
                             let diffTime = new Date() - startDate;
                             if (diffTime < 200) {//dla animacji
                                 viewsContainer.classList.add('stillLoading')
@@ -95,7 +96,7 @@ export const pageManager = {
                     }
                     document.querySelectorAll('.debugOutput').forEach(x => x.remove());
 
-                    this.initPage(data.data);
+                    this.initPage(data.data, page);
                     this._updateBreadcrumb(data.breadcrumb);
                     resolve();
                 }
