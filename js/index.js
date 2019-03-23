@@ -53,7 +53,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
     e.prompt();
 });
 
-setTimeout(() => pageManager.initPage(window.controllerInitInfo));
+setTimeout(() => pageManager.initPage(window.controllerInitInfo, document.querySelector('.page')));
 setEvent('click', 'a', function (e) {
     e.preventDefault();
     pageManager.goto(this.href);
