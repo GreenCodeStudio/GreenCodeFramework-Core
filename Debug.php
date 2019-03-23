@@ -18,7 +18,7 @@ function dump()
         echo '</div><pre style="background:#113; color:#ffb;margin-top:0;">';
         echo "\r\n";
         foreach ($args as $arg) {
-            echo print_r($arg);
+            echo htmlspecialchars(print_r($arg,true));
         }
         echo "\r\n";
         echo '</pre>';
