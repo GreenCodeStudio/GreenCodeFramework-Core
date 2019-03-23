@@ -194,8 +194,8 @@ class Router
                 if (isset($_SERVER['HTTP_X_JSON'])) {
                     echo json_encode(['debug' => $debugEnabled ? $debugOutput : '', 'error' => static::exceptionToArray($ex)]);
                 } else {
-                    list($controllerClassNameError, $controllerError) = static::dispatchController('Controllers', 'Error', 'index', []);
-                    self::runMethod($controllerClassName, $controller);
+                    list($controllerClassNameError, $controllerError) = static::dispatchController('Controllers', 'Error', 'index', [$debugEnabled ? $debugOutput : '']);
+                    self::runMethod($controllerClassNameError, $controllerError);
                     $controllerError->initInfo->error = static::exceptionToArray($ex);
                     $controllerError->initInfo->code = $responseCode;
                     $controllerError->postAction();

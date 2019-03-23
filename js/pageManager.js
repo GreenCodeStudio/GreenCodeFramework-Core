@@ -49,46 +49,45 @@ export const pageManager = {
             xhr.setRequestHeader('x-json', 1);
             xhr.onload = () => {
                 let data = JSON.parse(xhr.responseText);
-                if (xhr.status == 403) {
-                    modal('Brak uprawnień', 'error');
-                    reject(data.error);
-                    return;
-                }
-                if (xhr.status == 404) {
-                    modal('Nie znaleziono', 'error');
-                    reject(data.error);
-                    return;
-                }
-                if (xhr.status == 500) {
-                    modal('Wystąpił błąd', 'error');
-                    reject(data.error);
-                    return;
-                }
                 if (data.needFullReload) {
                     document.location = url;
                     return;
                 }
                 history.pushState(data, '', url);
+                if (xhr.status == 403) {
+                    modal('Brak uprawnień', 'error');
+                    reject(data.error);
+                } else if (xhr.status == 404) {
+                    modal('Nie znaleziono', 'error');
+                    reject(data.error);
+                } else if (xhr.status == 500) {
+                    modal('Wystąpił błąd', 'error');
+                    reject(data.error);
+                } else {
+                    let viewsContainers = document.querySelectorAll('[data-views]');
+                    for (let viewsContainer of viewsContainers) {
+                        let viewName = viewsContainer.dataset.views;
+                        if (viewName === 'main') {
+                            viewsContainer = viewsContainer.addChild('div', {classList: ['page']});
+                            let diffTime = new Date() - startDate;
+                            if (diffTime < 200) {//dla animacji
+                                viewsContainer.classList.add('stillLoading')
+                                setInterval(viewsContainer.classList.remove.bind(viewsContainer.classList, 'stillLoading'), 200 - diffTime);
+                            }
+                        }
+                        if (data.views[viewName]) {
+                            viewsContainer.innerHTML = '';
+                            for (let html of data.views[viewName]) {
+                                viewsContainer.innerHTML += html;
+                            }
+                        }
+                    }
+                    document.querySelectorAll('.debugOutput').forEach(x => x.remove());
 
-                let viewsContainers = document.querySelectorAll('[data-views]');
-                for (let viewsContainer of viewsContainers) {
-                    let viewName = viewsContainer.dataset.views;
-                    if (viewName === 'main') {
-                        viewsContainer = viewsContainer.addChild('div', {classList: ['page']});
-                        let diffTime = new Date() - startDate;
-                        if (diffTime < 200) {//dla animacji
-                            viewsContainer.classList.add('stillLoading')
-                            setInterval(viewsContainer.classList.remove.bind(viewsContainer.classList, 'stillLoading'), 200 - diffTime);
-                        }
-                    }
-                    if (data.views[viewName]) {
-                        viewsContainer.innerHTML = '';
-                        for (let html of data.views[viewName]) {
-                            viewsContainer.innerHTML += html;
-                        }
-                    }
+                    this.initPage(data.data);
+                    this._updateBreadcrumb(data.breadcrumb);
+                    resolve();
                 }
-                document.querySelectorAll('.debugOutput').forEach(x => x.remove());
                 if (data.debug) {
                     let debugOutput = document.createElement('div');
                     debugOutput.className = 'debugOutput';
@@ -96,9 +95,6 @@ export const pageManager = {
                     let main = document.querySelector('[data-views="main"]');
                     main.prepend(debugOutput);
                 }
-                this.initPage(data.data);
-                this._updateBreadcrumb(data.breadcrumb);
-                resolve();
             };
             xhr.onerror = (ex) => {
                 reject(ex);
