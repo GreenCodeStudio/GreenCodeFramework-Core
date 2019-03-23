@@ -1,8 +1,8 @@
+import ConsoleCheating from 'console-cheating';
 function showServerDebug(decoded) {
     if (decoded.debug) {
         for (let dump of decoded.debug) {
-            let params=[...dump.vars, dump.backtrace];
-            console.log.apply(null,params);
+            ConsoleCheating.eval("console.log.apply(null,data)", "", dump.backtrace[0].file,dump.backtrace[0].line, dump.vars);
         }
     }
 }

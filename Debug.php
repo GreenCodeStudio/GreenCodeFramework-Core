@@ -18,7 +18,7 @@ function dump()
         echo '</div><pre style="background:#113; color:#ffb;margin-top:0;">';
         echo "\r\n";
         foreach ($args as $arg) {
-            var_dump($arg);
+            echo print_r($arg);
         }
         echo "\r\n";
         echo '</pre>';
@@ -27,17 +27,19 @@ function dump()
         $pathExploded = explode('/', str_replace('\\', '/', $backtrace[0]['file']));
         echo '----'.end($pathExploded).'----';
         foreach ($args as $arg) {
-            var_dump($arg);
+            echo print_r($arg);
         }
         echo "\r\n";
         echo "\r\n";
-    } else {
+    } else if ($debugType == 'console') {
         $vars = [];
         foreach ($args as $arg) {
             $vars[] = print_r($arg, true);
         }
         ob_clean();
         $debugArray[] = ['backtrace' => $backtrace, 'vars' => $vars];
+    } else {
+        $debugArray[] = ['backtrace' => $backtrace, 'vars' => $args];
     }
 }
 
@@ -75,6 +77,11 @@ function dumpTime()
         echo $txt;
         echo "\r\n";
         echo "\r\n";
+    } else if ($debugType == 'console') {
+        $vars = [$txt];
+
+        ob_clean();
+        $debugArray[] = ['backtrace' => $backtrace, 'vars' => $vars];
     } else {
         $vars = [$txt];
 
