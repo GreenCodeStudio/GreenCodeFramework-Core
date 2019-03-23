@@ -152,7 +152,11 @@ class Router
         ob_start();
 
         list($type, $controllerName, $methodName, $args) = self::parseUrl($url);
+        if(!empty($_POST['args'])){
+            $args = array_merge($args, $_POST['args']);
+        }
         try {
+            http_response_code(200);
             list($controllerClassName, $controller) = static::dispatchController($type, $controllerName, $methodName, $args);
             self::initAnnotationsCache();
             $annotations = Annotations::ofMethod($controller, $methodName);

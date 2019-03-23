@@ -2,6 +2,7 @@ import "prototype-extensions";
 import {modal} from '../../Common/js/modal'
 
 export const pageManager = {
+    _constrollers: {},
     initPage(initInfo) {
         console.log(initInfo);
         if (initInfo.code == 403) {
@@ -14,6 +15,15 @@ export const pageManager = {
             modal('Wystąpił błąd', 'error');
         }
         let page = document.querySelector('.page');
+        let controller = this._constrollers[initInfo.controllerName];
+        if (controller) {
+            if (typeof controller == 'function')
+                controller = this._constrollers[controller] = controller();
+            controller.then(x => {
+                let obj = new x.default(page, initInfo.data);
+                if (obj[initInfo.methodName]) obj[initInfo.methodName]();
+            })
+        }
         this._loadedEvent(page, initInfo.data, initInfo.controllerName, initInfo.methodName);
     },
     _onLoad: {},
@@ -36,6 +46,7 @@ export const pageManager = {
         if (this._onLoad[null] && this._onLoad[null][null])
             for (let callback of this._onLoad[null][null])
                 callback(page, data);
+
     },
     goto(url) {
         return new Promise((resolve, reject) => {
@@ -123,5 +134,8 @@ export const pageManager = {
         }
         let last = breadcrumb[breadcrumb.length - 1];
         document.title = last.title;
+    },
+    registerController(name, controller) {
+        this._constrollers[name] = controller;
     }
 };
