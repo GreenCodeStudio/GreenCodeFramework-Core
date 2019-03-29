@@ -19,8 +19,8 @@ function dump()
         echo "\r\n";
         foreach ($args as $arg) {
             echo htmlspecialchars(print_r($arg,true));
+            echo "\r\n";
         }
-        echo "\r\n";
         echo '</pre>';
     } else if ($debugType == 'text') {
 

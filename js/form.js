@@ -8,6 +8,8 @@ export const formManager = {
             let value = this.parseFormItemNameRead(elem, data);
             if (elem.type == 'checkbox') {
                 elem.checked = value
+            } else if (elem.type == 'datetime-local') {
+                elem.value = value.replace(' ', 'T');
             } else {
                 if (value == undefined)
                     elem.value = '';

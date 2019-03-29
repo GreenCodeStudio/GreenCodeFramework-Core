@@ -34,10 +34,10 @@ function AjaxFunction(controller, method, ...args) {
                 } else{
                     try{
                         let decoded = JSON.parse(xhr.responseText);
-                        ConsoleCheating.eval("console.error.apply(null,data)", "", decoded.error.stack[0].file,decoded.error.stack[0].line, [decoded.error.message,decoded.error]);
+                        ConsoleCheating.eval("console.error.apply(null,data)", "", decoded.error.stack[0].file,decoded.error.stack[0].line, [decoded.error.message+'%o',decoded.error]);
                     }catch(ex){
-                        reject(new Error('Http status:' + xhr.status + ' ' + xhr.statusText));
                     }
+                    reject(new Error('Http status:' + xhr.status + ' ' + xhr.statusText));
                 }
             }
         };

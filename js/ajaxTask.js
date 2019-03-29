@@ -37,21 +37,24 @@ export class AjaxTask {
     }
 
     generateHtml() {
-        this.html = document.create('div', {className: 'task'});
+        this.html = document.create('div', {className: 'task', 'data-status': this.state});
         this.html.addChild('div', {text: 'Zapis formularza'});
-        this.statusHtml = this.html.addChild('div', {text: this.stateText});
+        this.statusHtml = this.html.addChild('div', {text: this.stateText, className: 'status'});
+        this.buttonsHtml = this.html.addChild('div', {className: 'buttons'});
         this._htmlButtons();
         let tasksList = document.querySelector('.tasksList');
         tasksList.insertBefore(this.html, tasksList.firstChild);
+        AjaxTask.refreshMainState();
     }
 
     _htmlButtons() {
+        this.buttonsHtml.children.removeAll();
         if (this.state == 'error') {
-            let btnDelete = this.statusHtml.addChild('div', {className: 'button', text: 'Usuń'});
+            let btnDelete = this.buttonsHtml.addChild('div', {className: 'button', text: 'Anuluj'});
             btnDelete.onclick = () => {
                 this._delete(true);
             };
-            let btnRefresh = this.statusHtml.addChild('div', {className: 'button', text: 'odświerz'});
+            let btnRefresh = this.buttonsHtml.addChild('div', {className: 'button', text: 'Powtórz'});
             btnRefresh.onclick = () => {
                 this.start();
             };
@@ -61,6 +64,7 @@ export class AjaxTask {
     refreshHtml() {
         this.statusHtml.textContent = this.stateText;
         this._htmlButtons();
+        AjaxTask.refreshMainState();
         if (!this.state) {
             setTimeout(() => {
                 this.html.remove()
@@ -76,6 +80,7 @@ export class AjaxTask {
             this.html.remove();
         else
             this.refreshHtml();
+        AjaxTask.refreshMainState();
     }
 
     start() {
@@ -91,6 +96,7 @@ export class AjaxTask {
             localStorage[this.identificator + '-state'] = 'error';
             this.refreshHtml();
         });
+        AjaxTask.refreshMainState();
     }
 
     static refresh() {
@@ -108,6 +114,19 @@ export class AjaxTask {
                 }
             }
         }
+        this.refreshMainState();
+    }
+
+    static refreshMainState() {
+        let hasSomething = false;
+        for (let identificator in AjaxTask.tasks) {
+            let task = AjaxTask.tasks[identificator];
+            if (task.state) hasSomething = true;
+        }
+        if (hasSomething)
+            document.querySelector('.tasks').classList.add('open');
+        else
+            document.querySelector('.tasks').classList.remove('open');
     }
 
     then(fun) {
