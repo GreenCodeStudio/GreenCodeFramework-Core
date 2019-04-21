@@ -18,6 +18,15 @@ module.exports = {
                     "sass-loader" // compiles Sass to CSS, using Node Sass by default
                 ]
             })
+        }   ,         {
+            test: /\.(woff(2)?|ttf|eoty)(\?v=\d+\.\d+\.\d+)?$/,
+            use: [{
+                loader: 'file-loader',
+                options: {
+                    name: '[name].[ext]',
+                    outputPath: 'fonts/'
+                }
+            }]
         }]
     },
     plugins: [

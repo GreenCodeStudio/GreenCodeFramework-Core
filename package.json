@@ -16,6 +16,7 @@
         "util.merge-packages": "^0.0.17",
         "webpack": "^4.30.0",
         "webpack-cli": "^3.3.0",
-        "path": "^0.12.7"
+        "path": "^0.12.7",
+        "file-loader": "^3.0.1"
     }
 }
