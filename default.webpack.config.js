@@ -6,7 +6,7 @@ module.exports = {
         style: './scss/build.scss'
     }, output: {
         path: path.resolve(__dirname, './public_html')+'/dist/',
-        publicPath: "/dist"
+        publicPath: "/dist/"
     },
     module: {
         rules: [{
