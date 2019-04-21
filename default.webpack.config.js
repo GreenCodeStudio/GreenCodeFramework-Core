@@ -5,7 +5,7 @@ module.exports = {
         main: './js/build.js',
         style: './scss/build.scss'
     }, output: {
-        path: path.resolve(__dirname, './public_html')+'/dist',
+        path: path.resolve(__dirname, './public_html')+'/dist/',
         publicPath: "/dist"
     },
     module: {
@@ -24,7 +24,7 @@ module.exports = {
                 loader: 'file-loader',
                 options: {
                     name: '[name].[ext]',
-                    outputPath: 'fonts/'
+                    outputPath: '/fonts/'
                 }
             }]
         }]
