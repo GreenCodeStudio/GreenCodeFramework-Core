@@ -1,13 +1,17 @@
-export function setEvent(type, selector, callback) {
-    if (!setEvent.events[type]) {
-        setEvent.events[type] = [];
+const eventsSymbol=Symbol('events');
+
+export function setEvent(type, selector, callback, root=document) {
+    if(!root[eventsSymbol])
+        root[eventsSymbol]={};
+    if (!root[eventsSymbol][type]) {
+        root[eventsSymbol][type] = [];
         document.addEventListener(type, e => {
-            var elem = e.target;
-            let callbacks = setEvent.events[type];
+            let elem = e.target;
+            let callbacks = root[eventsSymbol][type];
             if (!callbacks) return;
             let propagation = true;
             let inlevelPropagation = true;
-            while (elem && elem != document && propagation) {
+            while (elem && elem != root && propagation) {
                 for (var x of callbacks) {
                     if (!inlevelPropagation) break;
                     try {
@@ -33,7 +37,5 @@ export function setEvent(type, selector, callback) {
             }
         })
     }
-    setEvent.events[type].push({selector, callback});
+    root[eventsSymbol][type].push({selector, callback});
 }
-
-setEvent.events = {};

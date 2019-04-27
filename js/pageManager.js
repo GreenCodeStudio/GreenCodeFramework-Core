@@ -129,7 +129,7 @@ export const pageManager = {
             let existing = existingBreadcrumb.children[i];
             if (existing) {
                 let existingA = existing.firstElementChild;
-                if (existingA.textContent == crumb.title && existingA.attributes['href'].value == crumb.url)
+                if (existingA.textContent == crumb.title && (existingA.attributes['href']||{}).value == crumb.url)
                     continue;//nie zmieniamy, jest ten sam
             }
             while (existingBreadcrumb.children.length > i) {
