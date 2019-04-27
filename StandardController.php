@@ -29,9 +29,12 @@ class StandardController extends AbstractController
         $breadcrumb = $this->breadcrumb;
         return end($breadcrumb)['title'];
     }
-    protected function addViewString(string $html, string $group = 'main'){
-        $this->views[$group][]=$html;
+
+    protected function addViewString(string $html, string $group = 'main')
+    {
+        $this->views[$group][] = $html;
     }
+
     protected function addView(string $module, string $name, $data = null, string $group = 'main')
     {
         ob_start();
@@ -57,7 +60,10 @@ class StandardController extends AbstractController
     {
         echo '<ul>';
         foreach ($this->breadcrumb as $crumb) {
-            echo '<li><a href="'.htmlspecialchars($crumb['url']).'">'.htmlspecialchars($crumb['title']).'</a></li>';
+            if (!empty($crumb['url']))
+                echo '<li><a href="'.htmlspecialchars($crumb['url']).'">'.htmlspecialchars($crumb['title']).'</a></li>';
+            else
+                echo '<li><span>'.htmlspecialchars($crumb['title']).'</span></li>';
         }
         echo '</ul>';
     }

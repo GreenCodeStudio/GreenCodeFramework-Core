@@ -47,7 +47,7 @@ export const pageManager = {
                 callback(page, data);
 
     },
-    goto(url) {
+    goto(url, options={}) {
         return new Promise((resolve, reject) => {
             document.querySelectorAll('[data-views="main"] > .page').forEach(x => x.classList.add('removing'));
             setTimeout(() => {
@@ -59,11 +59,16 @@ export const pageManager = {
             xhr.setRequestHeader('x-json', 1);
             xhr.onload = () => {
                 let data = JSON.parse(xhr.responseText);
-                if (data.needFullReload) {
-                    document.location = url;
-                    return;
+                if (options.ignoreHistory) {
+                    if (data.needFullReload)
+                        document.location.reload();
+                } else {
+                    if (data.needFullReload) {
+                        document.location = url;
+                        return;
+                    }
+                    history.pushState(data, '', url);
                 }
-                history.pushState(data, '', url);
                 if (xhr.status == 403) {
                     modal('Brak uprawnień', 'error');
                     reject(data.error);
@@ -131,7 +136,10 @@ export const pageManager = {
                 existingBreadcrumb.lastChild.remove();
             }
             let li = existingBreadcrumb.addChild('li');
-            li.addChild('a', {href: crumb.url, text: crumb.title});
+            if (crumb.url)
+                li.addChild('a', {href: crumb.url, text: crumb.title});
+            else
+                li.addChild('span', {text: crumb.title});
         }
         let last = breadcrumb[breadcrumb.length - 1];
         document.title = last.title;
@@ -140,3 +148,4 @@ export const pageManager = {
         this._constrollers[name] = controller;
     }
 };
+addEventListener('popstate', e => pageManager.goto(location.href, {ignoreHistory:true}))
