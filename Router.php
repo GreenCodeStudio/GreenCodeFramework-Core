@@ -152,7 +152,12 @@ class Router
         ob_start();
 
         list($type, $controllerName, $methodName, $args) = self::parseUrl($url);
-        if(!empty($_POST['args'])){
+
+        if ($type == 'Ajax' && ($_SERVER['HTTP_X_JS_ORIGIN'] ?? '') !== 'true') {
+            http_response_code(403);
+            return;
+        }
+        if (!empty($_POST['args'])) {
             $args = array_merge($args, $_POST['args']);
         }
         try {
@@ -172,10 +177,10 @@ class Router
             if ($type == 'Ajax') {
                 header('Content-type: application/json');
                 global $debugArray;
-                echo json_encode(['data' => $returned, 'error' => null, 'debug' => $debugArray, 'output' => $controller->debugOutput], JSON_PARTIAL_OUTPUT_ON_ERROR );
+                echo json_encode(['data' => $returned, 'error' => null, 'debug' => $debugArray, 'output' => $controller->debugOutput], JSON_PARTIAL_OUTPUT_ON_ERROR);
             } else {
                 if (isset($_SERVER['HTTP_X_JSON'])) {
-                    echo json_encode(['views' => $controller->getViews(), 'breadcrumb' => $controller->getBreadcrumb(), 'debug' => $controller->debugOutput, 'data' => $controller->initInfo, 'error' => null],JSON_PARTIAL_OUTPUT_ON_ERROR );
+                    echo json_encode(['views' => $controller->getViews(), 'breadcrumb' => $controller->getBreadcrumb(), 'debug' => $controller->debugOutput, 'data' => $controller->initInfo, 'error' => null], JSON_PARTIAL_OUTPUT_ON_ERROR);
                 } else {
                     $controller->postAction();
                 }
@@ -186,8 +191,10 @@ class Router
                 $responseCode = 404;
             else if ($ex instanceof \Authorization\Exceptions\NoPermissionException)
                 $responseCode = 403;
+            else if ($ex instanceof \Authorization\Exceptions\UnauthorizedException)
+                $responseCode = 401;
             http_response_code($responseCode);
-
+            error_log($ex);
             $debugEnabled = getenv('debug') == 'true';
             dump($ex);
             $debugOutput = ob_get_clean();
@@ -195,10 +202,10 @@ class Router
             if ($type == 'Ajax') {
                 header('Content-type: application/json');
                 global $debugArray;
-                echo json_encode(['error' => static::exceptionToArray($ex), 'debug' => $debugEnabled ? $debugArray : [], 'output' => $debugEnabled ? ($controller->debugOutput ?? '') : ''], JSON_PARTIAL_OUTPUT_ON_ERROR );
+                echo json_encode(['error' => static::exceptionToArray($ex), 'debug' => $debugEnabled ? $debugArray : [], 'output' => $debugEnabled ? ($controller->debugOutput ?? '') : ''], JSON_PARTIAL_OUTPUT_ON_ERROR);
             } else {
                 if (isset($_SERVER['HTTP_X_JSON'])) {
-                    echo json_encode(['debug' => $debugEnabled ? $debugOutput : '', 'error' => static::exceptionToArray($ex)],JSON_PARTIAL_OUTPUT_ON_ERROR );
+                    echo json_encode(['debug' => $debugEnabled ? $debugOutput : '', 'error' => static::exceptionToArray($ex)], JSON_PARTIAL_OUTPUT_ON_ERROR);
                 } else {
                     list($controllerClassNameError, $controllerError) = static::dispatchController('Controllers', 'Error', 'index', [$debugEnabled ? $debugOutput : '']);
                     self::runMethod($controllerClassNameError, $controllerError);

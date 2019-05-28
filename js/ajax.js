@@ -15,6 +15,7 @@ function AjaxFunction(controller, method, ...args) {
         for (var arg of args) {
             postData += '&args[]=' + encodeURIComponent(JSON.stringify(arg));
         }
+        xhr.setRequestHeader('x-js-origin', 'true');
         xhr.setRequestHeader('content-type', 'application/x-www-form-urlencoded');
         xhr.onreadystatechange = e => {
             if (xhr.readyState == 4) {
