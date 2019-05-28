@@ -1,14 +1,15 @@
-var merge = require( 'util.merge-packages').default;
+var merge = require('util.merge-packages').default;
 var fs = require('fs');
 
 var dst = fs.readFileSync('package.json');
 
-var folders=fs.readdirSync('modules');
-for(let module of folders){
+var folders = fs.readdirSync('modules');
+for (let module of folders) {
 
-    try{
-    var src = fs.readFileSync('modules/'+module+'/package.json');
-    dst= merge(dst,src);
-    }catch(ex){}
+    try {
+        var src = fs.readFileSync('modules/' + module + '/package.json');
+        dst = merge(dst, src);
+    } catch (ex) {
+    }
 }
 fs.writeFileSync('package.json', dst);

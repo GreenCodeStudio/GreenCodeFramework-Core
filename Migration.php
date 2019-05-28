@@ -6,7 +6,7 @@ abstract class Migration
 {
     public static function factory()
     {
-        if(getenv('dbDialect')=='mysql')
+        if (getenv('dbDialect') == 'mysql')
             return new MigrationMysql();
         else
             return new MigrationMssql();
@@ -80,13 +80,13 @@ abstract class Migration
 
     function readOldStructure()
     {
-        $schema=getenv('dbSchema');
-        $tablesList = DB::get("SELECT TABLE_NAME as name FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = ?", [$schema]);
+        $schema = getenv('dbSchema');
+        $tablesList = DB::getArray("SELECT TABLE_NAME as name FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = ?", [$schema]);
         $tables = [];
         foreach ($tablesList as $table) {
-            $tables[$table['name']]['columns'] = DB::get("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?", [$schema, $table['name']]);
+            $tables[$table['name']]['columns'] = DB::getArray("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?", [$schema, $table['name']]);
             $tables[$table['name']]['index'] = [];
-            $indexes = DB::get("SHOW INDEX FROM ".$table['name']);
+            $indexes = DB::getArray("SHOW INDEX FROM ".$table['name']);
             foreach ($indexes as $index) {
                 $tables[$table[0]]['index'][$index['Key_name']][$index['Seq_in_index'] - 1] = $index;
             }
@@ -119,7 +119,7 @@ abstract class Migration
      */
     protected function createColumnSql($column)
     {
-        $safename=DB::safeKey($column->name);
+        $safename = DB::safeKey($column->name);
         $col = $safename.' '.$column->type.' '.(strtolower($column->null) == 'yes' ? 'NULL' : 'NOT NULL');
         if (!empty($column->default))
             $col .= ' DEFAULT '.DB::safe($column->default->__toString());
@@ -197,7 +197,7 @@ abstract class Migration
             $cols[] = $this->addIndexSQL($index);
         }
         $colsString = implode(',', $cols);
-        $safename=DB::safeKey($name);
+        $safename = DB::safeKey($name);
         $sql = "CREATE TABLE $safename ($colsString)";
         dump($sql);
         DB::query($sql);

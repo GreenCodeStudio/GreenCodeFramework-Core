@@ -14,7 +14,7 @@ class System extends \Core\AbstractController
 
     function migration()
     {
-        $migr =  \Core\Migration::factory();
+        $migr = \Core\Migration::factory();
         $migr->upgrade();
     }
 

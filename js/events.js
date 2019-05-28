@@ -1,8 +1,8 @@
-const eventsSymbol=Symbol('events');
+const eventsSymbol = Symbol('events');
 
-export function setEvent(type, selector, callback, root=document) {
-    if(!root[eventsSymbol])
-        root[eventsSymbol]={};
+export function setEvent(type, selector, callback, root = document) {
+    if (!root[eventsSymbol])
+        root[eventsSymbol] = {};
     if (!root[eventsSymbol][type]) {
         root[eventsSymbol][type] = [];
         document.addEventListener(type, e => {

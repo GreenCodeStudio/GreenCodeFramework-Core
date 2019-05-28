@@ -19,7 +19,20 @@ class DB
             $params2[':'.$name] = $value;
         }
         $sth->execute($params);
-        $ret = $sth->fetchAll();
+        $ret = $sth->fetchAll(\PDO::FETCH_CLASS, 'stdClass');
+        return $ret;
+    }
+
+    static function getArray(string $sql, $params = [])
+    {
+        static::connect();
+        $sth = static::$pdo->prepare($sql, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
+        $params2 = [];
+        foreach ($params as $name => $value) {
+            $params2[':'.$name] = $value;
+        }
+        $sth->execute($params);
+        $ret = $sth->fetchAll(\PDO::FETCH_CLASS, 'stdClass');
         return $ret;
     }
 

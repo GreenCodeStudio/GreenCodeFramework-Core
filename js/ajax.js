@@ -1,8 +1,9 @@
 import ConsoleCheating from 'console-cheating';
+
 function showServerDebug(decoded) {
     if (decoded.debug) {
         for (let dump of decoded.debug) {
-            ConsoleCheating.eval("console.log.apply(null,data)", "", dump.backtrace[0].file,dump.backtrace[0].line, dump.vars);
+            ConsoleCheating.eval("console.log.apply(null,data)", "", dump.backtrace[0].file, dump.backtrace[0].line, dump.vars);
         }
     }
 }
@@ -32,11 +33,11 @@ function AjaxFunction(controller, method, ...args) {
                     } catch (ex) {
                         reject(ex);
                     }
-                } else{
-                    try{
+                } else {
+                    try {
                         let decoded = JSON.parse(xhr.responseText);
-                        ConsoleCheating.eval("console.error.apply(null,data)", "", decoded.error.stack[0].file,decoded.error.stack[0].line, [decoded.error.message+'%o',decoded.error]);
-                    }catch(ex){
+                        ConsoleCheating.eval("console.error.apply(null,data)", "", decoded.error.stack[0].file, decoded.error.stack[0].line, [decoded.error.message + '%o', decoded.error]);
+                    } catch (ex) {
                     }
                     reject(new Error('Http status:' + xhr.status + ' ' + xhr.statusText));
                 }

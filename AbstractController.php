@@ -48,7 +48,7 @@ abstract class AbstractController
      */
     public function will(string $group, string $permission)
     {
-        if(!$this->can($group,$permission))
+        if (!$this->can($group, $permission))
             throw new NoPermissionException();
     }
 }

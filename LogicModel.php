@@ -14,12 +14,12 @@ class LogicModel
     /* @var DBModel */
     protected $defaultDB = null;
 
-    public function getById(int $id){
-        if($this->defaultDB===null)
+    public function getById(int $id)
+    {
+        if ($this->defaultDB === null)
             throw new \Exception('not implemented');
         return $this->defaultDB->getById($id);
     }
-
 
 
 }
