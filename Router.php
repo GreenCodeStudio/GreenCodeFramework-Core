@@ -148,11 +148,14 @@ class Router
 
     private static function exceptionToArray(\Throwable $exception)
     {
-        $stack = [['file' => $exception->getFile(), 'line' => $exception->getLine()]];
-        $stack = array_merge($stack, $exception->getTrace());
-        return ['type' => get_class($exception), 'message' => $exception->getMessage(), 'code' => $exception->getCode(), 'stack' => $stack];
+        $ret = ['type' => get_class($exception), 'message' => $exception->getMessage(), 'code' => $exception->getCode()];
+        if (getenv('debug') == 'true') {
+            $stack = [['file' => $exception->getFile(), 'line' => $exception->getLine()]];
+            $stack = array_merge($stack, $exception->getTrace());
+            $ret['stack'] = $stack;
+        }
+        return $ret;
     }
-
     /**
      * @param $url
      * @throws Exceptions\NotFoundException
