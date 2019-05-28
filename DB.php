@@ -145,7 +145,7 @@ class DB
     static function insertMultiple(string $table, array $data)
     {
         if (empty($data))
-            return;
+            return null;
         static::connect();
         $table = static::clearName($table);
         $cols = [];

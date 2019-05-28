@@ -14,6 +14,11 @@ class LogicModel
     /* @var DBModel */
     protected $defaultDB = null;
 
+    /**
+     * @param int $id
+     * @return |null
+     * @throws \Exception
+     */
     public function getById(int $id)
     {
         if ($this->defaultDB === null)

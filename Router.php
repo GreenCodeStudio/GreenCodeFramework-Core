@@ -105,6 +105,12 @@ class Router
         }
     }
 
+    /**
+     * @param string $name
+     * @param string $type
+     * @return string
+     * @throws Exceptions\NotFoundException
+     */
     private static function findController(string $name, string $type = 'Controllers')
     {
         $modules = scandir(__DIR__.'/../');
@@ -147,6 +153,12 @@ class Router
         return ['type' => get_class($exception), 'message' => $exception->getMessage(), 'code' => $exception->getCode(), 'stack' => $stack];
     }
 
+    /**
+     * @param $url
+     * @throws Exceptions\NotFoundException
+     * @throws \Authorization\Exceptions\NoPermissionException
+     * @throws \ReflectionException
+     */
     public static function route($url)
     {
         ob_start();
