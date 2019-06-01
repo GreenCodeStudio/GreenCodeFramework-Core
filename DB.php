@@ -32,7 +32,7 @@ class DB
             $params2[':'.$name] = $value;
         }
         $sth->execute($params);
-        $ret = $sth->fetchAll(\PDO::FETCH_CLASS, 'stdClass');
+        $ret = $sth->fetchAll(\PDO::FETCH_ASSOC);
         return $ret;
     }
 

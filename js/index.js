@@ -21,9 +21,9 @@ pageManager.onLoad(async (page, data) => {
 
     let tables = document.querySelectorAll('.dataTable');
     for (let table of tables) {
-        let [{tableManager}, {datasourceAjax}] = await Promise.all([import("./table"), import( "./datasourceAjax")]);
+        let [{TableManager}, {datasourceAjax}] = await Promise.all([import("./table"), import( "./datasourceAjax")]);
         let datasource = new datasourceAjax(table.dataset.controller, table.dataset.method);
-        table.datatable = new tableManager(table, datasource);
+        table.datatable = new TableManager(table, datasource);
         table.datatable.refresh();
     }
 

@@ -1,13 +1,18 @@
 import "prototype-extensions";
 
-export class tableManager {
+export class TableManager {
     constructor(table, datasource) {
         this.table = table;
         this.datasource = datasource;
-        this.start = 0;
-        this.limit = 50;
+        this.page = 0;
         this.search = '';
         this.sort = '';
+        this.limit = 100;
+        this.calcSize();
+    }
+
+    get start() {
+        return this.page * this.limit;
     }
 
     async refresh() {
@@ -15,6 +20,10 @@ export class tableManager {
         this.loadData(data);
     }
 
+    /**
+     * virtual method
+     */
+    calcSize(){}
     loadData(data) {
         let tbody = this.table.tBodies[0];
         if (!tbody) {
