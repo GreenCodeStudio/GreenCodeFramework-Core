@@ -9,9 +9,9 @@
 namespace Core;
 
 
-class LogicModel
+class BussinesLogic
 {
-    /* @var DBModel */
+    /* @var Repository */
     protected $defaultDB = null;
 
     /**
