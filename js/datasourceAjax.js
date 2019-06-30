@@ -7,7 +7,7 @@ export class datasourceAjax {
         this.method = method;
         if (webSocketPath.length > 0 && webSocketPath[0].toString().trim() !== "") {
             WebSocketReceiver.addListener(webSocketPath, () => {
-                console.log('updated');
+                console.log('Datasource ajax updated');
                 if (this.onchange) {
                     this.onchange();
                 }

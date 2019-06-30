@@ -23,8 +23,8 @@ pageManager.onLoad(async (page, data) => {
     for (let table of tables) {
         let [{TableManager}, {datasourceAjax}] = await Promise.all([import("./table"), import( "./datasourceAjax")]);
         let webSocketPath = [];
-        if (table.dataset.websocketPath)
-            webSocketPath = table.dataset.websocketPath.split('/');
+        if (table.dataset.webSocketPath)
+            webSocketPath = table.dataset.webSocketPath.split('/');
         let datasource = new datasourceAjax(table.dataset.controller, table.dataset.method, webSocketPath);
         table.datatable = new TableManager(table, datasource);
         table.datatable.refresh();

@@ -1,6 +1,6 @@
 let listeners = [];
 
-const connection = new WebSocket(((location.protocol == "https") ? 'wss://' : 'ws://') + location.host + ':81/websocket');
+const connection = new WebSocket(((location.protocol == "https") ? 'wss://' : 'ws://') + location.host + '/websocket');
 
 connection.onmessage = msg => WebSocketReceiver.messageReceived(msg);
 
@@ -16,7 +16,6 @@ export class WebSocketReceiver {
     }
 
     static messageReceived(msg) {
-        console.log(msg)
         let data = JSON.parse(msg.data);
         listeners.filter(x => this.containsPath(data.path, x.path)).forEach(x => x.callback());
     }

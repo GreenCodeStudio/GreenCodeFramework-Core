@@ -4,6 +4,7 @@ export class TableManager {
     constructor(table, datasource) {
         this.table = table;
         this.datasource = datasource;
+        this.datasource.onchange = () => this.refresh();
         this.page = 0;
         this.search = '';
         this.sort = '';
