@@ -165,7 +165,7 @@ class Router
     public static function route($url)
     {
         ob_start();
-
+        Log::Request($url);
         list($type, $controllerName, $methodName, $args) = self::parseUrl($url);
 
         if ($type == 'Ajax' && ($_SERVER['HTTP_X_JS_ORIGIN'] ?? '') !== 'true') {
