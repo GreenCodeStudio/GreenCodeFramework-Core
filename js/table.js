@@ -10,6 +10,7 @@ export class TableManager {
         this.sort = '';
         this.limit = 100;
         this.calcSize();
+        this.initThead();
     }
 
     get start() {
@@ -28,6 +29,10 @@ export class TableManager {
     }
 
     loadData(data) {
+        this.table.tHead.querySelectorAll('[data-order]').forEach(x => delete x.dataset.order);
+        if (this.sort)
+            this.table.tHead.querySelectorAll(`[data-value="${this.sort.col}"]`).forEach(x => x.dataset.order = this.sort.desc ? 'desc' : 'asc');
+
         let tbody = this.table.tBodies[0];
         if (!tbody) {
             tbody = this.table.addChild('tbody');
@@ -44,14 +49,20 @@ export class TableManager {
                     let tableCopy = th.querySelector('.tableCopy');
                     if (tableCopy) {
                         td.innerHTML = th.querySelector('.tableCopy').innerHTML;
-                        var links = td.querySelectorAll('a');
+                        let links = td.querySelectorAll('a');
                         links.forEach(a => a.href = a.href.replace(/\/$/, '') + '/' + row.id);
                     }
                 }
             }
         }
-        if (!this.table.tFoot)
+        if (!this.table.tFoot) {
             this.table.tFoot = document.create('tfoot');
+            this.rFootTd = this.table.tFoot.addChild('tr').addChild('td');
+            this.rFootTd.colSpan = this.table.tHead.firstElementChild.children.length;
+            this.paginationDiv = this.rFootTd.addChild('div', {className: 'pagination'});
+            this.searchForm = this.rFootTd.addChild('form', {className: 'search'});
+            this.searchForm.addChild('input', {name: 'search', type: 'search'});
+        }
         this.renderPagination(data.total);
     }
 
@@ -62,17 +73,12 @@ export class TableManager {
 
     renderPagination(totalRows) {
         let pagination = this.getPagination(totalRows);
-        console.log({pagination});
-        if (!this.paginationRow) {
-            this.paginationRow = this.table.tFoot.addChild('tr').addChild('td');
-        }
-        this.paginationRow.colSpan = this.table.tHead.firstElementChild.children.length;
-        this.paginationRow.children.removeAll();
+        this.paginationDiv.children.removeAll();
         for (let pageNumber of pagination) {
             if (pageNumber == null) {
-                this.paginationRow.addChild('span', {text: '...'});
+                this.paginationDiv.addChild('span', {text: '...'});
             } else {
-                let pageButton = this.paginationRow.addChild('button', {text: pageNumber + 1});
+                let pageButton = this.paginationDiv.addChild('button', {text: pageNumber + 1});
                 pageButton.onclick = () => {
                     this.goToPage(pageNumber);
                 };
@@ -118,5 +124,20 @@ export class TableManager {
             boxes.push(pages - 1);
         }
         return boxes;
+    }
+
+    initThead() {
+        let headers = this.table.tHead.querySelectorAll('[data-sortable]');
+        console.log({headers});
+        headers.forEach(x => {
+            x.onclick = () => {
+                if (this.sort && this.sort.col === x.dataset.value) {
+                    this.sort.desc = !this.sort.desc;
+                } else {
+                    this.sort = {col: x.dataset.value, desc: false};
+                }
+                this.refresh();
+            }
+        })
     }
 }
