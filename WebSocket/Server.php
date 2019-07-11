@@ -49,7 +49,7 @@ class Server implements MessageComponentInterface
         $connections = array_filter($this->conncections, function ($x) {
             return $x->extended instanceof ConnectionUser;
         });
-        if($msg->users!==null){
+        if($msgParsed['users']!==null){
           //todo
         }
         foreach ($connections as $conn) {

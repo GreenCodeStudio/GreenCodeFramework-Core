@@ -4,7 +4,7 @@ import {setEvent} from "./events";
 import {Ajax} from "./ajax";
 
 pageManager.onLoad(async (page, data) => {
-    let forms = document.querySelectorAll('.dataForm');
+    let forms = page.querySelectorAll('.dataForm');
     if (forms.length) {
         let {formManager} = await import("./form");
         formManager.initEvents();
@@ -19,7 +19,7 @@ pageManager.onLoad(async (page, data) => {
         }
     }
 
-    let tables = document.querySelectorAll('.dataTable');
+    let tables = page.querySelectorAll('.dataTable');
     for (let table of tables) {
         let [{TableManager}, {datasourceAjax}] = await Promise.all([import("./table"), import( "./datasourceAjax")]);
         let webSocketPath = [];
