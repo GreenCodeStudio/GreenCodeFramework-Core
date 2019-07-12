@@ -9,6 +9,9 @@ class DB
      */
     private static $pdo = null;
     private static $dialect = 'mysql';
+    private static $dsn;
+    private static $user;
+    private static $password;
 
     static function get(string $sql, $params = [])
     {
@@ -23,6 +26,15 @@ class DB
         return $ret;
     }
 
+    static function connect()
+    {
+        if (static::$pdo === null) {
+            static::$pdo = new \PDO(static::$dsn, static::$user, static::$password);
+            static::$password = null;
+            static::$pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        }
+    }
+
     static function getArray(string $sql, $params = [])
     {
         static::connect();
@@ -34,15 +46,6 @@ class DB
         $sth->execute($params);
         $ret = $sth->fetchAll(\PDO::FETCH_ASSOC);
         return $ret;
-    }
-
-    static function connect()
-    {
-        if (static::$pdo === null) {
-            static::$pdo = new \PDO(getenv('db'), getenv('dbUser'), getenv('dbPass'));
-            static::$pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-            static::$dialect = getenv('dbDialect');
-        }
     }
 
     static function rollBack()
@@ -173,5 +176,14 @@ class DB
         $valuesJoinedJoined = implode(',', $valuesJoinedArray);
         static::query("INSERT INTO `$table` ($colsJoined) VALUES $valuesJoinedJoined", $dataSql);
         return static::$pdo->lastInsertId();
+    }
+
+    public static function init()
+    {
+
+        DB::$dialect = getenv('dbDialect');
+        DB::$dsn = getenv('db');
+        DB::$user = getenv('dbUser');
+        DB::$password = getenv('dbPass');
     }
 }
