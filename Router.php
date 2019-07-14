@@ -210,6 +210,7 @@ class Router
                 $responseCode = 401;
             http_response_code($responseCode);
             error_log($ex);
+            Log::Exception($ex);
             $debugEnabled = getenv('debug') == 'true';
             dump($ex);
             $debugOutput = ob_get_clean();
