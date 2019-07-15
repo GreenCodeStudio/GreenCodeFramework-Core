@@ -14,5 +14,6 @@ $dotenv->load();
 
 include __DIR__.'/Router.php';
 include __DIR__.'/Debug.php';
+\Core\DB::init();
 $input = json_decode(file_get_contents('php://stdin'));
 \Core\Router::routeConsole($input->controller, $input->action, $input->args);
