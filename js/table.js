@@ -131,10 +131,12 @@ export class TableManager {
         console.log({headers});
         headers.forEach(x => {
             x.onclick = () => {
-                if (this.sort && this.sort.col === x.dataset.value) {
+                console.log('g')
+                let sortName=x.dataset.sortName||x.dataset.value;
+                if (this.sort && this.sort.col === sortName) {
                     this.sort.desc = !this.sort.desc;
                 } else {
-                    this.sort = {col: x.dataset.value, desc: false};
+                    this.sort = {col: sortName, desc: false};
                 }
                 this.refresh();
             }
