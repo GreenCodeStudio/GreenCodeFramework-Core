@@ -17,6 +17,7 @@ abstract class Migration
         $old = $this->readOldStructure();
         $new = $this->readNewStructure();
         foreach ($new as $name => $tableNew) {
+            $name = strtolower($name);
             try {
                 DB::beginTransaction();
                 if (isset($old[$name])) {
@@ -72,7 +73,7 @@ abstract class Migration
                 }
                 DB::commit();
             } catch (\Throwable $ex) {
-                dump($ex);
+                dump($ex->getMessage(), $ex->getTraceAsString());
                 DB::rollBack();
             }
         }
@@ -88,7 +89,7 @@ abstract class Migration
             $tables[$table['name']]['index'] = [];
             $indexes = DB::getArray("SHOW INDEX FROM ".$table['name']);
             foreach ($indexes as $index) {
-                $tables[$table[0]]['index'][$index['Key_name']][$index['Seq_in_index'] - 1] = $index;
+                $tables[$table['name']]['index'][$index['Key_name']][$index['Seq_in_index'] - 1] = $index;
             }
         }
         return $tables;
@@ -197,7 +198,7 @@ abstract class Migration
             $cols[] = $this->addIndexSQL($index);
         }
         $colsString = implode(',', $cols);
-        $safename = DB::safeKey($name);
+        $safename = DB::safeKey(strtolower($name));
         $sql = "CREATE TABLE $safename ($colsString)";
         dump($sql);
         DB::query($sql);
