@@ -39,6 +39,12 @@ class Menu
                 foreach ($value->children() as $childElement) {
                     $ret->menu[] = $this->getAsStdclass($childElement);
                 }
+            }
+            else if ($name == 'permission') {
+                $ret->permission=new \stdClass();
+                foreach ($value as $childName=>$childElement) {
+                    $ret->permission->$childName = $childElement->__toString();
+                }
             } else
                 $ret->$name = $value->__toString();
         }

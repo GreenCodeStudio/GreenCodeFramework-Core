@@ -7,10 +7,17 @@ export class TableManager {
         this.datasource.onchange = () => this.refresh();
         this.page = 0;
         this.search = '';
-        this.sort = '';
+        this.sort = this.readSort();
         this.limit = 100;
         this.calcSize();
         this.initThead();
+    }
+
+    readSort() {
+        let ordered = this.table.tHead.querySelector('[data-order]');
+        if (ordered)
+            return {col: ordered.dataset.value, desc: ordered.dataset.order=='desc'};
+        return null;
     }
 
     get start() {
@@ -43,9 +50,11 @@ export class TableManager {
             let tr = tbody.addChild('tr');
             for (let th of this.table.tHead.firstElementChild.children) {
                 let td = tr.addChild('td');
+                td.dataset.header = th.textContent + ': ';
                 if (th.dataset.value)
                     td.textContent = row[th.dataset.value];
                 else if (th.classList.contains('tableActions')) {
+                    td.classList.add('tableActions-cell');
                     let tableCopy = th.querySelector('.tableCopy');
                     if (tableCopy) {
                         td.innerHTML = th.querySelector('.tableCopy').innerHTML;
@@ -132,7 +141,7 @@ export class TableManager {
         headers.forEach(x => {
             x.onclick = () => {
                 console.log('g')
-                let sortName=x.dataset.sortName||x.dataset.value;
+                let sortName = x.dataset.sortName || x.dataset.value;
                 if (this.sort && this.sort.col === sortName) {
                     this.sort.desc = !this.sort.desc;
                 } else {
