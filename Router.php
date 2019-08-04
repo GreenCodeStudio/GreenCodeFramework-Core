@@ -156,6 +156,7 @@ class Router
         }
         return $ret;
     }
+
     /**
      * @param $url
      * @throws Exceptions\NotFoundException
@@ -208,9 +209,11 @@ class Router
                 $responseCode = 403;
             else if ($ex instanceof \Authorization\Exceptions\UnauthorizedException)
                 $responseCode = 401;
+            else {
+                error_log($ex);
+                Log::Exception($ex);
+            }
             http_response_code($responseCode);
-            error_log($ex);
-            Log::Exception($ex);
             $debugEnabled = getenv('debug') == 'true';
             dump($ex);
             $debugOutput = ob_get_clean();
