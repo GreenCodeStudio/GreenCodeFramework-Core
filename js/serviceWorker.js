@@ -4,7 +4,9 @@ let cachePromise = caches.open(CACHE_NAME);
 let cacheViewPromise = caches.open(CACHE_VIEV_NAME);
 let currentVersion = null;
 let minimalCacheDate = new Date();
+global.fetchCounter = 0;
 const debug = false;
+console.log('Service worker started');
 
 async function LoadJsonView(event) {
     let cache = await cacheViewPromise;
@@ -20,12 +22,12 @@ async function LoadJsonView(event) {
 }
 
 async function LoadFileOffline(event) {
-    console.log('fileRequestOffline', event.request)
     let cache = await cachePromise;
     let cacheResult = await cache.match(event.request);
-    if (cacheResult)
-        return cacheResult;
-    return await cache.match('/cache/offline');
+    if (!cacheResult)
+        cacheResult = await cache.match('/Cache/offline');
+    console.log('fileRequestOffline', event.request, cacheResult)
+    return cacheResult;
 }
 
 async function LoadFile(event) {
@@ -57,6 +59,7 @@ async function LoadFile(event) {
 }
 
 self.addEventListener('fetch', function (event) {
+    global.fetchCounter++;
     event.respondWith((async () => {
         if (debug)
             return fetch(event.request);
