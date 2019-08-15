@@ -37,7 +37,7 @@ addEventListener('focus', () => {
 AjaxTask.refresh();
 if ('serviceWorker' in navigator && !window.DEBUG) {
     window.addEventListener('load', function () {
-        navigator.serviceWorker.register('/serviceWorker.js').then(function (registration) {
+        navigator.serviceWorker.register('/dist/serviceWorker.js').then(function (registration) {
             // Registration was successful
             console.log('ServiceWorker registration successful with scope: ', registration.scope);
             setTimeout(() => navigator.serviceWorker.controller.postMessage("installOffline"), 20000);
