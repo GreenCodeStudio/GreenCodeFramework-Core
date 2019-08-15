@@ -32,17 +32,20 @@ async function LoadFile(event) {
     let cache = await cachePromise;
     if (navigator.onLine === true) {
         if (currentVersion !== null) {
-            var cacheResult = await cache.match(event.request);
-            if (cacheResult && cacheResult.headers.get('x-sw-version') == currentVersion && new Date(cacheResult.headers.get("date")) >= minimalCacheDate) {
-                console.log('sw cache', cacheResult);
-                return cacheResult;
+            let cacheResult = await cache.match(event.request);
+            if (cacheResult) {
+                let cachedDate = new Date(cacheResult.headers.get("date"));
+                if (cacheResult.headers.get('x-sw-version') === currentVersion && cachedDate >= minimalCacheDate && new Date() - cachedDate <= 24 * 3600 * 1000) {
+                    console.log('sw cache', cacheResult);
+                    return cacheResult;
+                }
             }
         }
         try {
             let response = await fetch(event.request.clone());
             checkCacheVersion(response.headers.get('x-sw-version'))
             //console.log('sw fetch', response);
-            if (response.headers.get('x-sw-cache') == 1)
+            if (response.headers.get('x-sw-cache') === '1')
                 cache.put(event.request, response.clone());
             return response;
         } catch (ex) {
@@ -54,24 +57,21 @@ async function LoadFile(event) {
 }
 
 self.addEventListener('fetch', function (event) {
-    // console.log('sw fetch', event.request);
-
     event.respondWith((async () => {
         if (debug)
             return fetch(event.request);
-
+        //if (event.request.cache !== "default") update();
         if (event.request.headers.get('x-json')) {
             return await LoadJsonView(event);
         } else {
             return await LoadFile(event);
         }
     })());
-
 });
 self.addEventListener('message', function (event) {
-    if (event.data == 'clear')
-        clear();
-    else if (event.data == 'installOffline')
+    if (event.data === 'update')
+        update();
+    else if (event.data === 'installOffline')
         installOffline();
 });
 self.addEventListener('install', function (event) {
@@ -81,14 +81,12 @@ self.addEventListener('install', function (event) {
 /**
  * Nowa wersja
  */
-async function clear() {
-    caches.delete(CACHE_NAME);
-    cachePromise = caches.open(CACHE_NAME);
-
+function update() {
+    minimalCacheDate = new Date();
 }
 
 async function installOffline() {
-    var response = await fetch('/ajax/cache/list')
+    var response = await fetch('/ajax/Cache/list', {headers: {'x-js-origin': 'true'}});
     var list = await response.json();
     let cache = await cachePromise;
     for (let filePath of list.data.normal) {
