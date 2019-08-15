@@ -1,6 +1,6 @@
 let listeners = [];
 
-const connection = new WebSocket(((location.protocol == "https") ? 'wss://' : 'ws://') + location.host + '/websocket');
+const connection = new WebSocket(((location.protocol == "https:") ? 'wss://' : 'ws://') + location.host + '/websocket');
 
 connection.onmessage = msg => WebSocketReceiver.messageReceived(msg);
 
