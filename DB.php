@@ -136,13 +136,20 @@ class DB
             $nameSafe = static::safeKey($name);
             $cols[] = " $nameSafe ";
             $values[] = " :$name ";
-            $dataSql[$name] = $value;
+            $dataSql[$name] = self::toSqlValue($value);
         }
         $colsJoined = implode(',', $cols);
         $valuesJoined = implode(',', $values);
         $tableSafe = static::safeKey($table);
         static::query("INSERT INTO $tableSafe ($colsJoined) VALUES ($valuesJoined)", $dataSql);
         return static::$pdo->lastInsertId();
+    }
+
+    static private function toSqlValue($input)
+    {
+        if ($input instanceof \DateTime)
+            return $input->format('Y-m-d H:i:s.v');
+        else return $input;
     }
 
     static function insertMultiple(string $table, array $data)
@@ -168,7 +175,7 @@ class DB
             foreach ($example as $name => $value) {
                 $nameCleared = static::clearName($name).'_'.$i;
                 $values[] = " :$nameCleared ";
-                $dataSql[$nameCleared] = $row[$name] ?? NULL;
+                $dataSql[$nameCleared] = self::toSqlValue($row[$name] ?? NULL);
             }
             $valuesJoinedArray[] = '('.implode(',', $values).')';
         }
