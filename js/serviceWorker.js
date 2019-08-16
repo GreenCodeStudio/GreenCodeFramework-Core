@@ -74,8 +74,6 @@ self.addEventListener('fetch', function (event) {
 self.addEventListener('message', function (event) {
     if (event.data === 'update')
         update();
-    else if (event.data === 'installOffline')
-        installOffline();
 });
 self.addEventListener('install', function (event) {
 
@@ -118,3 +116,17 @@ function checkCacheVersion(version) {
         currentVersion = version;
     }
 }
+self.addEventListener('push', function(event) {
+    console.log('[Service Worker] Push Received.');
+    console.log(`[Service Worker] Push had this data: "${event.data.text()}"`);
+
+    const title = 'Push Codelab';
+    const options = {
+        body: 'Yay it works.',
+        icon: 'images/icon.png',
+        badge: 'images/badge.png'
+    };
+
+    event.waitUntil(self.registration.showNotification(title, options));
+});
+setTimeout(installOffline, 20000);

@@ -37,14 +37,7 @@ addEventListener('focus', () => {
 AjaxTask.refresh();
 if ('serviceWorker' in navigator && !window.DEBUG) {
     window.addEventListener('load', function () {
-        navigator.serviceWorker.register('/dist/serviceWorker.js', {scope:'/'}).then(function (registration) {
-            // Registration was successful
-            console.log('ServiceWorker registration successful with scope: ', registration.scope);
-            setTimeout(() => navigator.serviceWorker.controller.postMessage("installOffline"), 20000);
-        }, function (err) {
-            // registration failed :(
-            console.log('ServiceWorker registration failed: ', err);
-        });
+        window.swRegistratonPromise = navigator.serviceWorker.register('/dist/serviceWorker.js', {scope: '/'});
     });
 }
 var deferredPwaPrompt;
