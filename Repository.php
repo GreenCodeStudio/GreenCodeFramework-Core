@@ -14,33 +14,33 @@ class Repository
     public const ArchiveMode_OnlyExisting = 1;
     public const ArchiveMode_OnlyRemoved = 2;
     public const ArchiveMode_All = 3;
-    protected static $defaultTable;
+    protected $defaultTable;
     public $archiveMode = self::ArchiveMode_All;
 
     public function __construct($defaultTable)
     {
-        static::$defaultTable = $defaultTable;
+        $this->defaultTable = $defaultTable;
     }
 
     public function getById(int $id)
     {
-        $defaultTable = static::$defaultTable;
+        $defaultTable = $this->defaultTable;
         return DB::get("SELECT * FROM $defaultTable WHERE id = ?", [$id])[0] ?? null;
     }
 
     public function update(int $id, $data)
     {
-        DB::update(static::$defaultTable, $data, $id);
+        DB::update($this->defaultTable, $data, $id);
     }
 
     public function insert($data)
     {
-        return DB::insert(static::$defaultTable, $data);
+        return DB::insert($this->defaultTable, $data);
     }
 
     public function getSelect()
     {
-        $defaultTable = static::$defaultTable;
+        $defaultTable = $this->defaultTable;
         return DB::get("SELECT id, id as title FROM $defaultTable");
     }
 }
