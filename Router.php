@@ -179,6 +179,8 @@ class Router
         try {
             http_response_code(200);
             list($controllerClassName, $controller) = static::dispatchController($type, $controllerName, $methodName, $args);
+            if (!method_exists($controller, $methodName))
+                throw new \Core\Exceptions\NotFoundException();
             self::initAnnotationsCache();
             $annotations = Annotations::ofMethod($controller, $methodName);
             foreach ($annotations as $annotation) {

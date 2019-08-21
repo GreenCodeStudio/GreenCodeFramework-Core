@@ -9,7 +9,7 @@
 namespace Core;
 
 
-class Repository
+abstract class Repository
 {
     public const ArchiveMode_OnlyExisting = 1;
     public const ArchiveMode_OnlyRemoved = 2;
