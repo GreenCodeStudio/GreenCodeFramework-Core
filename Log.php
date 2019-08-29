@@ -110,7 +110,7 @@ class Log
         $msg->type = 'Error';
         $msg->lang = "php";
         $msg->level = 'Exception';
-        $msg->message = $ex->getMessage();
+        $msg->message = get_class($ex)."\r\n".$ex->getMessage();
         $msg->file = $ex->getFile();
         $msg->line = $ex->getLine();
         $msg->column = null;
