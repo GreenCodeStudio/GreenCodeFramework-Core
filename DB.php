@@ -35,6 +35,11 @@ class DB
         }
     }
 
+    /**
+     * @param string $sql
+     * @param array $params
+     * @return array
+     */
     static function getArray(string $sql, $params = [])
     {
         static::connect();
