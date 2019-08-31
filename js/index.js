@@ -40,7 +40,14 @@ if ('serviceWorker' in navigator && !window.DEBUG) {
         window.swRegistratonPromise = navigator.serviceWorker.register('/dist/serviceWorker.js', {scope: '/'});
     });
 }
-
+window.addEventListener('beforeinstallprompt', (e) => {
+    let btn = document.create('button.installPWA span.icon-install');
+    document.querySelector('body > header').insertBefore(btn, document.querySelector('body > header .tasks'));
+    btn.onclick = () => {
+        e.prompt();
+        btn.remove();
+    }
+});
 setTimeout(() => pageManager.initPage(window.controllerInitInfo, document.querySelector('.page')));
 setEvent('click', 'a', function (e) {
     e.preventDefault();
