@@ -14,10 +14,16 @@ async function LoadJsonView(event) {
         try {
             return await fetch(event.request.clone());
         } catch (ex) {
-            return await cache.match(event.request);
+            let cacheResult= await cache.match(event.request);
+            if (!cacheResult)
+                cacheResult = await cache.match('/Cache/offline');
+            return cacheResult;
         }
     } else {
-        return await cache.match(event.request);
+        let cacheResult= await cache.match(event.request);
+        if (!cacheResult)
+            cacheResult = await cache.match('/Cache/offline');
+        return cacheResult;
     }
 }
 

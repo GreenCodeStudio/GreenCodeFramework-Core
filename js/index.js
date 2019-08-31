@@ -40,15 +40,14 @@ if ('serviceWorker' in navigator && !window.DEBUG) {
         window.swRegistratonPromise = navigator.serviceWorker.register('/dist/serviceWorker.js', {scope: '/'});
     });
 }
-var deferredPwaPrompt;
 window.addEventListener('beforeinstallprompt', (e) => {
-    // Prevent Chrome 67 and earlier from automatically showing the prompt
-    e.preventDefault();
-    // Stash the event so it can be triggered later.
-    deferredPwaPrompt = e;
-    e.prompt();
+    let btn = document.create('button.installPWA span.icon-install');
+    document.querySelector('body > header').insertBefore(btn, document.querySelector('body > header .tasks'));
+    btn.onclick = () => {
+        e.prompt();
+        btn.remove();
+    }
 });
-
 setTimeout(() => pageManager.initPage(window.controllerInitInfo, document.querySelector('.page')));
 setEvent('click', 'a', function (e) {
     e.preventDefault();
