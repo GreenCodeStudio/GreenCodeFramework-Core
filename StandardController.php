@@ -2,7 +2,7 @@
 
 namespace Core;
 
-class StandardController extends AbstractController
+abstract class StandardController extends AbstractController
 {
 
     private $views = [];
@@ -26,9 +26,15 @@ class StandardController extends AbstractController
 
     public function getTitle()
     {
-        $breadcrumb = $this->breadcrumb;
-        return end($breadcrumb)['title'];
+        $breadcrumb = array_map(function ($x) {
+            return $x['title'];
+        }, $this->breadcrumb);
+        $breadcrumb[0] = $this->getPageTitle();
+
+        return implode(' - ', array_reverse($breadcrumb));
     }
+
+    abstract public function getPageTitle(): string;
 
     protected function addViewString(string $html, string $group = 'main')
     {
