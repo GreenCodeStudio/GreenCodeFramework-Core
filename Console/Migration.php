@@ -4,7 +4,7 @@ namespace Core\Console;
 
 use Core\Router;
 
-class System extends \Core\AbstractController
+class Migration extends \Core\AbstractController
 {
     function Upgrade()
     {
