@@ -23,14 +23,14 @@ class Menu
             if (is_file($filename)) {
                 $xml = simplexml_load_string(file_get_contents($filename));
                 foreach ($xml->children() as $element) {
-                    $root[] = $this->getAsStdclass($element);
+                    $root[] = $this->getAsStdClass($element);
                 }
             }
         }
         return $root;
     }
 
-    private function getAsStdclass(\SimpleXMLElement $element)
+    private function getAsStdClass(\SimpleXMLElement $element)
     {
         $ret = new \StdClass();
         foreach ($element->children() as $name => $value) {

@@ -21,7 +21,7 @@ class DB
         foreach ($params as $name => $value) {
             $params2[':'.$name] = $value;
         }
-        $sth->execute($params);
+        $sth->execute(array_map('self::toSqlValue', $params));
         $ret = $sth->fetchAll(\PDO::FETCH_CLASS, 'stdClass');
         return $ret;
     }
@@ -48,7 +48,7 @@ class DB
         foreach ($params as $name => $value) {
             $params2[':'.$name] = $value;
         }
-        $sth->execute($params);
+        $sth->execute(array_map('self::toSqlValue', $params));
         $ret = $sth->fetchAll(\PDO::FETCH_ASSOC);
         return $ret;
     }
@@ -127,7 +127,7 @@ class DB
         foreach ($params as $name => $value) {
             $params2[':'.$name] = $value;
         }
-        $sth->execute($params);
+        $sth->execute(array_map('self::toSqlValue', $params));
     }
 
     static function insert(string $table, $data)
@@ -142,7 +142,7 @@ class DB
             $nameSafe = static::safeKey($name);
             $cols[] = " $nameSafe ";
             $values[] = " :$name ";
-            $dataSql[$name] = self::toSqlValue($value);
+            $dataSql[$name] = $value;
         }
         $colsJoined = implode(',', $cols);
         $valuesJoined = implode(',', $values);
@@ -181,7 +181,7 @@ class DB
             foreach ($example as $name => $value) {
                 $nameCleared = static::clearName($name).'_'.$i;
                 $values[] = " :$nameCleared ";
-                $dataSql[$nameCleared] = self::toSqlValue($row[$name] ?? NULL);
+                $dataSql[$nameCleared] = $row[$name] ?? NULL;
             }
             $valuesJoinedArray[] = '('.implode(',', $values).')';
         }

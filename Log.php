@@ -27,8 +27,6 @@ class Log
 
         $amqpMsg = new AMQPMessage(json_encode($msg));
         $channel->basic_publish($amqpMsg, '', 'log');
-        //$channel->close();
-        // $connection->close();
     }
 
     static function connect()
