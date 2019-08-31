@@ -26,29 +26,7 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule . index.php [L]" | Out-FileUtf8NoBom public_html/.htaccess
     }
-    Download-Modules
-    Pop-Location
-}
-function Download-Modules
-{
-    Push-Location (Find-ProjectDir).Fullname
-    $config = (Get-Content ./config.json | ConvertFrom-Json);
-    $config.packages.PSObject.Properties | % {
-        $name = $_.Name; if (!(Test-Path "./modules/$name"))
-        {
-            git clone $_.Value "./modules/$name"
-        }
-    }
-    Pop-Location
-}
-function Update-Modules
-{
-    Push-Location (Find-ProjectDir).Fullname
-    ls modules | % {
-        Push-Location "modules/$_"
-        git pull
-        Pop-Location
-    }
+    Download-ProjectModules
     Pop-Location
 }
 function Repair-Build
@@ -258,6 +236,7 @@ function Out-FileUtf8NoBom
     }
 
 }
+. ./modules/Core/PowerShell/modules.ps1
 if ((test-path modules/Core))
 {
     Load-AvaibleMethods
