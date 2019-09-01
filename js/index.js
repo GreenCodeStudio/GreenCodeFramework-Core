@@ -4,21 +4,6 @@ import {setEvent} from "./events";
 import {Ajax} from "./ajax";
 
 pageManager.onLoad(async (page, data) => {
-    let forms = page.querySelectorAll('.dataForm');
-    if (forms.length) {
-        let {formManager} = await import("./form");
-        formManager.initEvents();
-
-        for (let form of forms) {
-            if (data && data.selects)
-                formManager.loadSelects(data.selects);
-            if (data && data[form.dataset.name]) {
-                console.log('loadForm');
-                formManager.load(form, data[form.dataset.name]);
-            }
-        }
-    }
-
     let tables = page.querySelectorAll('.dataTable');
     for (let table of tables) {
         let [{TableManager}, {datasourceAjax}] = await Promise.all([import("./table"), import( "./datasourceAjax")]);

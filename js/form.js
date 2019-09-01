@@ -1,9 +1,14 @@
 import {AjaxTask} from './ajaxTask';
 import {pageManager} from "../../Core/js/pageManager";
 
-export const formManager = {
-    load(form, data) {
-        let formElements = form.elements;
+export class FormManager {
+    constructor(form) {
+        this.form = form;
+        form.addEventListener('submit', event => this.formSubmitted(event));
+    }
+
+    load(data) {
+        let formElements = this.form.elements;
         for (var elem of formElements) {
             let value = this.parseFormItemNameRead(elem, data);
             if (elem.type == 'checkbox') {
@@ -15,11 +20,12 @@ export const formManager = {
                     elem.value = '';
                 else
                     elem.value = value;
-
             }
         }
-    }, loadSelects(data) {
-        let selects = document.querySelectorAll('select[data-foreign-key]');
+    }
+
+    loadSelects(data) {
+        let selects = this.form.querySelectorAll('select[data-foreign-key]');
         for (let select of selects) {
             if (data[select.dataset.foreignKey]) {
                 select.children.removeAll();
@@ -28,11 +34,9 @@ export const formManager = {
                 }
             }
         }
-    },
-    initEvents() {
-        document.querySelectorAll('form.dataForm').forEach(form => form.addEventListener('submit', event => this.formSubmitted(event, form)));
-    },
-    parseFormItemNameWrite: function (elem, data, value) {
+    }
+
+    parseFormItemNameWrite(elem, data, value) {
         let nameParsed = /^([^\[]+)\[?/.exec(elem.name);
         if (!nameParsed)
             return null;
@@ -47,8 +51,9 @@ export const formManager = {
             nameLeft = nameLeft.replace(/^\[[^\]]*\]/, '');
         }
         obj[nameParsed[1]] = elem.value;
-    },
-    parseFormItemNameRead: function (elem, data, value) {
+    }
+
+    parseFormItemNameRead(elem, data, value) {
         let nameParsed = /^([^\[]+)\[?/.exec(elem.name);
         if (!nameParsed)
             return null;
@@ -63,9 +68,11 @@ export const formManager = {
             nameLeft = nameLeft.replace(/^\[[^\]]*\]/, '');
         }
         return obj[nameParsed[1]];
-    }, formSubmitted(e, form) {
-        var data = {};
-        let formElements = form.elements;
+    }
+
+    getData() {
+        let data = {};
+        let formElements = this.form.elements;
         for (var elem of formElements) {
             if (elem.type == 'checkbox') {
                 if (!elem.checked)
@@ -73,15 +80,16 @@ export const formManager = {
             }
             this.parseFormItemNameWrite(elem, data, elem.value);
         }
-        let task = new AjaxTask();
-        task.newTask(form.dataset.controller, form.dataset.method, data);
-        task.start();
-        if (form.dataset.goto) {
-            task.then(() => {
-                pageManager.goto(form.dataset.goto)
-            });
-        }
-        e.preventDefault();
-        return false;
+        return data;
     }
-};
+    formSubmitted(e){
+        e.preventDefault();
+        this.submit(this.getData());
+    }
+
+    /**
+     * @abstract
+     * @param data
+     */
+    submit(data){}
+}

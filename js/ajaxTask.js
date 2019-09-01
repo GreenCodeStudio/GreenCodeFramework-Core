@@ -37,10 +37,10 @@ export class AjaxTask {
     }
 
     generateHtml() {
-        this.html = document.create('div', {className: 'task', 'data-status': this.state});
+        this.html = document.create('div.task', {data: {status: this.state}});
         this.html.addChild('div', {text: 'Zapis formularza'});
-        this.statusHtml = this.html.addChild('div', {text: this.stateText, className: 'status'});
-        this.buttonsHtml = this.html.addChild('div', {className: 'buttons'});
+        this.statusHtml = this.html.addChild('div.status', {text: this.stateText});
+        this.buttonsHtml = this.html.addChild('div.buttons');
         this._htmlButtons();
         let tasksList = document.querySelector('.tasksList');
         tasksList.insertBefore(this.html, tasksList.firstChild);
@@ -50,11 +50,11 @@ export class AjaxTask {
     _htmlButtons() {
         this.buttonsHtml.children.removeAll();
         if (this.state == 'error') {
-            let btnDelete = this.buttonsHtml.addChild('div', {className: 'button', text: 'Anuluj'});
+            let btnDelete = this.buttonsHtml.addChild('div.button', {text: 'Anuluj'});
             btnDelete.onclick = () => {
                 this._delete(true);
             };
-            let btnRefresh = this.buttonsHtml.addChild('div', {className: 'button', text: 'Powtórz'});
+            let btnRefresh = this.buttonsHtml.addChild('div.button', {text: 'Powtórz'});
             btnRefresh.onclick = () => {
                 this.start();
             };
@@ -135,6 +135,13 @@ export class AjaxTask {
         } else {
             this._onCompleted.push(fun);
         }
+    }
+
+    static startNewTask(controller, method, ...args) {
+        let obj = new this();
+        obj.newTask(controller, method, ...args);
+        obj.start();
+        return obj;
     }
 }
 
