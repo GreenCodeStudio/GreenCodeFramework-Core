@@ -21,9 +21,7 @@ addEventListener('focus', () => {
 });
 AjaxTask.refresh();
 if ('serviceWorker' in navigator && !window.DEBUG) {
-    window.addEventListener('load', function () {
-        window.swRegistratonPromise = navigator.serviceWorker.register('/dist/serviceWorker.js', {scope: '/'});
-    });
+    window.swRegistratonPromise = navigator.serviceWorker.register('/dist/serviceWorker.js', {scope: '/'});
 }
 window.addEventListener('beforeinstallprompt', (e) => {
     let btn = document.create('button.installPWA span.icon-install');

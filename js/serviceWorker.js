@@ -14,13 +14,13 @@ async function LoadJsonView(event) {
         try {
             return await fetch(event.request.clone());
         } catch (ex) {
-            let cacheResult= await cache.match(event.request);
+            let cacheResult = await cache.match(event.request);
             if (!cacheResult)
                 cacheResult = await cache.match('/Cache/offline');
             return cacheResult;
         }
     } else {
-        let cacheResult= await cache.match(event.request);
+        let cacheResult = await cache.match(event.request);
         if (!cacheResult)
             cacheResult = await cache.match('/Cache/offline');
         return cacheResult;
@@ -122,17 +122,9 @@ function checkCacheVersion(version) {
         currentVersion = version;
     }
 }
-self.addEventListener('push', function(event) {
-    console.log('[Service Worker] Push Received.');
-    console.log(`[Service Worker] Push had this data: "${event.data.text()}"`);
 
-    const title = 'Push Codelab';
-    const options = {
-        body: 'Yay it works.',
-        icon: 'images/icon.png',
-        badge: 'images/badge.png'
-    };
-
-    event.waitUntil(self.registration.showNotification(title, options));
+self.addEventListener('push', function (event) {
+    const title = event.data.json().message;
+    event.waitUntil(self.registration.showNotification(title));
 });
 setTimeout(installOffline, 20000);
