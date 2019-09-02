@@ -109,7 +109,7 @@ async function installOffline() {
         cacheoffline.match(filePath).then(matches => {
             if (!matches) {
                 let req = new Request(filePath);
-                req.headers.append('x-json', '1')
+                req.headers.append('x-json', '1');
                 cacheoffline.add(req);
             }
         });
