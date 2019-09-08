@@ -91,6 +91,10 @@ abstract class Migration
             foreach ($indexes as $index) {
                 $tables[$table['name']]['index'][$index['Key_name']][$index['Seq_in_index'] - 1] = $index;
             }
+            $foreignKeys = DB::getArray("SELECT * FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND REFERENCED_TABLE_NAME IS NOT NULL", [$schema, $table['name']]);
+            foreach ($foreignKeys as $key) {
+                $tables[$table['name']]['index'][$key['CONSTRAINT_NAME']][$key['ORDINAL_POSITION'] - 1] = $key;
+            }
         }
         return $tables;
     }
@@ -147,7 +151,9 @@ abstract class Migration
 
     function getOldIndexType($indexOld)
     {
-        if ($indexOld[0]['Key_name'] == 'PRIMARY')
+        if (!empty($indexOld[0]['REFERENCED_TABLE_NAME']))
+            return 'FOREIGN';
+        else if ($indexOld[0]['Key_name'] == 'PRIMARY')
             return 'PRIMARY';
         else if ($indexOld[0]['Non_unique'] == 1) {
             return 'INDEX';
@@ -202,5 +208,43 @@ abstract class Migration
         $sql = "CREATE TABLE $safename ($colsString)";
         dump($sql);
         DB::query($sql);
+    }
+
+    function oldStructureToXml()
+    {
+        $old = $this->readOldStructure();
+        dump($old);
+        $xml = simplexml_load_string('<?xml version="1.0" encoding="UTF-8"?><root/>');
+        foreach ($old as $tableName => $table) {
+            $xmlTable = $xml->addChild('table');
+            $xmlTable->name = $tableName;
+            foreach ($table['columns'] as $column) {
+                $xmlColumn = $xmlTable->addChild('column');
+                $xmlColumn->name = $column['COLUMN_NAME'];
+                $xmlColumn->type = $column['COLUMN_TYPE'];
+                $xmlColumn->null = $column['IS_NULLABLE'];
+                if (strpos($column['EXTRA'], 'auto_increment') !== false)
+                    $xmlColumn->autoincrement = 'YES';
+            }
+            foreach ($table['index'] as $index) {
+                $xmlIndex = $xmlTable->addChild('index');
+                $xmlIndex->type = $this->getOldIndexType($index);
+                if ($xmlIndex->type == 'FOREIGN') {
+                    foreach ($index as $element) {
+                        $xmlIndex->element[] = $element['COLUMN_NAME'];
+                    }
+                    $xmlReference = $xmlIndex->addChild('reference');
+                    $xmlReference->addAttribute('name', $index[0]['REFERENCED_TABLE_NAME']);
+                    foreach ($index as $element) {
+                        $xmlReference->element[] = $element['REFERENCED_COLUMN_NAME'];
+                    }
+                } else {
+                    foreach ($index as $element) {
+                        $xmlIndex->element[] = $element['Column_name'];
+                    }
+                }
+            }
+        }
+        dump($xml->asXML());
     }
 }
