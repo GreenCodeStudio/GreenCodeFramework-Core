@@ -4,7 +4,9 @@ error_reporting(E_ALL);
 ini_set("log_errors", 1);
 ini_set("error_log", __dir__."/../../tmp/php-error.log");
 spl_autoload_register(function ($class_name) {
-    include __DIR__.'/../'.str_replace("\\", "/", $class_name).'.php';
+    $path= __DIR__.'/../'.str_replace("\\", "/", $class_name).'.php';
+    if(file_exists($path))
+    include $path;
 });
 include __DIR__.'/Debug.php';
 set_error_handler(function ($errno, $errstr, $errfile, $errline) {
