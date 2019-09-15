@@ -11,5 +11,9 @@ class Migration extends \Core\AbstractController
         $migr = \Core\Migration::factory();
         $migr->upgrade();
     }
-
+    function Read()
+    {
+        $migr = \Core\Migration::factory();
+        return $migr->oldStructureToXml();
+    }
 }

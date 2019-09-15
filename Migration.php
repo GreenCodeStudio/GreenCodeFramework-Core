@@ -213,7 +213,6 @@ abstract class Migration
     function oldStructureToXml()
     {
         $old = $this->readOldStructure();
-        dump($old);
         $xml = simplexml_load_string('<?xml version="1.0" encoding="UTF-8"?><root/>');
         foreach ($old as $tableName => $table) {
             $xmlTable = $xml->addChild('table');
@@ -245,6 +244,6 @@ abstract class Migration
                 }
             }
         }
-        dump($xml->asXML());
+        return $xml->asXML();
     }
 }
