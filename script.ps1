@@ -237,7 +237,7 @@ function Out-FileUtf8NoBom
 
 }
 . ./modules/Core/PowerShell/modules.ps1
-if ((test-path modules/Core))
+if ((test-path modules/Core) -and (test-path vendor))
 {
     Load-AvaibleMethods
 }
