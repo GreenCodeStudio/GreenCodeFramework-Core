@@ -103,6 +103,7 @@ export const pageManager = {
 
                     this.initPage(data.data, page);
                     this._updateBreadcrumb(data.breadcrumb);
+                    document.title = data.title;
                     resolve();
                 }
                 if (data.debug) {
@@ -141,8 +142,6 @@ export const pageManager = {
             else
                 li.addChild('span', {text: crumb.title});
         }
-        let last = breadcrumb[breadcrumb.length - 1];
-        document.title = last.title;
     },
     registerController(name, controller) {
         this._constrollers[name] = controller;

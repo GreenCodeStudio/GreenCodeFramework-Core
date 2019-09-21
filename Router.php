@@ -198,7 +198,7 @@ class Router
                 echo json_encode(['data' => $returned, 'error' => null, 'debug' => $debugArray, 'output' => $controller->debugOutput], JSON_PARTIAL_OUTPUT_ON_ERROR);
             } else {
                 if (isset($_SERVER['HTTP_X_JSON'])) {
-                    echo json_encode(['views' => $controller->getViews(), 'breadcrumb' => $controller->getBreadcrumb(), 'debug' => $controller->debugOutput, 'data' => $controller->initInfo, 'error' => null], JSON_PARTIAL_OUTPUT_ON_ERROR);
+                    echo json_encode(['views' => $controller->getViews(), 'breadcrumb' => $controller->getBreadcrumb(), 'title' => $controller->getTitle(), 'debug' => $controller->debugOutput, 'data' => $controller->initInfo, 'error' => null], JSON_PARTIAL_OUTPUT_ON_ERROR);
                 } else {
                     $controller->postAction();
                 }
