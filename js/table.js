@@ -17,7 +17,7 @@ export class TableManager {
     readSort() {
         let ordered = this.table.tHead.querySelector('[data-order]');
         if (ordered)
-            return {col: ordered.dataset.value, desc: ordered.dataset.order=='desc'};
+            return {col: ordered.dataset.value, desc: ordered.dataset.order == 'desc'};
         return null;
     }
 
@@ -49,7 +49,7 @@ export class TableManager {
 
         for (let row of data.rows) {
             let tr = tbody.addChild('tr');
-            tr.oncontextmenu=this.contextMenu.bind(this,tr);
+            tr.oncontextmenu = this.contextMenu.bind(this, tr);
             for (let th of this.table.tHead.firstElementChild.children) {
                 let td = tr.addChild('td');
                 td.dataset.header = th.textContent + ': ';
@@ -152,9 +152,14 @@ export class TableManager {
             }
         })
     }
-    contextMenu(tr, event){
-        const buttons=tr.querySelectorAll('.button, button');
-        const elements=Array.from(buttons).map(b=>({text:b.title, icon:(b.querySelector('.icon, [class^="icon-"], [class*=" icon-"]')||{}).className, onclick:e=>b.click()}));
+
+    contextMenu(tr, event) {
+        const buttons = tr.querySelectorAll('.button, button');
+        const elements = Array.from(buttons).map(b => ({
+            text: b.title || b.textContent,
+            icon: (b.querySelector('.icon, [class^="icon-"], [class*=" icon-"]') || {}).className,
+            onclick: e => b.click()
+        }));
         ContextMenu.openContextMenu(event, elements);
     }
 }
