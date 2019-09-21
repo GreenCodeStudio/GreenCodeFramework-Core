@@ -1,4 +1,5 @@
 import "prototype-extensions";
+import {ContextMenu} from "./contextMenu";
 
 export class TableManager {
     constructor(table, datasource) {
@@ -48,6 +49,7 @@ export class TableManager {
 
         for (let row of data.rows) {
             let tr = tbody.addChild('tr');
+            tr.oncontextmenu=this.contextMenu.bind(this,tr);
             for (let th of this.table.tHead.firstElementChild.children) {
                 let td = tr.addChild('td');
                 td.dataset.header = th.textContent + ': ';
@@ -140,7 +142,6 @@ export class TableManager {
         console.log({headers});
         headers.forEach(x => {
             x.onclick = () => {
-                console.log('g')
                 let sortName = x.dataset.sortName || x.dataset.value;
                 if (this.sort && this.sort.col === sortName) {
                     this.sort.desc = !this.sort.desc;
@@ -150,5 +151,10 @@ export class TableManager {
                 this.refresh();
             }
         })
+    }
+    contextMenu(tr, event){
+        const buttons=tr.querySelectorAll('.button, button');
+        const elements=Array.from(buttons).map(b=>({text:b.title, icon:(b.querySelector('.icon, [class^="icon-"], [class*=" icon-"]')||{}).className, onclick:e=>b.click()}));
+        ContextMenu.openContextMenu(event, elements);
     }
 }
