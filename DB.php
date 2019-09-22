@@ -15,6 +15,7 @@ class DB
 
     static function get(string $sql, $params = [])
     {
+        dump($sql);
         static::connect();
         $sth = static::$pdo->prepare($sql, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
         $params2 = [];
@@ -168,6 +169,7 @@ class DB
         $dataSql = [];
         $example = [];
         foreach ($data as $row) {
+            $row=(array)$row;
             $example += $row;
         }
 
@@ -177,6 +179,7 @@ class DB
         }
         $valuesJoinedArray = [];
         foreach ($data as $i => $row) {
+            $row=(array)$row;
             $values = [];
             foreach ($example as $name => $value) {
                 $nameCleared = static::clearName($name).'_'.$i;

@@ -171,13 +171,19 @@ abstract class Migration
             $indexSql = "PRIMARY KEY";
         else if ($indexNew->type.'' == 'UNIQUE')
             $indexSql = "UNIQUE";
+        else if ($indexNew->type.'' == 'FULLTEXT')
+            $indexSql = "FULLTEXT ";
         else if ($indexNew->type.'' == 'FOREIGN')
             $indexSql = "FOREIGN KEY";
         else
             $indexSql = "INDEX";
         $columns = [];
         foreach ($indexNew->element as $element) {
-            $columns[] = DB::safeKey($element);
+            $columnSql= DB::safeKey($element);
+            if(isset( $element->attributes()->size))
+                $columnSql.="({$element->attributes()->size})";
+
+            $columns[]=  $columnSql;
         }
         $indexSql .= ' ('.implode(',', $columns).')';
         if ($indexNew->type.'' == 'FOREIGN') {

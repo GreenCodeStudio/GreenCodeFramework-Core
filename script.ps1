@@ -16,7 +16,7 @@ function Init-Project
 
     if (!(test-path public_html/index.php))
     {
-        echo "<?php include __DIR__.'/../modules/Core/Init.php';" | Out-FileUtf8NoBom "public_html/index.php"
+        echo "<?php include_once __DIR__.'/../modules/Core/Init.php';" | Out-FileUtf8NoBom "public_html/index.php"
     }
 
     if (!(test-path public_html/.htaccess))

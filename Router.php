@@ -5,7 +5,7 @@ namespace Core;
 use mindplay\annotations\AnnotationCache;
 use mindplay\annotations\Annotations;
 
-include __DIR__.'/Annotations.php';
+include_once __DIR__.'/Annotations.php';
 
 class Router
 {

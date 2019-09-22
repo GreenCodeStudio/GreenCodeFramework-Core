@@ -7,7 +7,6 @@ export class TableManager {
         this.datasource = datasource;
         this.datasource.onchange = () => this.refresh();
         this.page = 0;
-        this.search = '';
         this.sort = this.readSort();
         this.limit = 100;
         this.calcSize();
@@ -28,6 +27,12 @@ export class TableManager {
     async refresh() {
         let data = await this.datasource.get(this);
         this.loadData(data);
+    }
+
+    get search() {
+        const searchForm = this.table.querySelector('.search');
+        if (!searchForm) return '';
+        return searchForm.search.value;
     }
 
     /**
@@ -72,7 +77,8 @@ export class TableManager {
             this.rFootTd.colSpan = this.table.tHead.firstElementChild.children.length;
             this.paginationDiv = this.rFootTd.addChild('div', {className: 'pagination'});
             this.searchForm = this.rFootTd.addChild('form', {className: 'search'});
-            this.searchForm.addChild('input', {name: 'search', type: 'search'});
+            const searchInput = this.searchForm.addChild('input', {name: 'search', type: 'search'});
+            searchInput.oninput = e => this.refresh();
         }
         this.renderPagination(data.total);
     }
