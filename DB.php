@@ -15,7 +15,6 @@ class DB
 
     static function get(string $sql, $params = [])
     {
-        dump($sql);
         static::connect();
         $sth = static::$pdo->prepare($sql, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
         $params2 = [];
@@ -122,7 +121,6 @@ class DB
     static function query(string $sql, $params = [])
     {
         static::connect();
-        dump($sql);
         $sth = static::$pdo->prepare($sql, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
         $params2 = [];
         foreach ($params as $name => $value) {

@@ -63,6 +63,7 @@ function Prepare-Build
 
     ls modules | ? { "Test-Path modules/$_/scss" } | %{ New-SymLink "./scss/$_" "../modules/$_/scss" }
     $file = ''
+    ls modules | ? { Test-Path "modules/$_/scss/mixins.scss" } | % { $file += "@import ""./" + $_ + "/mixins"";`r`n" }
     ls modules | ? { Test-Path "modules/$_/scss/index.scss" } | % { $file += "@import ""./" + $_ + "/index"";`r`n" }
     $file | Out-FileUtf8NoBom "scss/build.scss"
 
