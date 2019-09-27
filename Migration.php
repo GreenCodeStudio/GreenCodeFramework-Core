@@ -49,12 +49,17 @@ abstract class Migration
                             }
                         }
                         if (!$findedIdentical) {
-                            $key = $indexOld[0]['Key_name'];
-                            if ($key == 'PRIMARY')
-                                $sqls[] = "DROP PRIMARY KEY";
-                            else {
-                                $safe = DB::safeKey($indexOld[0]['Key_name']);
-                                $sqls[] = "DROP INDEX $safe";
+                            if (isset($indexOld[0]['Key_name'])) {
+                                $key = $indexOld[0]['Key_name'];
+                                if ($key == 'PRIMARY')
+                                    $sqls[] = "DROP PRIMARY KEY";
+                                else {
+                                    $safe = DB::safeKey($indexOld[0]['Key_name']);
+                                    $sqls[] = "DROP INDEX $safe";
+                                }
+                            } else {
+                                $safe = DB::safeKey($indexOld[0]['CONSTRAINT_NAME']);
+                                $sqls[] = "DROP FOREIGN KEY $safe";
                             }
                         }
                     }
@@ -179,11 +184,11 @@ abstract class Migration
             $indexSql = "INDEX";
         $columns = [];
         foreach ($indexNew->element as $element) {
-            $columnSql= DB::safeKey($element);
-            if(isset( $element->attributes()->size))
-                $columnSql.="({$element->attributes()->size})";
+            $columnSql = DB::safeKey($element);
+            if (isset($element->attributes()->size))
+                $columnSql .= "({$element->attributes()->size})";
 
-            $columns[]=  $columnSql;
+            $columns[] = $columnSql;
         }
         $indexSql .= ' ('.implode(',', $columns).')';
         if ($indexNew->type.'' == 'FOREIGN') {

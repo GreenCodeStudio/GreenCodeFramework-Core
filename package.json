@@ -5,7 +5,7 @@
     },
     "dependencies": {
         "console-cheating": "^1.0.0",
-        "prototype-extensions": "^1.2.0"
+        "prototype-extensions": "^1.4.1"
     },
     "devDependencies": {
         "css-loader": "^2.1.1",
