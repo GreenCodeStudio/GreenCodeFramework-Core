@@ -61,7 +61,7 @@ abstract class Migration
                     }
 
                     foreach ($tableNew->index as $indexNew) {
-                        if (!$indexNew->attributes()->foundIdentical) {
+                        if ($indexNew->type != 'FOREIGN' && !$indexNew->attributes()->foundIdentical) {
                             $sqls[] = "ADD ".$this->addIndexSQL($indexNew);
                         }
                     }
@@ -76,6 +76,26 @@ abstract class Migration
             } catch (\Throwable $ex) {
                 dump($ex->getMessage(), $ex->getTraceAsString());
                 DB::rollBack();
+            }
+        }
+
+        foreach ($new as $name => $tableNew) {
+            $name = strtolower($name);
+            try {
+                $sqls = [];
+                foreach ($tableNew->index as $indexNew) {
+                    if ($indexNew->type == 'FOREIGN' && !$indexNew->attributes()->foundIdentical) {
+                        $sqls[] = "ADD ".$this->addIndexSQL($indexNew);
+                    }
+                }
+                $sqlsString = implode(',', $sqls);
+                $sql = "ALTER TABLE `$name` $sqlsString";
+                if (!empty($sqls)) {
+                    dump($sql);
+                    DB::query($sql);
+                }
+            } catch (\Throwable $ex) {
+                dump($ex->getMessage(), $ex->getTraceAsString());
             }
         }
     }
@@ -104,19 +124,19 @@ abstract class Migration
                     $index->type = 'UNIQUE';
                 }
                 $index->element = array_map(fn ($x) => $x->Column_name, $indexArray);
-                $index->name=$indexArray[0]->Key_name;
+                $index->name = $indexArray[0]->Key_name;
                 $table->index[] = $index;
             }
             $foreignKeys = DB::get("SELECT * FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND REFERENCED_TABLE_NAME IS NOT NULL", [$schema, $tableName->name]);
-            $namedKeys=[];
+            $namedKeys = [];
             foreach ($foreignKeys as $key) {
-                $namedKeys[$key->CONSTRAINT_NAME][$key->ORDINAL_POSITION-1] = $key;
+                $namedKeys[$key->CONSTRAINT_NAME][$key->ORDINAL_POSITION - 1] = $key;
             }
             foreach ($namedKeys as $keyArray) {
                 $index = new \stdClass();
                 $index->type = 'FOREIGN';
                 $index->element = array_map(fn ($x) => $x->COLUMN_NAME, $keyArray);
-                $index->name=$keyArray[0]->CONSTRAINT_NAME;
+                $index->name = $keyArray[0]->CONSTRAINT_NAME;
                 $table->index[] = $index;
             }
             $tables[$tableName->name] = $table;
@@ -216,7 +236,9 @@ abstract class Migration
             $cols[] = $this->createColumnSql($column);
         }
         foreach ($content->index as $index) {
-            $cols[] = $this->addIndexSQL($index);
+            if ($index->type != 'FOREIGN') {
+                $cols[] = $this->addIndexSQL($index);
+            }
         }
         $colsString = implode(',', $cols);
         $safename = DB::safeKey(strtolower($name));
