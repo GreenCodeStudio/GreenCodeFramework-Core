@@ -1,5 +1,5 @@
 import "prototype-extensions";
-import {modal} from '../../Common/js/modal'
+import {modal} from '../../Core/js/modal'
 
 export const pageManager = {
     _constrollers: {},
