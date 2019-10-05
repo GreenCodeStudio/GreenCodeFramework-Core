@@ -24,9 +24,9 @@ abstract class Migration
                     $sqls = [];
                     foreach ($tableNew->column as $colNew) {
                         $oldCol = null;
-                        foreach ($old[$name]['columns'] as $oldtableCol) {
-                            if ($oldtableCol['COLUMN_NAME'] == $colNew->name->__toString()) {
-                                $oldCol = $oldtableCol;
+                        foreach ($old[$name]->columns as $oldTableCol) {
+                            if ($oldTableCol->name == $colNew->name) {
+                                $oldCol = $oldTableCol;
                                 break;
                             }
                         }
@@ -38,29 +38,30 @@ abstract class Migration
                         }
 
                     }
-                    foreach ($old[$name]['index'] as $indexOld) {
-                        $findedIdentical = false;
+                    foreach ($old[$name]->index as $indexOld) {
+                        $foundIdentical = false;
                         foreach ($tableNew->index as $i => $indexNew) {
 
                             if ($this->isIndexIdentical($indexNew, $indexOld)) {
-                                $findedIdentical = true;
-                                $indexNew->addAttribute('findedIdentical', true);
+                                $foundIdentical = true;
+                                $indexNew->addAttribute('foundIdentical', true);
                                 break;
                             }
                         }
-                        if (!$findedIdentical) {
-                            $key = $indexOld[0]['Key_name'];
-                            if ($key == 'PRIMARY')
+                        if (!$foundIdentical) {
+                            $safe = DB::safeKey($indexOld->name);
+
+                            if ($indexOld->type == 'PRIMARY')
                                 $sqls[] = "DROP PRIMARY KEY";
-                            else {
-                                $safe = DB::safeKey($indexOld[0]['Key_name']);
+                            else if ($indexOld->type == 'FOREIGN')
+                                $sqls[] = "DROP FOREIGN KEY $safe";
+                            else
                                 $sqls[] = "DROP INDEX $safe";
-                            }
                         }
                     }
 
                     foreach ($tableNew->index as $indexNew) {
-                        if (!$indexNew->attributes()->findedIdentical) {
+                        if ($indexNew->type != 'FOREIGN' && !$indexNew->attributes()->foundIdentical) {
                             $sqls[] = "ADD ".$this->addIndexSQL($indexNew);
                         }
                     }
@@ -77,24 +78,68 @@ abstract class Migration
                 DB::rollBack();
             }
         }
+
+        foreach ($new as $name => $tableNew) {
+            $name = strtolower($name);
+            try {
+                $sqls = [];
+                foreach ($tableNew->index as $indexNew) {
+                    if ($indexNew->type == 'FOREIGN' && !$indexNew->attributes()->foundIdentical) {
+                        $sqls[] = "ADD ".$this->addIndexSQL($indexNew);
+                    }
+                }
+                $sqlsString = implode(',', $sqls);
+                $sql = "ALTER TABLE `$name` $sqlsString";
+                if (!empty($sqls)) {
+                    dump($sql);
+                    DB::query($sql);
+                }
+            } catch (\Throwable $ex) {
+                dump($ex->getMessage(), $ex->getTraceAsString());
+            }
+        }
     }
 
     function readOldStructure()
     {
         $schema = getenv('dbSchema');
-        $tablesList = DB::getArray("SELECT TABLE_NAME as name FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = ?", [$schema]);
+        $tablesList = DB::get("SELECT TABLE_NAME as name FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = ?", [$schema]);
         $tables = [];
-        foreach ($tablesList as $table) {
-            $tables[$table['name']]['columns'] = DB::getArray("SELECT * FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?", [$schema, $table['name']]);
-            $tables[$table['name']]['index'] = [];
-            $indexes = DB::getArray("SHOW INDEX FROM ".$table['name']);
+        foreach ($tablesList as $tableName) {
+            $table = new \stdClass();
+            $table->columns = DB::get("SELECT COLUMN_NAME as name, COLUMN_TYPE as type, EXTRA, IS_NULLABLE as `null` FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?", [$schema, $tableName->name]);
+            $table->index = [];
+            $indexes = DB::get("SHOW INDEX FROM ".$tableName->name);
+            $namedIndexes = [];
             foreach ($indexes as $index) {
-                $tables[$table['name']]['index'][$index['Key_name']][$index['Seq_in_index'] - 1] = $index;
+                $namedIndexes[$index->Key_name][$index->Seq_in_index - 1] = $index;
             }
-            $foreignKeys = DB::getArray("SELECT * FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND REFERENCED_TABLE_NAME IS NOT NULL", [$schema, $table['name']]);
+            foreach ($namedIndexes as $indexArray) {
+                $index = new \stdClass();
+                if ($indexArray[0]->Key_name == 'PRIMARY')
+                    $index->type = 'PRIMARY';
+                else if ($indexArray[0]->Non_unique == 1) {
+                    $index->type = 'INDEX';
+                } else {
+                    $index->type = 'UNIQUE';
+                }
+                $index->element = array_map(fn ($x) => $x->Column_name, $indexArray);
+                $index->name = $indexArray[0]->Key_name;
+                $table->index[] = $index;
+            }
+            $foreignKeys = DB::get("SELECT * FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND REFERENCED_TABLE_NAME IS NOT NULL", [$schema, $tableName->name]);
+            $namedKeys = [];
             foreach ($foreignKeys as $key) {
-                $tables[$table['name']]['index'][$key['CONSTRAINT_NAME']][$key['ORDINAL_POSITION'] - 1] = $key;
+                $namedKeys[$key->CONSTRAINT_NAME][$key->ORDINAL_POSITION - 1] = $key;
             }
+            foreach ($namedKeys as $keyArray) {
+                $index = new \stdClass();
+                $index->type = 'FOREIGN';
+                $index->element = array_map(fn ($x) => $x->COLUMN_NAME, $keyArray);
+                $index->name = $keyArray[0]->CONSTRAINT_NAME;
+                $table->index[] = $index;
+            }
+            $tables[$tableName->name] = $table;
         }
         return $tables;
     }
@@ -135,13 +180,13 @@ abstract class Migration
 
     private function isIndexIdentical($indexNew, $indexOld)
     {
-        if (($indexNew->type ?? 'INDEX').'' != $this->getOldIndexType($indexOld))
+        if ($indexNew->type != $indexOld->type)
             return false;
-        if (count($indexNew->element) != count($indexOld))
+        if (count($indexNew->element) != count($indexOld->element))
             return false;
         $i = 0;
         foreach ($indexNew->element as $newElement) {
-            if ($newElement->__toString() != $indexOld[$i]['Column_name']) {
+            if ($newElement != $indexOld->element[$i]) {
                 return false;
             }
             $i++;
@@ -149,22 +194,6 @@ abstract class Migration
         return true;
     }
 
-    function getOldIndexType($indexOld)
-    {
-        if (!empty($indexOld[0]['REFERENCED_TABLE_NAME']))
-            return 'FOREIGN';
-        else if ($indexOld[0]['Key_name'] == 'PRIMARY')
-            return 'PRIMARY';
-        else if ($indexOld[0]['Non_unique'] == 1) {
-            return 'INDEX';
-        } else {
-            return 'UNIQUE';
-        }
-    }
-
-    /**
-     * @param $indexNew
-     */
     protected function addIndexSQL($indexNew)
     {
         if ($indexNew->type.'' == 'PRIMARY')
@@ -179,11 +208,11 @@ abstract class Migration
             $indexSql = "INDEX";
         $columns = [];
         foreach ($indexNew->element as $element) {
-            $columnSql= DB::safeKey($element);
-            if(isset( $element->attributes()->size))
-                $columnSql.="({$element->attributes()->size})";
+            $columnSql = DB::safeKey($element);
+            if (isset($element->attributes()->size))
+                $columnSql .= "({$element->attributes()->size})";
 
-            $columns[]=  $columnSql;
+            $columns[] = $columnSql;
         }
         $indexSql .= ' ('.implode(',', $columns).')';
         if ($indexNew->type.'' == 'FOREIGN') {
@@ -207,7 +236,9 @@ abstract class Migration
             $cols[] = $this->createColumnSql($column);
         }
         foreach ($content->index as $index) {
-            $cols[] = $this->addIndexSQL($index);
+            if ($index->type != 'FOREIGN') {
+                $cols[] = $this->addIndexSQL($index);
+            }
         }
         $colsString = implode(',', $cols);
         $safename = DB::safeKey(strtolower($name));
@@ -223,29 +254,29 @@ abstract class Migration
         foreach ($old as $tableName => $table) {
             $xmlTable = $xml->addChild('table');
             $xmlTable->name = $tableName;
-            foreach ($table['columns'] as $column) {
+            foreach ($table->columns as $column) {
                 $xmlColumn = $xmlTable->addChild('column');
-                $xmlColumn->name = $column['COLUMN_NAME'];
-                $xmlColumn->type = $column['COLUMN_TYPE'];
-                $xmlColumn->null = $column['IS_NULLABLE'];
-                if (strpos($column['EXTRA'], 'auto_increment') !== false)
+                $xmlColumn->name = $column->name;
+                $xmlColumn->type = $column->type;
+                $xmlColumn->null = $column->null;
+                if (strpos($column->EXTRA, 'auto_increment') !== false)
                     $xmlColumn->autoincrement = 'YES';
             }
-            foreach ($table['index'] as $index) {
+            foreach ($table->index as $index) {
                 $xmlIndex = $xmlTable->addChild('index');
-                $xmlIndex->type = $this->getOldIndexType($index);
+                $xmlIndex->type = $index->type;
                 if ($xmlIndex->type == 'FOREIGN') {
-                    foreach ($index as $element) {
-                        $xmlIndex->element[] = $element['COLUMN_NAME'];
+                    foreach ($index->element as $element) {
+                        $xmlIndex->element[] = $element;
                     }
                     $xmlReference = $xmlIndex->addChild('reference');
-                    $xmlReference->addAttribute('name', $index[0]['REFERENCED_TABLE_NAME']);
-                    foreach ($index as $element) {
-                        $xmlReference->element[] = $element['REFERENCED_COLUMN_NAME'];
+                    $xmlReference->addAttribute('name', $index->name);
+                    foreach ($index->element as $element) {
+                        $xmlReference->element[] = $element;
                     }
                 } else {
-                    foreach ($index as $element) {
-                        $xmlIndex->element[] = $element['Column_name'];
+                    foreach ($index->element as $element) {
+                        $xmlIndex->element[] = $element;
                     }
                 }
             }
