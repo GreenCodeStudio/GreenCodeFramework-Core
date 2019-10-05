@@ -254,29 +254,29 @@ abstract class Migration
         foreach ($old as $tableName => $table) {
             $xmlTable = $xml->addChild('table');
             $xmlTable->name = $tableName;
-            foreach ($table['columns'] as $column) {
+            foreach ($table->columns as $column) {
                 $xmlColumn = $xmlTable->addChild('column');
-                $xmlColumn->name = $column['COLUMN_NAME'];
-                $xmlColumn->type = $column['COLUMN_TYPE'];
-                $xmlColumn->null = $column['IS_NULLABLE'];
-                if (strpos($column['EXTRA'], 'auto_increment') !== false)
+                $xmlColumn->name = $column->name;
+                $xmlColumn->type = $column->type;
+                $xmlColumn->null = $column->null;
+                if (strpos($column->EXTRA, 'auto_increment') !== false)
                     $xmlColumn->autoincrement = 'YES';
             }
-            foreach ($table['index'] as $index) {
+            foreach ($table->index as $index) {
                 $xmlIndex = $xmlTable->addChild('index');
-                $xmlIndex->type = $this->getOldIndexType($index);
+                $xmlIndex->type = $index->type;
                 if ($xmlIndex->type == 'FOREIGN') {
-                    foreach ($index as $element) {
-                        $xmlIndex->element[] = $element['COLUMN_NAME'];
+                    foreach ($index->element as $element) {
+                        $xmlIndex->element[] = $element;
                     }
                     $xmlReference = $xmlIndex->addChild('reference');
-                    $xmlReference->addAttribute('name', $index[0]['REFERENCED_TABLE_NAME']);
-                    foreach ($index as $element) {
-                        $xmlReference->element[] = $element['REFERENCED_COLUMN_NAME'];
+                    $xmlReference->addAttribute('name', $index->name);
+                    foreach ($index->element as $element) {
+                        $xmlReference->element[] = $element;
                     }
                 } else {
-                    foreach ($index as $element) {
-                        $xmlIndex->element[] = $element['Column_name'];
+                    foreach ($index->element as $element) {
+                        $xmlIndex->element[] = $element;
                     }
                 }
             }
