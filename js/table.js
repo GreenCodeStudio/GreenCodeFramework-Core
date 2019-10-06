@@ -9,6 +9,8 @@ export class TableManager {
         this.page = 0;
         this.sort = this.readSort();
         this.limit = 100;
+        this.selected = [];
+        this.selectedMain = null;
         this.calcSize();
         this.initThead();
     }
@@ -54,7 +56,9 @@ export class TableManager {
 
         for (let row of data.rows) {
             let tr = tbody.addChild('tr');
+            tr.dataset.row = row.id;
             tr.oncontextmenu = this.contextMenu.bind(this, tr);
+            tr.onclick = this.trOnClick.bind(this, row);
             for (let th of this.table.tHead.firstElementChild.children) {
                 let td = tr.addChild('td');
                 td.dataset.header = th.textContent + ': ';
@@ -77,6 +81,7 @@ export class TableManager {
             this.rFootTd.colSpan = this.table.tHead.firstElementChild.children.length;
             this.paginationDiv = this.rFootTd.addChild('div', {className: 'pagination'});
             this.searchForm = this.rFootTd.addChild('form', {className: 'search'});
+            this.searchForm.onsubmit = e => e.preventDefault();
             const searchInput = this.searchForm.addChild('input', {name: 'search', type: 'search'});
             searchInput.oninput = e => this.refresh();
         }
@@ -167,5 +172,22 @@ export class TableManager {
             onclick: e => b.click()
         }));
         ContextMenu.openContextMenu(event, elements);
+    }
+
+    trOnClick(row, e) {
+        this.select([row.id]);
+    }
+
+    select(ids, keepOld = true) {
+        this.selected = [...ids];
+        this.selectedMain = ids[this.selected.length - 1];
+        this.refreshSelectedClasses();
+    }
+
+    refreshSelectedClasses() {
+        for (const tr of Array.from(this.table.tBodies).flatMap(x=>Array.from(x.children))) {
+            tr.classList.toggle('selected', this.selected.includes(tr.dataset.row));
+            tr.classList.toggle('selectedLast', this.selectedLast == tr.dataset.row);
+        }
     }
 }
