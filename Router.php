@@ -10,65 +10,12 @@ include_once __DIR__.'/Annotations.php';
 class Router
 {
 
-    public static function listControllers(string $type)
-    {
-        $ret = [];
-        $modules = scandir(__DIR__.'/../');
-        foreach ($modules as $module) {
-            if ($module == '.' || $module == '..') {
-                continue;
-            }
-            if (is_dir(__DIR__.'/../'.$module.'/'.$type)) {
-                $controllers = scandir(__DIR__.'/../'.$module.'/'.$type);
-                foreach ($controllers as $controllerFile) {
-                    $info = self::getControllerInfo($type, $module, $controllerFile);
-                    if ($info != null) {
-                        $ret[$info->name] = $info;
-                    }
-                }
-
-            }
-        }
-        return $ret;
-    }
-
-    static function getControllerInfo($type, $module, $controllerFile): ?object
-    {
-        self::initAnnotationsCache();
-        if (preg_match('/^(.*)\.php$/', $controllerFile, $matches)) {
-            $name = $matches[1];
-            $controllerInfo = new \StdClass();
-            $controllerInfo->name = $name;
-            $controllerInfo->methods = [];
-            try {
-                $classPath = "\\$module\\$type\\$name";
-                $classReflect = new \ReflectionClass($classPath);
-                $methods = $classReflect->getMethods();
-                foreach ($methods as $methodReflect) {
-                    if (!$methodReflect->isPublic()) continue;
-                    if ('\\'.$methodReflect->class != $classPath) continue;
-                    $methodInfo = new \StdClass();
-                    $annotations = Annotations::ofMethod($classPath, $methodReflect->getName());
-                    $methodInfo->name = $methodReflect->getName();
-                    $methodInfo->parameters = $methodReflect->getParameters();
-                    $methodInfo->annotations = $annotations;
-                    $controllerInfo->methods[$methodReflect->getName()] = $methodInfo;
-                }
-            } catch (\Throwable $ex) {
-                return null;
-            }
-            return $controllerInfo;
-        }
-        return null;
-    }
-
-    protected static function initAnnotationsCache(): void
-    {
-        if (empty(Annotations::$config['cache']))
-            Annotations::$config['cache'] = new AnnotationCache(__DIR__.'/../../cache');
-    }
-
     public static function routeConsole($controllerName, $methodName, $args)
+    {
+        static::routeInternal('Console', $controllerName, $methodName, $args);
+    }
+
+    public static function routeInternal($type, $controllerName, $methodName, $args)
     {
         ob_start();
         try {
@@ -77,7 +24,7 @@ class Router
             if (getenv('cached_code')) {
                 // $controllerClassName = static::findControllerCached($controllerName, $type);
             } else {
-                $controllerClassName = static::findController($controllerName, 'Console');
+                $controllerClassName = static::findController($controllerName, $type);
             }
             $controller = new $controllerClassName();
             if (method_exists($controller, $methodName)) {
@@ -155,6 +102,11 @@ class Router
             $ret['stack'] = $stack;
         }
         return $ret;
+    }
+
+    public static function routeAsyncJob($controllerName, $methodName, $args)
+    {
+        static::routeInternal('AsyncJobs', $controllerName, $methodName, $args);
     }
 
     /**
@@ -301,4 +253,76 @@ class Router
 
     }
 
+    protected static function initAnnotationsCache(): void
+    {
+        if (empty(Annotations::$config['cache']))
+            Annotations::$config['cache'] = new AnnotationCache(__DIR__.'/../../cache');
+    }
+
+    public static function findScheduleJobs()
+    {
+        $controllers = static::listControllers('AsyncJobs');
+        $ret = [];
+        foreach ($controllers as $controller) {
+            foreach ($controller->methods as $method) {
+                foreach ($method->annotations as $annotation) {
+                    if ($annotation instanceof \ScheduleJobAnnotation)
+                        $ret[] = (object)['controller' => $controller->name, 'method' => $method->name];
+                }
+            }
+        }
+        return $ret;
+    }
+
+    public static function listControllers(string $type)
+    {
+        $ret = [];
+        $modules = scandir(__DIR__.'/../');
+        foreach ($modules as $module) {
+            if ($module == '.' || $module == '..') {
+                continue;
+            }
+            if (is_dir(__DIR__.'/../'.$module.'/'.$type)) {
+                $controllers = scandir(__DIR__.'/../'.$module.'/'.$type);
+                foreach ($controllers as $controllerFile) {
+                    $info = self::getControllerInfo($type, $module, $controllerFile);
+                    if ($info != null) {
+                        $ret[$info->name] = $info;
+                    }
+                }
+
+            }
+        }
+        return $ret;
+    }
+
+    static function getControllerInfo($type, $module, $controllerFile): ?object
+    {
+        self::initAnnotationsCache();
+        if (preg_match('/^(.*)\.php$/', $controllerFile, $matches)) {
+            $name = $matches[1];
+            $controllerInfo = new \StdClass();
+            $controllerInfo->name = $name;
+            $controllerInfo->methods = [];
+            try {
+                $classPath = "\\$module\\$type\\$name";
+                $classReflect = new \ReflectionClass($classPath);
+                $methods = $classReflect->getMethods();
+                foreach ($methods as $methodReflect) {
+                    if (!$methodReflect->isPublic()) continue;
+                    if ('\\'.$methodReflect->class != $classPath) continue;
+                    $methodInfo = new \StdClass();
+                    $annotations = Annotations::ofMethod($classPath, $methodReflect->getName());
+                    $methodInfo->name = $methodReflect->getName();
+                    $methodInfo->parameters = $methodReflect->getParameters();
+                    $methodInfo->annotations = $annotations;
+                    $controllerInfo->methods[$methodReflect->getName()] = $methodInfo;
+                }
+            } catch (\Throwable $ex) {
+                return null;
+            }
+            return $controllerInfo;
+        }
+        return null;
+    }
 }

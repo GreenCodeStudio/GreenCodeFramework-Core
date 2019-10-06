@@ -26,3 +26,10 @@ class OfflineConstantAnnotation extends \mindplay\annotations\Annotation
 class NoAjaxLoaderAnnotation extends \mindplay\annotations\Annotation
 {
 }
+/**
+ * @usage('method'=>true)
+ */
+class ScheduleJobAnnotation extends \mindplay\annotations\Annotation
+{
+    public $interval;
+}
