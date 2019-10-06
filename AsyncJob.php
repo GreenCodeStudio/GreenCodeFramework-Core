@@ -1,14 +1,16 @@
 <?php
 error_reporting(E_ALL);
+include_once __DIR__.'/../../vendor/autoload.php';
 spl_autoload_register(function ($class_name) {
-    include_once __DIR__.'/../'.str_replace("\\", "/", $class_name).'.php';
+    $path = __DIR__.'/../'.str_replace("\\", "/", $class_name).'.php';
+    if (file_exists($path))
+        include_once $path;
 });
 global $debugType;
 $debugType = 'console';
 global $debugArray;
 $debugArray = [];
-include_once __DIR__.'/../../vendor/autoload.php';
-$dotenv = new \Dotenv\Dotenv(__DIR__.'/../../');
+$dotenv = \Dotenv\Dotenv::create(__DIR__.'/../../');
 $dotenv->load();
 
 
