@@ -9,7 +9,7 @@ export class TableManager {
         this.page = 0;
         this.sort = this.readSort();
         this.limit = 100;
-        this.selected = [];
+        this.selected = new Set();
         this.selectedMain = null;
         this.calcSize();
         this.initThead();
@@ -27,8 +27,11 @@ export class TableManager {
     }
 
     async refresh() {
+        const refreshSymbol = symbol();
+        this.lastRefreshSymbol = refreshSymbol;
         let data = await this.datasource.get(this);
-        this.loadData(data);
+        if (this.lastRefreshSymbol == refreshSymbol)
+            this.loadData(data);
     }
 
     get search() {
@@ -85,6 +88,7 @@ export class TableManager {
             const searchInput = this.searchForm.addChild('input', {name: 'search', type: 'search'});
             searchInput.oninput = e => this.refresh();
         }
+        this.currentRows = data.rows;
         this.renderPagination(data.total);
     }
 
@@ -175,19 +179,32 @@ export class TableManager {
     }
 
     trOnClick(row, e) {
-        this.select([row.id]);
-    }
-
-    select(ids, keepOld = true) {
-        this.selected = [...ids];
-        this.selectedMain = ids[this.selected.length - 1];
+        const rowsIds = this.currentRows.map(x => x.id);
+        console.log('s')
+        if (e.ctrlKey) {
+            if (e.shiftKey) {
+                const mainIndex = rowsIds.indexOf(this.selectedMain);
+                const clickedIndex = rowsIds.indexOf(row.id);
+                if (clickedIndex >= 0 && mainIndex >= 0)
+                    rowsIds.slice(Math.min(mainIndex, clickedIndex), Math.max(mainIndex, clickedIndex) + 1).forEach(x => this.selected.add(x));
+            } else {
+                if (this.selected.has(row.id))
+                    this.selected.delete(row.id);
+                else
+                    this.selected.add(row.id);
+            }
+            this.selectedMain = row.id;
+        } else {
+            this.selectedMain = null;
+            this.selected.clear();
+        }
         this.refreshSelectedClasses();
     }
 
     refreshSelectedClasses() {
-        for (const tr of Array.from(this.table.tBodies).flatMap(x=>Array.from(x.children))) {
-            tr.classList.toggle('selected', this.selected.includes(tr.dataset.row));
-            tr.classList.toggle('selectedLast', this.selectedLast == tr.dataset.row);
+        for (const tr of Array.from(this.table.tBodies).flatMap(x => Array.from(x.children))) {
+            tr.classList.toggle('selected', this.selected.has(tr.dataset.row));
+            tr.classList.toggle('selectedMain', this.selectedMain == tr.dataset.row);
         }
     }
 }
