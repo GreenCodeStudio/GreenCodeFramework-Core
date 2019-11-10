@@ -211,6 +211,7 @@ class Router
             foreach (self::getFileArgs() as $key=>$arg) {
                 $args[$key] = $arg;
             }
+            ksort($args);
         } else {
             $controllerName = $exploded[1] ?? '';
             $methodName = $exploded[2] ?? '';
@@ -332,7 +333,6 @@ class Router
         if (empty($_FILES['args']))
             return [];
         $ret = [];
-        dump($_FILES['args']);
         $keys = array_keys($_FILES['args']['tmp_name']);
         foreach ($keys as $key) {
             $ret[$key] = [
@@ -343,7 +343,6 @@ class Router
                 'error' => $_FILES['args']['error'][$key]
             ];
         }
-        dump($ret);
         return $ret;
     }
 }
