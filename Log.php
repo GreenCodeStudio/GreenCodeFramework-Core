@@ -121,4 +121,27 @@ class Log
         $channel->basic_publish($amqpMsg, '', 'log');
 
     }
+    public static function FrontException()
+    {
+        $connection = static::connect();
+        $channel = $connection->channel();
+        $channel->queue_declare('log', false, false, false, false);
+
+        $msg = new \stdClass();
+        $msg->type = 'Error';
+        $msg->lang = "js";
+        $msg->level = 'Exception';
+        //$msg->message = get_class($ex)."\r\n".$ex->getMessage();
+        //$msg->file = $ex->getFile();
+       // $msg->line = $ex->getLine();
+       // $msg->column = null;
+        $msg->stamp = (new \DateTime())->format('Y-m-d H:i:s.u');
+        //$msg->server = $_SERVER;
+        $msg->user = (\Authorization\Authorization::getUserData());
+       // $msg->stack = $ex->getTrace();
+
+        $amqpMsg = new AMQPMessage(json_encode($msg));
+        $channel->basic_publish($amqpMsg, '', 'log');
+
+    }
 }

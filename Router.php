@@ -125,9 +125,7 @@ class Router
             http_response_code(403);
             return;
         }
-        if (!empty($_POST['args'])) {
-            $args = array_merge($args, $_POST['args']);
-        }
+
         try {
             http_response_code(200);
             list($controllerClassName, $controller) = static::dispatchController($type, $controllerName, $methodName, $args);
@@ -207,8 +205,11 @@ class Router
             $controllerName = $exploded[2] ?? '';
             $methodName = $exploded[3] ?? '';
             $args = [];
-            foreach ($_POST['args'] ?? [] as $arg) {
-                $args[] = json_decode($arg, false);
+            foreach ($_POST['args'] ?? [] as $key=>$arg) {
+                $args[$key] = json_decode($arg, false);
+            }
+            foreach (self::getFileArgs() as $key=>$arg) {
+                $args[$key] = $arg;
             }
         } else {
             $controllerName = $exploded[1] ?? '';
@@ -324,5 +325,25 @@ class Router
             return $controllerInfo;
         }
         return null;
+    }
+
+    private static function getFileArgs()
+    {
+        if (empty($_FILES['args']))
+            return [];
+        $ret = [];
+        dump($_FILES['args']);
+        $keys = array_keys($_FILES['args']['tmp_name']);
+        foreach ($keys as $key) {
+            $ret[$key] = [
+                'type' => $_FILES['args']['type'][$key],
+                'tmp_name' => $_FILES['args']['tmp_name'][$key],
+                'size' => $_FILES['args']['size'][$key],
+                'name' => $_FILES['args']['name'][$key],
+                'error' => $_FILES['args']['error'][$key]
+            ];
+        }
+        dump($ret);
+        return $ret;
     }
 }

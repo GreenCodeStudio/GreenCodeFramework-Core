@@ -12,12 +12,18 @@ function AjaxFunction(controller, method, ...args) {
     return new Promise((resolve, reject) => {
         var xhr = new XMLHttpRequest();
         xhr.open('post', '/ajax/' + controller + '/' + method);
-        var postData = '';
-        for (var arg of args) {
-            postData += '&args[]=' + encodeURIComponent(JSON.stringify(arg));
+
+        const postData = new FormData();
+        let argCounter=0;
+        for (const arg of args) {
+            if (arg instanceof File)
+                postData.append(`args[${argCounter}]`, arg);
+            else
+                postData.append(`args[${argCounter}]`, JSON.stringify(arg));
+
+            argCounter++;
         }
         xhr.setRequestHeader('x-js-origin', 'true');
-        xhr.setRequestHeader('content-type', 'application/x-www-form-urlencoded');
         xhr.onreadystatechange = e => {
             if (xhr.readyState == 4) {
                 if (xhr.status == 200) {
@@ -36,6 +42,7 @@ function AjaxFunction(controller, method, ...args) {
                 } else {
                     try {
                         let decoded = JSON.parse(xhr.responseText);
+                        showServerDebug(decoded);
                         ConsoleCheating.eval("console.error.apply(null,data)", "", decoded.error.stack[0].file, decoded.error.stack[0].line, [decoded.error.message + '%o', decoded.error]);
                         reject(decoded.error)
                     } catch (ex) {
