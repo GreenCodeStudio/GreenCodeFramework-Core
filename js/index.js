@@ -36,4 +36,15 @@ setEvent('click', 'a', function (e) {
     e.preventDefault();
     pageManager.goto(this.href);
 });
+addEventListener('error', e => {
+    let obj = {
+        message: e.message,
+        filename: e.filename,
+        lineno: e.lineno,
+        colno: e.colno,
+        error: e.error,
+        stack: (new Error()).stack
+    };
+    Ajax.Log.addFrontError(obj);
+});
 window.dbgAjax = Ajax;

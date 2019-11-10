@@ -121,7 +121,7 @@ class Log
         $channel->basic_publish($amqpMsg, '', 'log');
 
     }
-    public static function FrontException()
+    public static function FrontException($event)
     {
         $connection = static::connect();
         $channel = $connection->channel();
@@ -131,14 +131,14 @@ class Log
         $msg->type = 'Error';
         $msg->lang = "js";
         $msg->level = 'Exception';
-        //$msg->message = get_class($ex)."\r\n".$ex->getMessage();
-        //$msg->file = $ex->getFile();
-       // $msg->line = $ex->getLine();
-       // $msg->column = null;
+        $msg->message = $event->message;
+        $msg->file =$event->filename;
+        $msg->line = $event->lineno;
+        $msg->column = $event->colno;
         $msg->stamp = (new \DateTime())->format('Y-m-d H:i:s.u');
-        //$msg->server = $_SERVER;
+        $msg->server = $_SERVER;
         $msg->user = (\Authorization\Authorization::getUserData());
-       // $msg->stack = $ex->getTrace();
+        $msg->stack = $event->stack;
 
         $amqpMsg = new AMQPMessage(json_encode($msg));
         $channel->basic_publish($amqpMsg, '', 'log');
