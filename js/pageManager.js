@@ -47,78 +47,88 @@ export const pageManager = {
                 callback(page, data);
 
     },
-    goto(url, options = {}) {
+    load(url) {
         return new Promise((resolve, reject) => {
-            document.querySelectorAll('[data-views="main"] > .page').forEach(x => x.classList.add('removing'));
-            setTimeout(() => {
-                document.querySelectorAll('[data-views="main"] > .page.removing').forEach(x => x.remove());
-            }, 500);
-            let startDate = new Date();
             let xhr = new XMLHttpRequest();
             xhr.open('get', url);
             xhr.setRequestHeader('x-json', 1);
             xhr.onload = () => {
                 let data = JSON.parse(xhr.responseText);
-                if (options.ignoreHistory) {
-                    if (data.needFullReload)
-                        document.location.reload();
-                } else {
-                    if (data.needFullReload) {
-                        document.location = url;
-                        return;
-                    }
-                    history.pushState(data, '', url);
-                }
-                if (xhr.status == 403) {
-                    modal('Brak uprawnień', 'error');
-                    reject(data.error);
-                } else if (xhr.status == 404) {
-                    modal('Nie znaleziono', 'error');
-                    reject(data.error);
-                } else if (xhr.status == 500) {
-                    modal('Wystąpił błąd', 'error');
-                    reject(data.error);
-                } else {
-                    let page;
-                    let viewsContainers = document.querySelectorAll('[data-views]');
-                    for (let viewsContainer of viewsContainers) {
-                        let viewName = viewsContainer.dataset.views;
-                        if (viewName === 'main') {
-                            viewsContainer = viewsContainer.addChild('div', {classList: ['page']});
-                            page = viewsContainer;
-                            let diffTime = new Date() - startDate;
-                            if (diffTime < 200) {//dla animacji
-                                viewsContainer.classList.add('stillLoading')
-                                setInterval(viewsContainer.classList.remove.bind(viewsContainer.classList, 'stillLoading'), 200 - diffTime);
-                            }
-                        }
-                        if (data.views[viewName]) {
-                            viewsContainer.innerHTML = '';
-                            for (let html of data.views[viewName]) {
-                                viewsContainer.innerHTML += html;
-                            }
-                        }
-                    }
-                    document.querySelectorAll('.debugOutput').forEach(x => x.remove());
-
-                    this.initPage(data.data, page);
-                    this._updateBreadcrumb(data.breadcrumb);
-                    document.title = data.title;
-                    resolve();
-                }
-                if (data.debug) {
-                    let debugOutput = document.createElement('div');
-                    debugOutput.className = 'debugOutput';
-                    debugOutput.innerHTML = data.debug;
-                    let main = document.querySelector('[data-views="main"]');
-                    main.prepend(debugOutput);
-                }
+                resolve({data, status: xhr.status});
             };
             xhr.onerror = (ex) => {
                 reject(ex);
             };
             xhr.send();
         });
+    },
+    waitForRemoveAnimation(){
+      return new Promise(resolve=>setTimeout(resolve,200));
+    },
+    async goto(url, options = {}) {
+        let waitPromise=this.waitForRemoveAnimation();
+        document.querySelectorAll('[data-views="main"] > .page').forEach(x => x.classList.add('removing'));
+        setTimeout(() => {
+            document.querySelectorAll('[data-views="main"] > .page.removing').forEach(x => x.remove());
+        }, 500);
+        let startDate = new Date();
+        const {data, status} = await this.load(url);
+        await waitPromise;//for better UX
+        if (options.ignoreHistory) {
+            if (data.needFullReload)
+                document.location.reload();
+        } else {
+            if (data.needFullReload) {
+                document.location = url;
+                return;
+            }
+            history.pushState(data, '', url);
+        }
+        if (status == 403) {
+            modal('Brak uprawnień', 'error');
+            throw (data.error);
+        } else if (status == 404) {
+            modal('Nie znaleziono', 'error');
+            throw(data.error);
+        } else if (status == 500) {
+            modal('Wystąpił błąd', 'error');
+            throw(data.error);
+        } else {
+            let page;
+            let viewsContainers = document.querySelectorAll('[data-views]');
+            for (let viewsContainer of viewsContainers) {
+                let viewName = viewsContainer.dataset.views;
+                if (viewName === 'main') {
+                    viewsContainer = viewsContainer.addChild('div', {classList: ['page']});
+                    page = viewsContainer;
+                    let diffTime = new Date() - startDate;
+                    if (diffTime < 200) {//dla animacji
+                        viewsContainer.classList.add('stillLoading')
+                        setInterval(viewsContainer.classList.remove.bind(viewsContainer.classList, 'stillLoading'), 200 - diffTime);
+                    }
+                }
+                if (data.views[viewName]) {
+                    viewsContainer.innerHTML = '';
+                    for (let html of data.views[viewName]) {
+                        viewsContainer.innerHTML += html;
+                    }
+                }
+            }
+            document.querySelectorAll('.debugOutput').forEach(x => x.remove());
+
+            this.initPage(data.data, page);
+            this._updateBreadcrumb(data.breadcrumb);
+            document.title = data.title;
+
+        }
+        if (data.debug) {
+            let debugOutput = document.createElement('div');
+            debugOutput.className = 'debugOutput';
+            debugOutput.innerHTML = data.debug;
+            let main = document.querySelector('[data-views="main"]');
+            main.prepend(debugOutput);
+
+        }
     },
     _updateBreadcrumb(breadcrumb) {
         let existingBreadcrumb = document.querySelector('.breadcrumb ul');
@@ -142,7 +152,8 @@ export const pageManager = {
             else
                 li.addChild('span', {text: crumb.title});
         }
-    },
+    }
+    ,
     registerController(name, controller) {
         this._constrollers[name] = controller;
     }
