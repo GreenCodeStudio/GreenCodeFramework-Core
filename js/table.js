@@ -27,7 +27,7 @@ export class TableManager {
     }
 
     async refresh() {
-        const refreshSymbol = symbol();
+        const refreshSymbol = Symbol();
         this.lastRefreshSymbol = refreshSymbol;
         let data = await this.datasource.get(this);
         if (this.lastRefreshSymbol == refreshSymbol)
