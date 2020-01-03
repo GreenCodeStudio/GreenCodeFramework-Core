@@ -51,4 +51,9 @@ abstract class AbstractController
         if (!$this->can($group, $permission))
             throw new NoPermissionException();
     }
+    public function redirect(string $url)
+    {
+        http_response_code(301);
+        header("location: $url");
+    }
 }

@@ -15,7 +15,7 @@ export function setEvent(type, selector, callback, root = document) {
                 for (var x of callbacks) {
                     if (!inlevelPropagation) break;
                     try {
-                        if (elem.matches(x.selector)) {
+                        if (elem.matches && elem.matches(x.selector)) {
                             x.callback.call(elem, {
                                 target: elem, originalEvent: e, preventDefault: () => {
                                     e.preventDefault()

@@ -195,9 +195,9 @@ class Router
      */
     protected static function parseUrl($url): array
     {
-        $exploded = explode('/', $url);
+        $exploded = explode('/', explode('?',$url)[0]);
         $type = 'Controllers';
-        if ($exploded[1] == 'ajax') {
+        if (($exploded[1] ?? '') == 'ajax') {
             $type = 'Ajax';
             global $debugType;
             $debugType = 'object';
@@ -205,10 +205,10 @@ class Router
             $controllerName = $exploded[2] ?? '';
             $methodName = $exploded[3] ?? '';
             $args = [];
-            foreach ($_POST['args'] ?? [] as $key=>$arg) {
+            foreach ($_POST['args'] ?? [] as $key => $arg) {
                 $args[$key] = json_decode($arg, false);
             }
-            foreach (self::getFileArgs() as $key=>$arg) {
+            foreach (self::getFileArgs() as $key => $arg) {
                 $args[$key] = $arg;
             }
             ksort($args);
@@ -224,6 +224,24 @@ class Router
         if (empty($methodName))
             $methodName = 'index';
         return array($type, $controllerName, $methodName, $args);
+    }
+
+    private static function getFileArgs()
+    {
+        if (empty($_FILES['args']))
+            return [];
+        $ret = [];
+        $keys = array_keys($_FILES['args']['tmp_name']);
+        foreach ($keys as $key) {
+            $ret[$key] = [
+                'type' => $_FILES['args']['type'][$key],
+                'tmp_name' => $_FILES['args']['tmp_name'][$key],
+                'size' => $_FILES['args']['size'][$key],
+                'name' => $_FILES['args']['name'][$key],
+                'error' => $_FILES['args']['error'][$key]
+            ];
+        }
+        return $ret;
     }
 
     static function dispatchController($type, $controllerName, $methodName, $args)
@@ -326,23 +344,5 @@ class Router
             return $controllerInfo;
         }
         return null;
-    }
-
-    private static function getFileArgs()
-    {
-        if (empty($_FILES['args']))
-            return [];
-        $ret = [];
-        $keys = array_keys($_FILES['args']['tmp_name']);
-        foreach ($keys as $key) {
-            $ret[$key] = [
-                'type' => $_FILES['args']['type'][$key],
-                'tmp_name' => $_FILES['args']['tmp_name'][$key],
-                'size' => $_FILES['args']['size'][$key],
-                'name' => $_FILES['args']['name'][$key],
-                'error' => $_FILES['args']['error'][$key]
-            ];
-        }
-        return $ret;
     }
 }

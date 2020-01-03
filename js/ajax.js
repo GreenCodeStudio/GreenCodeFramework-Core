@@ -14,9 +14,9 @@ function AjaxFunction(controller, method, ...args) {
         xhr.open('post', '/ajax/' + controller + '/' + method);
 
         const postData = new FormData();
-        let argCounter=0;
+        let argCounter = 0;
         for (const arg of args) {
-            if (arg instanceof File)
+            if (arg instanceof File || arg instanceof Blob)
                 postData.append(`args[${argCounter}]`, arg);
             else
                 postData.append(`args[${argCounter}]`, JSON.stringify(arg));
