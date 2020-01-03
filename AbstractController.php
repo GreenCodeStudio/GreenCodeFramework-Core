@@ -30,7 +30,7 @@ abstract class AbstractController
 
     public function isDebug()
     {
-        return (getenv('debug') ?? '') == 'true';
+        return ($_ENV['debug'] ?? '') == 'true';
     }
 
     public function hasPermission()

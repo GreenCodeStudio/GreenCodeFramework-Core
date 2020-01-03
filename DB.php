@@ -195,9 +195,9 @@ class DB
     public static function init()
     {
 
-        DB::$dialect = getenv('dbDialect');
-        DB::$dsn = getenv('db');
-        DB::$user = getenv('dbUser');
-        DB::$password = getenv('dbPass');
+        DB::$dialect = $_ENV['dbDialect'];
+        DB::$dsn = $_ENV['db'];
+        DB::$user = $_ENV['dbUser'];
+        DB::$password = $_ENV['dbPass'];
     }
 }

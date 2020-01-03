@@ -17,7 +17,7 @@ class Server implements MessageComponentInterface
         $ws = new WsServer(new self());
 
         // Make sure you're running this as root
-        $server = IoServer::factory(new HttpServer($ws), getenv('websocketPort'));
+        $server = IoServer::factory(new HttpServer($ws), $_ENV['websocketPort']);
         $server->run();
     }
 

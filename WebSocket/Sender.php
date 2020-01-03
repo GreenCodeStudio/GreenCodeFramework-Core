@@ -21,7 +21,7 @@ class Sender
     static function connect(): \WebSocket\Client
     {
         if (static::$connection == null) {
-            static::$connection = new Client('ws://127.0.0.1:'.getenv('websocketPort').'/server');
+            static::$connection = new Client('ws://127.0.0.1:'.$_ENV['websocketPort'].'/server');
         }
         return static::$connection;
     }

@@ -6,7 +6,7 @@ abstract class Migration
 {
     public static function factory()
     {
-        if (getenv('dbDialect') == 'mysql')
+        if ($_ENV['dbDialect'] == 'mysql')
             return new MigrationMysql();
         else
             return new MigrationMssql();
@@ -102,7 +102,7 @@ abstract class Migration
 
     function readOldStructure()
     {
-        $schema = getenv('dbSchema');
+        $schema = $_ENV['dbSchema'];
         $tablesList = DB::get("SELECT TABLE_NAME as name FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = ?", [$schema]);
         $tables = [];
         foreach ($tablesList as $tableName) {

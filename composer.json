@@ -6,7 +6,7 @@
         "cboden/ratchet": "^0.4.1",
         "textalk/websocket": "^1.2",
         "php-amqplib/php-amqplib": "^2.9",
-        "vlucas/phpdotenv": "^3.6"
+        "vlucas/phpdotenv": "^4.1.0"
     },
     "config": {
         "platform": {

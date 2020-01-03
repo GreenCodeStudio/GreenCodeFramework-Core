@@ -17,7 +17,13 @@ $debugType = 'html';
 global $debugArray;
 $debugArray = [];
 include_once __DIR__.'/../../vendor/autoload.php';
-$dotenv = \Dotenv\Dotenv::create(__DIR__.'/../../');
+use Dotenv\Environment\Adapter\EnvConstAdapter;
+use Dotenv\Environment\Adapter\ServerConstAdapter;
+use Dotenv\Environment\DotenvFactory;
+use Dotenv\Dotenv;
+
+$factory = new DotenvFactory([new EnvConstAdapter(), new ServerConstAdapter()]);
+$dotenv = Dotenv::create(__DIR__.'/../../', null, $factory);
 $dotenv->load();
 
 include_once __DIR__.'/Router.php';

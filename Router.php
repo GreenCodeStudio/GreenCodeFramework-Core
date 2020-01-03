@@ -21,7 +21,7 @@ class Router
         try {
             $error = null;
             $returned = null;
-            if (getenv('cached_code')) {
+            if ($_ENV['cached_code']) {
                 // $controllerClassName = static::findControllerCached($controllerName, $type);
             } else {
                 $controllerClassName = static::findController($controllerName, $type);
@@ -36,7 +36,7 @@ class Router
                     $returned = static::runMethod($controllerClassName, $controller);
                 } catch (\Throwable $exception) {
                     $error = static::exceptionToArray($exception);
-                    if (getenv('debug') == 'true') {
+                    if ($_ENV['debug'] == 'true') {
                         dump($exception);
                     }
                 }
@@ -96,7 +96,7 @@ class Router
     private static function exceptionToArray(\Throwable $exception)
     {
         $ret = ['type' => get_class($exception), 'message' => $exception->getMessage(), 'code' => $exception->getCode()];
-        if (getenv('debug') == 'true') {
+        if ($_ENV['debug'] == 'true') {
             $stack = [['file' => $exception->getFile(), 'line' => $exception->getLine()]];
             $stack = array_merge($stack, $exception->getTrace());
             $ret['stack'] = $stack;
@@ -166,7 +166,7 @@ class Router
                 Log::Exception($ex);
             }
             http_response_code($responseCode);
-            $debugEnabled = getenv('debug') == 'true';
+            $debugEnabled = $_ENV['debug'] == 'true';
             dump($ex);
             $debugOutput = ob_get_clean();
             ob_end_clean();
@@ -246,7 +246,7 @@ class Router
 
     static function dispatchController($type, $controllerName, $methodName, $args)
     {
-        if (getenv('cached_code')) {
+        if ($_ENV['cached_code']) {
             // $controllerClassName = static::findControllerCached($controllerName, $type);
         } else {
             $controllerClassName = static::findController($controllerName, $type);
