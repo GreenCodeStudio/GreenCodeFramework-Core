@@ -1,19 +1,9 @@
 import "prototype-extensions";
-import {modal} from '../../Core/js/modal'
 
 export const pageManager = {
     _constrollers: {},
     initPage(initInfo, page) {
         console.log(initInfo);
-        if (initInfo.code == 403) {
-            modal('Brak uprawnień', 'error');
-        }
-        if (initInfo.code == 404) {
-            modal('Nie znaleziono', 'error');
-        }
-        if (initInfo.code == 500) {
-            modal('Wystąpił błąd', 'error');
-        }
         let controller = this._constrollers[initInfo.controllerName];
         if (controller) {
             if (typeof controller == 'function')
@@ -82,7 +72,7 @@ export const pageManager = {
         await waitPromise;//for better UX
         if (this.currentLoadingSymbol != currentLoadingSymbol)//other request
             return;
-        
+
         if (options.ignoreHistory) {
             if (data.needFullReload)
                 document.location.reload();
@@ -99,50 +89,41 @@ export const pageManager = {
             x.classList.add('loaded')
         });
 
-        if (status == 403) {
-            modal('Brak uprawnień', 'error');
-            throw (data.error);
-        } else if (status == 404) {
-            modal('Nie znaleziono', 'error');
-            throw(data.error);
-        } else if (status == 500) {
-            modal('Wystąpił błąd', 'error');
-            throw(data.error);
-        } else {
-            let page;
-            let viewsContainers = document.querySelectorAll('[data-views]');
-            for (let viewsContainer of viewsContainers) {
-                let viewName = viewsContainer.dataset.views;
-                if (viewName === 'main') {
-                    viewsContainer = viewsContainer.addChild('div', {classList: ['page']});
-                    page = viewsContainer;
-                    let diffTime = new Date() - startDate;
-                    if (diffTime < 200) {//dla animacji
-                        viewsContainer.classList.add('stillLoading')
-                        setInterval(viewsContainer.classList.remove.bind(viewsContainer.classList, 'stillLoading'), 200 - diffTime);
-                    }
-                }
-                if (data.views[viewName]) {
-                    viewsContainer.innerHTML = '';
-                    for (let html of data.views[viewName]) {
-                        viewsContainer.innerHTML += html;
-                    }
+        let page;
+        let viewsContainers = document.querySelectorAll('[data-views]');
+        for (let viewsContainer of viewsContainers) {
+            let viewName = viewsContainer.dataset.views;
+            if (viewName === 'main') {
+                viewsContainer = viewsContainer.addChild('div', {classList: ['page']});
+                page = viewsContainer;
+                let diffTime = new Date() - startDate;
+                if (diffTime < 200) {//dla animacji
+                    viewsContainer.classList.add('stillLoading')
+                    setInterval(viewsContainer.classList.remove.bind(viewsContainer.classList, 'stillLoading'), 200 - diffTime);
                 }
             }
-            document.querySelectorAll('.debugOutput').forEach(x => x.remove());
-
-            this.initPage(data.data, page);
-            this._updateBreadcrumb(data.breadcrumb);
-            document.title = data.title;
-
+            if (data.views[viewName]) {
+                viewsContainer.innerHTML = '';
+                for (let html of data.views[viewName]) {
+                    viewsContainer.innerHTML += html;
+                }
+            }
         }
+        document.querySelectorAll('.debugOutput').forEach(x => x.remove());
+
+        this.initPage(data.data, page);
+        this._updateBreadcrumb(data.breadcrumb);
+        document.title = data.title;
+
         if (data.debug) {
             let debugOutput = document.createElement('div');
             debugOutput.className = 'debugOutput';
             debugOutput.innerHTML = data.debug;
             let main = document.querySelector('[data-views="main"]');
             main.prepend(debugOutput);
-
+        }
+        if (status == 403 || status == 404 || status == 500) {
+            throw(data.error);
         }
     },
     _updateBreadcrumb(breadcrumb) {

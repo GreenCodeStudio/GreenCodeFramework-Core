@@ -175,11 +175,11 @@ class Router
                 global $debugArray;
                 echo json_encode(['error' => static::exceptionToArray($ex), 'debug' => $debugEnabled ? $debugArray : [], 'output' => $debugEnabled ? ($controller->debugOutput ?? '') : ''], JSON_PARTIAL_OUTPUT_ON_ERROR);
             } else {
+                list($controllerClassNameError, $controllerError) = static::dispatchController('Controllers', 'Error', 'index', [$responseCode, $debugEnabled ? $debugOutput : '']);
+                self::runMethod($controllerClassNameError, $controllerError);
                 if (isset($_SERVER['HTTP_X_JSON'])) {
-                    echo json_encode(['debug' => $debugEnabled ? $debugOutput : '', 'error' => static::exceptionToArray($ex)], JSON_PARTIAL_OUTPUT_ON_ERROR);
+                    echo json_encode(['views' => $controllerError->getViews(), 'debug' => $debugEnabled ? $debugOutput : '', 'error' => static::exceptionToArray($ex)], JSON_PARTIAL_OUTPUT_ON_ERROR);
                 } else {
-                    list($controllerClassNameError, $controllerError) = static::dispatchController('Controllers', 'Error', 'index', [$debugEnabled ? $debugOutput : '']);
-                    self::runMethod($controllerClassNameError, $controllerError);
                     $controllerError->initInfo->error = static::exceptionToArray($ex);
                     $controllerError->initInfo->code = $responseCode;
                     $controllerError->postAction();
