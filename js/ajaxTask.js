@@ -32,7 +32,7 @@ export class AjaxTask {
     }
 
     get stateText() {
-        let states = {notstarted: 'Nie rozpoczeto', started: 'Rozpoczeto', error: 'Błąd'};
+        let states = {notstarted: 'Nie rozpoczeto', started: 'Rozpoczeto', offline: 'Offline', error: 'Błąd'};
         return states[this.state] || 'Zakończono';
     }
 
@@ -49,7 +49,7 @@ export class AjaxTask {
 
     _htmlButtons() {
         this.buttonsHtml.children.removeAll();
-        if (this.state == 'error') {
+        if (this.state == 'offline') {
             let btnDelete = this.buttonsHtml.addChild('div.button', {text: 'Anuluj'});
             btnDelete.onclick = () => {
                 this._delete(true);
@@ -62,6 +62,7 @@ export class AjaxTask {
     }
 
     refreshHtml() {
+        this.html.dataset.status = this.state;
         this.statusHtml.textContent = this.stateText;
         this._htmlButtons();
         AjaxTask.refreshMainState();
@@ -84,6 +85,12 @@ export class AjaxTask {
     }
 
     start() {
+        if (!navigator.onLine) {
+            localStorage[this.identificator + '-state'] = 'offline';
+            AjaxTask.refreshMainState();
+            this.refreshHtml();
+            return;
+        }
         localStorage[this.identificator + '-state'] = 'started';
         this.ajax = Ajax(this.controller, this.method, ...this.args);
         this.refreshHtml();
@@ -92,6 +99,7 @@ export class AjaxTask {
             this._delete();
         });
         this.ajax.catch(ex => {
+            console.log(ex);
             this.statusHtml.textContent = 'Błąd';
             localStorage[this.identificator + '-state'] = 'error';
             this.refreshHtml();

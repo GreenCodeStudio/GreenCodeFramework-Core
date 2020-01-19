@@ -10,9 +10,9 @@ global $debugType;
 $debugType = 'html';
 global $debugArray;
 $debugArray = [];
-include_once __DIR__.'/../../vendor/autoload.php';
-$dotenv = new \Dotenv\Dotenv(__DIR__.'/../../');
-$dotenv->load();
+
+
+include_once __DIR__.'/loadDotEnv.php';
 
 
 include_once __DIR__.'/Debug.php';

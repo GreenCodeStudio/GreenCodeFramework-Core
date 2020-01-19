@@ -62,11 +62,15 @@ export const pageManager = {
             xhr.send();
         });
     },
-    waitForRemoveAnimation(){
-      return new Promise(resolve=>setTimeout(resolve,200));
+    waitForRemoveAnimation() {
+        return new Promise(resolve => setTimeout(resolve, 200));
     },
     async goto(url, options = {}) {
-        let waitPromise=this.waitForRemoveAnimation();
+        let waitPromise = this.waitForRemoveAnimation();
+        document.querySelectorAll('[data-views="main"]').forEach(x => {
+            x.classList.add('loading');
+            x.classList.remove('loaded')
+        });
         document.querySelectorAll('[data-views="main"] > .page').forEach(x => x.classList.add('removing'));
         setTimeout(() => {
             document.querySelectorAll('[data-views="main"] > .page.removing').forEach(x => x.remove());
@@ -84,6 +88,12 @@ export const pageManager = {
             }
             history.pushState(data, '', url);
         }
+
+        document.querySelectorAll('[data-views="main"]').forEach(x => {
+            x.classList.remove('loading');
+            x.classList.add('loaded')
+        });
+
         if (status == 403) {
             modal('Brak uprawnień', 'error');
             throw (data.error);
