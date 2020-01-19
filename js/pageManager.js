@@ -66,6 +66,8 @@ export const pageManager = {
         return new Promise(resolve => setTimeout(resolve, 200));
     },
     async goto(url, options = {}) {
+        const currentLoadingSymbol = Symbol();
+        this.currentLoadingSymbol = currentLoadingSymbol;
         let waitPromise = this.waitForRemoveAnimation();
         document.querySelectorAll('[data-views="main"]').forEach(x => {
             x.classList.add('loading');
@@ -78,6 +80,9 @@ export const pageManager = {
         let startDate = new Date();
         const {data, status} = await this.load(url);
         await waitPromise;//for better UX
+        if (this.currentLoadingSymbol != currentLoadingSymbol)//other request
+            return;
+        
         if (options.ignoreHistory) {
             if (data.needFullReload)
                 document.location.reload();
