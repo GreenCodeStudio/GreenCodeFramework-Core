@@ -4,6 +4,16 @@ namespace Core;
 
 abstract class Migration
 {
+    public const equalTypePairs = [
+        ["BOOLEAN", "TINYINT(1)"],
+        ["TINYINT", "TINYINT(4)"],
+        ["SMALLINT", "SMALLINT(6)"],
+        ["MEDIUMINT", "MEDIUMINT(9)"],
+        ["INT", "INT(11)"],
+        ["BIGINT", "BIGINT(20)"],
+        ["DECIMAL", "DECIMAL(10,0)"],
+        ["BIT", "BIT(1)"],
+    ];
     public $queries = [];
 
     public static function factory()
@@ -28,7 +38,11 @@ abstract class Migration
         $tables = [];
         foreach ($tablesList as $tableName) {
             $table = new \stdClass();
-            $table->columns = DB::get("SELECT COLUMN_NAME as name, COLUMN_TYPE as type, EXTRA, IS_NULLABLE as `null` FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?", [$schema, $tableName->name]);
+            $table->columns = DB::get("SELECT COLUMN_NAME as name, COLUMN_TYPE as type, EXTRA,  IS_NULLABLE as `null` FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?", [$schema, $tableName->name]);
+            foreach ($table->columns as &$column) {
+                if (strpos($column->EXTRA, 'auto_increment') !== false)
+                    $column->autoincrement = 'YES';
+            }
             $table->index = [];
             $indexes = DB::get("SHOW INDEX FROM ".$tableName->name);
             $namedIndexes = [];
@@ -58,9 +72,9 @@ abstract class Migration
                 $index->type = 'FOREIGN';
                 $index->element = array_map(fn($x) => $x->COLUMN_NAME, $keyArray);
                 $index->name = $keyArray[0]->CONSTRAINT_NAME;
-                $index->reference=new \stdClass();
-                $index->reference->name=$keyArray[0]->REFERENCED_TABLE_NAME;
-                $index->reference->element=array_map(fn($x) => $x->REFERENCED_COLUMN_NAME, $keyArray);
+                $index->reference = new \stdClass();
+                $index->reference->name = $keyArray[0]->REFERENCED_TABLE_NAME;
+                $index->reference->element = array_map(fn($x) => $x->REFERENCED_COLUMN_NAME, $keyArray);
                 $table->index[] = $index;
             }
             $tables[$tableName->name] = $table;
@@ -141,7 +155,7 @@ abstract class Migration
                         $sqls[] = "ADD ".$this->addIndexSQL($indexNew);
                     }
                 }
-                if(!empty($sqls)) {
+                if (!empty($sqls)) {
                     $sqlsString = implode(',', $sqls);
                     $sql = "ALTER TABLE `$name` $sqlsString";
                     $this->queries[] = $sql;
@@ -175,9 +189,18 @@ abstract class Migration
     private function areColsEqual($old, $new)
     {
         $name = $old->name == $new->name;
-        $type = $old->type == $new->type;
-        $null = strtoupper($old->null) == strtoupper($new->null);
-        return $name && $type && $null;
+        $type = strtoupper($old->type) == strtoupper($new->type);
+        if (!$type) {
+            foreach (static::equalTypePairs as $pair) {
+                if (in_array(strtoupper($old->type), $pair) && in_array(strtoupper($new->type), $pair)) {
+                    $type = true;
+                    break;
+                }
+            }
+        }
+        $null = strtoupper($old->null ?? 'NO') == strtoupper($new->null ?? 'NO');
+        $autoincrement = strtoupper($old->autoincrement??'NO') == strtoupper($new->autoincrement??'NO');
+        return $name && $type && $null && $autoincrement;
     }
 
     /**
@@ -209,10 +232,10 @@ abstract class Migration
             $i++;
         }
 
-        if(count($indexNew->reference->element??[])!=count($indexOld->reference->element??[]))
+        if (count($indexNew->reference->element ?? []) != count($indexOld->reference->element ?? []))
             return false;
         $i = 0;
-        foreach ($indexNew->reference->element??[] as $newElement) {
+        foreach ($indexNew->reference->element ?? [] as $newElement) {
             if ($newElement != $indexOld->reference->element[$i]) {
                 return false;
             }
@@ -305,7 +328,7 @@ abstract class Migration
                 $xmlColumn->name = $column->name;
                 $xmlColumn->type = $column->type;
                 $xmlColumn->null = $column->null;
-                if (strpos($column->EXTRA, 'auto_increment') !== false)
+                if ($column->autoincrement ?? 'NO' == 'YES')
                     $xmlColumn->autoincrement = 'YES';
             }
             foreach ($table->index as $index) {
@@ -340,8 +363,8 @@ abstract class Migration
             }
             DB::commit();
         } catch (\Throwable $ex) {
-            dump($ex->getMessage(), $ex->getTraceAsString());
             DB::rollBack();
+            throw $ex;
         }
     }
 }
