@@ -33,3 +33,12 @@ class ScheduleJobAnnotation extends \mindplay\annotations\Annotation
 {
     public $interval;
 }
+
+/**
+ * @usage('method'=>true)
+ */
+class ApiEndpointAnnotation extends \mindplay\annotations\Annotation
+{
+    public $type;
+    public $url;
+}
