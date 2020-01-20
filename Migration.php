@@ -4,6 +4,8 @@ namespace Core;
 
 abstract class Migration
 {
+    public $queries = [];
+
     public static function factory()
     {
         if ($_ENV['dbDialect'] == 'mysql')
@@ -16,88 +18,7 @@ abstract class Migration
     {
         $old = $this->readOldStructure();
         $new = $this->readNewStructure();
-        foreach ($new as $name => $tableNew) {
-            $name = strtolower($name);
-            try {
-                DB::beginTransaction();
-                if (isset($old[$name])) {
-                    $sqls = [];
-                    foreach ($tableNew->column as $colNew) {
-                        $oldCol = null;
-                        foreach ($old[$name]->columns as $oldTableCol) {
-                            if ($oldTableCol->name == $colNew->name) {
-                                $oldCol = $oldTableCol;
-                                break;
-                            }
-                        }
-                        if ($oldCol) {
-                            $sqls[] = 'CHANGE '.DB::safeKey($colNew->name).' '.$this->createColumnSql($colNew);
-
-                        } else {
-                            $sqls[] = 'ADD '.$this->createColumnSql($colNew);
-                        }
-
-                    }
-                    foreach ($old[$name]->index as $indexOld) {
-                        $foundIdentical = false;
-                        foreach ($tableNew->index as $i => $indexNew) {
-
-                            if ($this->isIndexIdentical($indexNew, $indexOld)) {
-                                $foundIdentical = true;
-                                $indexNew->addAttribute('foundIdentical', true);
-                                break;
-                            }
-                        }
-                        if (!$foundIdentical) {
-                            $safe = DB::safeKey($indexOld->name);
-
-                            if ($indexOld->type == 'PRIMARY')
-                                $sqls[] = "DROP PRIMARY KEY";
-                            else if ($indexOld->type == 'FOREIGN')
-                                $sqls[] = "DROP FOREIGN KEY $safe";
-                            else
-                                $sqls[] = "DROP INDEX $safe";
-                        }
-                    }
-
-                    foreach ($tableNew->index as $indexNew) {
-                        if ($indexNew->type != 'FOREIGN' && !$indexNew->attributes()->foundIdentical) {
-                            $sqls[] = "ADD ".$this->addIndexSQL($indexNew);
-                        }
-                    }
-                    $sqlsString = implode(',', $sqls);
-                    $sql = "ALTER TABLE `$name` $sqlsString";
-                    dump($sql);
-                    DB::query($sql);
-                } else {
-                    $this->createTable($name, $tableNew);
-                }
-                DB::commit();
-            } catch (\Throwable $ex) {
-                dump($ex->getMessage(), $ex->getTraceAsString());
-                DB::rollBack();
-            }
-        }
-
-        foreach ($new as $name => $tableNew) {
-            $name = strtolower($name);
-            try {
-                $sqls = [];
-                foreach ($tableNew->index as $indexNew) {
-                    if ($indexNew->type == 'FOREIGN' && !$indexNew->attributes()->foundIdentical) {
-                        $sqls[] = "ADD ".$this->addIndexSQL($indexNew);
-                    }
-                }
-                $sqlsString = implode(',', $sqls);
-                $sql = "ALTER TABLE `$name` $sqlsString";
-                if (!empty($sqls)) {
-                    dump($sql);
-                    DB::query($sql);
-                }
-            } catch (\Throwable $ex) {
-                dump($ex->getMessage(), $ex->getTraceAsString());
-            }
-        }
+        $this->prepareUpgradeQueries($new, $old);
     }
 
     function readOldStructure()
@@ -123,7 +44,7 @@ abstract class Migration
                 } else {
                     $index->type = 'UNIQUE';
                 }
-                $index->element = array_map(fn ($x) => $x->Column_name, $indexArray);
+                $index->element = array_map(fn($x) => $x->Column_name, $indexArray);
                 $index->name = $indexArray[0]->Key_name;
                 $table->index[] = $index;
             }
@@ -135,8 +56,11 @@ abstract class Migration
             foreach ($namedKeys as $keyArray) {
                 $index = new \stdClass();
                 $index->type = 'FOREIGN';
-                $index->element = array_map(fn ($x) => $x->COLUMN_NAME, $keyArray);
+                $index->element = array_map(fn($x) => $x->COLUMN_NAME, $keyArray);
                 $index->name = $keyArray[0]->CONSTRAINT_NAME;
+                $index->reference=new \stdClass();
+                $index->reference->name=$keyArray[0]->REFERENCED_TABLE_NAME;
+                $index->reference->element=array_map(fn($x) => $x->REFERENCED_COLUMN_NAME, $keyArray);
                 $table->index[] = $index;
             }
             $tables[$tableName->name] = $table;
@@ -164,6 +88,99 @@ abstract class Migration
     }
 
     /**
+     * @param array $new
+     * @param array $old
+     */
+    private function prepareUpgradeQueries(array $new, array $old): void
+    {
+        foreach ($new as $name => $tableNew) {
+            $name = strtolower($name);
+            if (isset($old[$name])) {
+                $sqls = [];
+                foreach ($tableNew->column as $colNew) {
+                    $oldCol = null;
+                    foreach ($old[$name]->columns as $oldTableCol) {
+                        if ($oldTableCol->name == $colNew->name) {
+                            $oldCol = $oldTableCol;
+                            break;
+                        }
+                    }
+                    if ($oldCol) {
+                        if (!$this->areColsEqual($oldCol, $colNew))
+                            $sqls[] = 'CHANGE '.DB::safeKey($colNew->name).' '.$this->createColumnSql($colNew);
+
+                    } else {
+                        $sqls[] = 'ADD '.$this->createColumnSql($colNew);
+                    }
+
+                }
+                foreach ($old[$name]->index as $indexOld) {
+                    $foundIdentical = false;
+                    foreach ($tableNew->index as $i => $indexNew) {
+
+                        if ($this->isIndexIdentical($indexNew, $indexOld)) {
+                            $foundIdentical = true;
+                            $indexNew->addAttribute('foundIdentical', true);
+                            break;
+                        }
+                    }
+                    if (!$foundIdentical) {
+                        $safe = DB::safeKey($indexOld->name);
+
+                        if ($indexOld->type == 'PRIMARY')
+                            $sqls[] = "DROP PRIMARY KEY";
+                        else if ($indexOld->type == 'FOREIGN')
+                            $sqls[] = "DROP FOREIGN KEY $safe";
+                        else
+                            $sqls[] = "DROP INDEX $safe";
+                    }
+                }
+
+                foreach ($tableNew->index as $indexNew) {
+                    if ($indexNew->type != 'FOREIGN' && !$indexNew->attributes()->foundIdentical) {
+                        $sqls[] = "ADD ".$this->addIndexSQL($indexNew);
+                    }
+                }
+                if(!empty($sqls)) {
+                    $sqlsString = implode(',', $sqls);
+                    $sql = "ALTER TABLE `$name` $sqlsString";
+                    $this->queries[] = $sql;
+                }
+            } else {
+                $this->createTable($name, $tableNew);
+            }
+
+        }
+
+        foreach ($new as $name => $tableNew) {
+            $name = strtolower($name);
+            try {
+                $sqls = [];
+                foreach ($tableNew->index as $indexNew) {
+                    if ($indexNew->type == 'FOREIGN' && !$indexNew->attributes()->foundIdentical) {
+                        $sqls[] = "ADD ".$this->addIndexSQL($indexNew);
+                    }
+                }
+                $sqlsString = implode(',', $sqls);
+                $sql = "ALTER TABLE `$name` $sqlsString";
+                if (!empty($sqls)) {
+                    $this->queries[] = $sql;
+                }
+            } catch (\Throwable $ex) {
+                dump($ex->getMessage(), $ex->getTraceAsString());
+            }
+        }
+    }
+
+    private function areColsEqual($old, $new)
+    {
+        $name = $old->name == $new->name;
+        $type = $old->type == $new->type;
+        $null = strtoupper($old->null) == strtoupper($new->null);
+        return $name && $type && $null;
+    }
+
+    /**
      * @param $column
      * @return string
      */
@@ -187,6 +204,16 @@ abstract class Migration
         $i = 0;
         foreach ($indexNew->element as $newElement) {
             if ($newElement != $indexOld->element[$i]) {
+                return false;
+            }
+            $i++;
+        }
+
+        if(count($indexNew->reference->element??[])!=count($indexOld->reference->element??[]))
+            return false;
+        $i = 0;
+        foreach ($indexNew->reference->element??[] as $newElement) {
+            if ($newElement != $indexOld->reference->element[$i]) {
                 return false;
             }
             $i++;
@@ -243,8 +270,27 @@ abstract class Migration
         $colsString = implode(',', $cols);
         $safename = DB::safeKey(strtolower($name));
         $sql = "CREATE TABLE $safename ($colsString)";
-        dump($sql);
-        DB::query($sql);
+        $this->queries[] = $sql;
+    }
+
+    function upgradeByFile(string $fileName)
+    {
+        $old = $this->readOldStructure();
+        $new = $this->readStructureFromFile($fileName);
+        $this->prepareUpgradeQueries($new, $old);
+    }
+
+    function readStructureFromFile(string $fileName)
+    {
+        $tables = [];
+
+        if (is_file($fileName)) {
+            $xml = simplexml_load_string(file_get_contents($fileName));
+            foreach ($xml->table as $table) {
+                $tables[$table->name->__toString()] = $table;
+            }
+        }
+        return $tables;
     }
 
     function oldStructureToXml()
@@ -264,14 +310,15 @@ abstract class Migration
             }
             foreach ($table->index as $index) {
                 $xmlIndex = $xmlTable->addChild('index');
+                $xmlIndex->addAttribute('name', $index->name);
                 $xmlIndex->type = $index->type;
                 if ($xmlIndex->type == 'FOREIGN') {
                     foreach ($index->element as $element) {
                         $xmlIndex->element[] = $element;
                     }
                     $xmlReference = $xmlIndex->addChild('reference');
-                    $xmlReference->addAttribute('name', $index->name);
-                    foreach ($index->element as $element) {
+                    $xmlReference->addAttribute('name', $index->reference->name);
+                    foreach ($index->reference->element as $element) {
                         $xmlReference->element[] = $element;
                     }
                 } else {
@@ -282,5 +329,19 @@ abstract class Migration
             }
         }
         return $xml->asXML();
+    }
+
+    public function execute()
+    {
+        try {
+            DB::beginTransaction();
+            foreach ($this->queries as $sql) {
+                DB::query($sql);
+            }
+            DB::commit();
+        } catch (\Throwable $ex) {
+            dump($ex->getMessage(), $ex->getTraceAsString());
+            DB::rollBack();
+        }
     }
 }
