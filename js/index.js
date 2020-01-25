@@ -31,7 +31,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
         btn.remove();
     }
 });
-setTimeout(() => pageManager.initPage(window.controllerInitInfo, document.querySelector('.page')));
+setTimeout(() => pageManager.initPage(window.controllerInitInfo, document.querySelector('.page'), true));
 setEvent('click', 'a', function (e) {
     e.preventDefault();
     pageManager.goto(this.href);

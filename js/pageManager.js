@@ -3,15 +3,18 @@ import {ReplaceContentHtml} from "./replaceContent";
 
 export const pageManager = {
     _constrollers: {},
-    initPage(initInfo, page) {
-        console.log(initInfo);
-        let controller = this.initController(initInfo);
-        controller.then(c => {
-            if (c) {
-                page.controller = new c(page, initInfo.data);
-            }
-        });
-        this._loadedEvent(page, initInfo.data, initInfo.controllerName, initInfo.methodName);
+    initPage(initInfo, page, firstInit = false) {
+        if (firstInit && initInfo.controllerName == 'Cache' && initInfo.methodName == 'offline') {
+            this.goto(document.location.href, {ignoreHistory: true});
+        } else {
+            let controller = this.initController(initInfo);
+            controller.then(c => {
+                if (c) {
+                    page.controller = new c(page, initInfo.data);
+                }
+            });
+            this._loadedEvent(page, initInfo.data, initInfo.controllerName, initInfo.methodName);
+        }
     },
     async initController(initInfo) {
         let controllerGroup = this._constrollers[initInfo.controllerName];
@@ -141,7 +144,7 @@ export const pageManager = {
             throw(data.error);
         }
     },
-    async refresh(url, page,options = {}) {
+    async refresh(url, page, options = {}) {
         const currentLoadingSymbol = Symbol();
         this.currentLoadingSymbol = currentLoadingSymbol;
         const {data, status} = await this.load(url);
@@ -177,5 +180,5 @@ export const pageManager = {
         this._constrollers[name] = controller;
     }
 };
-window.dbgPageManager=pageManager;
+window.dbgPageManager = pageManager;
 addEventListener('popstate', e => pageManager.goto(location.href, {ignoreHistory: true}))
