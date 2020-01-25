@@ -193,17 +193,7 @@ function Run-Command([Parameter(Mandatory = $true)][String]$controller, [Paramet
 }
 function New-SymLink($link, $target)
 {
-    <# if ($PSVersionTable.PSVersion.Major -ge 5)
-    {
-        New-Item -Path $link -ItemType SymbolicLink -Value $target
-    }
-    else
-    {#>
-    $link = $link.replace('/', '\\')
-    $target = $target.replace('/', '\\')
-    $command = "cmd /c mklink /d"
-    invoke-expression "$command ""$link"" ""$target"""
-    #}
+     New-Item -Path $link -ItemType SymbolicLink -Value $target
 }
 
 function Out-FileUtf8NoBom
