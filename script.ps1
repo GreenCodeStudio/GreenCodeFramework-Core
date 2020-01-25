@@ -75,12 +75,37 @@ function Prepare-Build
     $composer = @{ require = @{ "wikimedia/composer-merge-plugin" = "dev-master" }; extra = @{ "merge-plugin" = @{ include = $composerIncludes } } }
     $composer | convertto-json -Depth 10 | Out-FileUtf8NoBom "composer.json"
 }
+function Generate-Htaccess
+{
+    $timestamp=[int][double]::Parse((Get-Date -UFormat %s))
+    $content = @"
+    RewriteEngine on
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule . index.php [L]
+
+    <IfModule mod_headers.c>
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires 0
+        Header set Service-Worker-Allowed "/"
+        Header set x-sw-version "${timestamp}"
+        <FilesMatch "/dist/.*">
+            Header set x-sw-cache "1"
+        </FilesMatch>
+    </IfModule>
+"@
+
+    echo $content | Out-FileUtf8NoBom .\public_html/.htaccess
+}
 function Build-Project
 {
     Push-Location (Find-ProjectDir).Fullname
     Init-Project
 
     Prepare-Build
+
+    Generate-Htaccess
 
     composer install
     yarn

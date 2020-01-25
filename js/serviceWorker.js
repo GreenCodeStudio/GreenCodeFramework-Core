@@ -12,7 +12,9 @@ async function LoadJsonView(event) {
     let cache = await cacheViewPromise;
     if (navigator.onLine === true) {
         try {
-            return await fetch(event.request.clone());
+            let response = await fetch(event.request.clone());
+            checkCacheVersion(response.headers.get('x-sw-version'))
+            return response;
         } catch (ex) {
             let cacheResult = await cache.match(event.request);
             if (!cacheResult)
@@ -52,7 +54,6 @@ async function LoadFile(event) {
         try {
             let response = await fetch(event.request.clone());
             checkCacheVersion(response.headers.get('x-sw-version'))
-            //console.log('sw fetch', response);
             if (response.headers.get('x-sw-cache') === '1')
                 cache.put(event.request, response.clone());
             return response;
@@ -98,7 +99,7 @@ async function installOffline() {
     let cache = await cachePromise;
     for (let filePath of list.data.normal) {
         cache.match(filePath).then(matches => {
-            if (!matches) {
+            if (!matches || matches.headers.get('x-sw-version') !== currentVersion) {
                 cache.add(filePath);
             }
         });
@@ -107,7 +108,7 @@ async function installOffline() {
     let cacheoffline = await caches.open(CACHE_VIEV_NAME);
     for (let filePath of list.data.json) {
         cacheoffline.match(filePath).then(matches => {
-            if (!matches) {
+            if (!matches || matches.headers.get('x-sw-version') !== currentVersion) {
                 let req = new Request(filePath);
                 req.headers.append('x-json', '1');
                 cacheoffline.add(req);
@@ -120,6 +121,7 @@ function checkCacheVersion(version) {
     if (version && currentVersion != version) {
         console.log('changingCache version ', currentVersion, 'to', version)
         currentVersion = version;
+        setTimeout(installOffline, 20000);
     }
 }
 
