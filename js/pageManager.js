@@ -1,4 +1,5 @@
 import "prototype-extensions";
+import {ReplaceContentHtml} from "./replaceContent";
 
 export const pageManager = {
     _constrollers: {},
@@ -140,6 +141,14 @@ export const pageManager = {
             throw(data.error);
         }
     },
+    async refresh(url, page,options = {}) {
+        const currentLoadingSymbol = Symbol();
+        this.currentLoadingSymbol = currentLoadingSymbol;
+        const {data, status} = await this.load(url);
+
+        ReplaceContentHtml(page, data.views.main)
+
+    },
     _updateBreadcrumb(breadcrumb) {
         let existingBreadcrumb = document.querySelector('.breadcrumb ul');
         while (existingBreadcrumb.children.length > breadcrumb.length) {
@@ -168,4 +177,5 @@ export const pageManager = {
         this._constrollers[name] = controller;
     }
 };
+window.dbgPageManager=pageManager;
 addEventListener('popstate', e => pageManager.goto(location.href, {ignoreHistory: true}))
