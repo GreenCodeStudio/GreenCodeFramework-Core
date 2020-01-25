@@ -4,16 +4,30 @@ export const pageManager = {
     _constrollers: {},
     initPage(initInfo, page) {
         console.log(initInfo);
-        let controller = this._constrollers[initInfo.controllerName];
-        if (controller) {
-            if (typeof controller == 'function')
-                controller = this._constrollers[controller] = controller();
-            controller.then(x => {
-                let obj = new x.default(page, initInfo.data);
-                if (obj[initInfo.methodName]) obj[initInfo.methodName]();
-            })
-        }
+        let controller = this.initController(initInfo);
+        controller.then(c => {
+            if (c) {
+                page.controller = new c(page, initInfo.data);
+            }
+        });
         this._loadedEvent(page, initInfo.data, initInfo.controllerName, initInfo.methodName);
+    },
+    async initController(initInfo) {
+        let controllerGroup = this._constrollers[initInfo.controllerName];
+        if (!controllerGroup)
+            return null;
+
+        if (typeof controllerGroup == 'function')
+            controllerGroup = controllerGroup();
+        if ('then' in controllerGroup)
+            controllerGroup = await controllerGroup;
+
+        if (controllerGroup[initInfo.methodName])
+            return controllerGroup[initInfo.methodName];
+        else if (controllerGroup.default)
+            return controllerGroup.default
+        else
+            return null;
     },
     _onLoad: {},
     onLoad(callback, controller = null, method = null) {

@@ -61,16 +61,14 @@ function Prepare-Build
 
     ls modules | ? { Test-Path "modules/$_/dist" } | %{ New-SymLink "./public_html/dist/$_" "../../modules/$_/dist" }
 
-    ls modules | ? { "Test-Path modules/$_/scss" } | %{ New-SymLink "./scss/$_" "../modules/$_/scss" }
     $file = ''
-    ls modules | ? { Test-Path "modules/$_/scss/mixins.scss" } | % { $file += "@import ""./" + $_ + "/mixins"";`r`n" }
-    ls modules | ? { Test-Path "modules/$_/scss/index.scss" } | % { $file += "@import ""./" + $_ + "/index"";`r`n" }
-    $file | Out-FileUtf8NoBom "scss/build.scss"
+    ls modules | ? { Test-Path "modules/$_/scss/mixins.scss" } | % { $file += "@import ""./modules/" + $_ + "/scss/mixins"";`r`n" }
+    ls modules | ? { Test-Path "modules/$_/scss/index.scss" } | % { $file += "@import ""./modules/" + $_ + "/scss/index"";`r`n" }
+    $file | Out-FileUtf8NoBom "scssBuild.scss"
 
-    ls modules | ? { Test-Path "modules/$_/js" } | %{ New-SymLink "./js/$_" "../modules/$_/js" }
     $file = ''
-    ls modules | ? { Test-Path "modules/$_/js/index.js" } | % { $file += "require( ""./" + $_ + "/index"");`r`n" }
-    $file | Out-FileUtf8NoBom "js/build.js"
+    ls modules | ? { Test-Path "modules/$_/js/index.js" } | % { $file += "require( ""./modules/" + $_ + "/js/index"");`r`n" }
+    $file | Out-FileUtf8NoBom "jsBuild.js"
 
     $composerIncludes = [System.Collections.ArrayList]::new();
     ls modules | ? { Test-Path "modules/$_/composer.json" } | %{ $composerIncludes.Add("modules/$_/composer.json") }
