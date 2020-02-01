@@ -1,6 +1,3 @@
-import {AjaxTask} from './ajaxTask';
-import {pageManager} from "../../Core/js/pageManager";
-
 export class FormManager {
     constructor(form) {
         this.form = form;
@@ -14,7 +11,10 @@ export class FormManager {
             if (elem.type == 'checkbox') {
                 elem.checked = value
             } else if (elem.type == 'datetime-local') {
-                elem.value = value.replace(' ', 'T');
+                if (value)
+                    elem.value = value.replace(' ', 'T');
+                else
+                    elem.value = '';
             } else {
                 if (value == undefined)
                     elem.value = '';
@@ -82,7 +82,8 @@ export class FormManager {
         }
         return data;
     }
-    formSubmitted(e){
+
+    formSubmitted(e) {
         e.preventDefault();
         this.submit(this.getData());
     }
@@ -91,5 +92,6 @@ export class FormManager {
      * @abstract
      * @param data
      */
-    submit(data){}
+    submit(data) {
+    }
 }
