@@ -59,7 +59,7 @@ function Prepare-Build
 
     node "modules/core/js/build.js"
 
-    ls modules | ? { Test-Path "modules/$_/dist" } | %{ New-SymLink "./public_html/dist/$_" "../../modules/$_/dist" }
+    ls modules | ? { Test-Path "modules/$_/dist" } | %{ New-SymLink "./public_html/dist/$_" "./modules/$_/dist" }
 
     $file = ''
     ls modules | ? { Test-Path "modules/$_/scss/mixins.scss" } | % { $file += "@import ""./modules/" + $_ + "/scss/mixins"";`r`n" }

@@ -23,7 +23,7 @@ export const pageManager = {
 
         if (typeof controllerGroup == 'function')
             controllerGroup = controllerGroup();
-        if ('then' in controllerGroup)
+        if (controllerGroup.then)
             controllerGroup = await controllerGroup;
 
         if (controllerGroup[initInfo.methodName])
