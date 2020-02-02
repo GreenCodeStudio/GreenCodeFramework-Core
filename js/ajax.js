@@ -8,25 +8,27 @@ function showServerDebug(decoded) {
     }
 }
 
+function generatePostBody(args) {
+    const body = new FormData();
+    for (let i = 0; i < args.length; i++) {
+        const argument = args[i];
+        if (argument instanceof File || argument instanceof Blob)
+            body.append(`args[${i}]`, argument);
+        else
+            body.append(`args[${i}]`, JSON.stringify(argument));
+    }
+    return body;
+}
+
 function AjaxFunction(controller, method, ...args) {
     return new Promise((resolve, reject) => {
-        var xhr = new XMLHttpRequest();
+        const xhr = new XMLHttpRequest();
         xhr.open('post', '/ajax/' + controller + '/' + method);
-
-        const postData = new FormData();
-        let argCounter = 0;
-        for (const arg of args) {
-            if (arg instanceof File || arg instanceof Blob)
-                postData.append(`args[${argCounter}]`, arg);
-            else
-                postData.append(`args[${argCounter}]`, JSON.stringify(arg));
-
-            argCounter++;
-        }
+        const body = generatePostBody(args);
         xhr.setRequestHeader('x-js-origin', 'true');
         xhr.onreadystatechange = e => {
-            if (xhr.readyState == 4) {
-                if (xhr.status == 200) {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
                     try {
                         let decoded = JSON.parse(xhr.responseText);
                         showServerDebug(decoded);
@@ -51,7 +53,7 @@ function AjaxFunction(controller, method, ...args) {
                 }
             }
         };
-        xhr.send(postData);
+        xhr.send(body);
     });
 }
 

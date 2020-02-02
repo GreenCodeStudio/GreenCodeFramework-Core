@@ -4,25 +4,31 @@ namespace Core\Console;
 
 class Migration extends \Core\AbstractController
 {
-    function Upgrade(?string $filename = null)
+    function Upgrade()
     {
         $migr = \Core\Migration::factory();
-        if ($filename === null)
-            $migr->upgrade();
-        else
-            $migr->upgradeByFile($filename);
-
+        $migr->upgrade();
         $migr->execute();
     }
 
-    function Preview(?string $filename = null)
+    function UpgradeByFile(string $filename = null)
     {
         $migr = \Core\Migration::factory();
-        if ($filename === null)
-            $migr->upgrade();
-        else
-            $migr->upgradeByFile($filename);
+        $migr->upgradeByFile($filename);
+        $migr->execute();
+    }
 
+    function Preview()
+    {
+        $migr = \Core\Migration::factory();
+        $migr->upgrade();
+        return $migr->queries;
+    }
+
+    function PreviewByFile(string $filename = null)
+    {
+        $migr = \Core\Migration::factory();
+        $migr->upgradeByFile($filename);
         return $migr->queries;
     }
 

@@ -1,7 +1,7 @@
 import {Ajax} from "./ajax";
 import {WebSocketReceiver} from "./webSocketReceiver";
 
-export class datasourceAjax {
+export class DatasourceAjax {
     constructor(controller, method, webSocketPath = [], params=null) {
         this.controller = controller;
         this.method = method;

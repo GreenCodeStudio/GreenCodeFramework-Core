@@ -5,8 +5,8 @@ export class FormManager {
     }
 
     load(data) {
-        let formElements = this.form.elements;
-        for (var elem of formElements) {
+        const formElements = this.form.elements;
+        for (const elem of formElements) {
             let value = this.parseFormItemNameRead(elem, data);
             if (elem.type == 'checkbox') {
                 elem.checked = value
@@ -25,11 +25,11 @@ export class FormManager {
     }
 
     loadSelects(data) {
-        let selects = this.form.querySelectorAll('select[data-foreign-key]');
-        for (let select of selects) {
+        const selects = this.form.querySelectorAll('select[data-foreign-key]');
+        for (const select of selects) {
             if (data[select.dataset.foreignKey]) {
                 select.children.removeAll();
-                for (var option of data[select.dataset.foreignKey]) {
+                for (const option of data[select.dataset.foreignKey]) {
                     select.addChild('option', {value: option.id, text: option.title});
                 }
             }
