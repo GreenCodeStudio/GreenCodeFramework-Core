@@ -12,13 +12,13 @@ export class AjaxTask {
         this.args = args;
         this.identificator = 'task-' + (new Date * 1) + '-' + Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
         AjaxTask.tasks[this.identificator] = this;
-        localStorage[this.identificator] = JSON.stringify({controller, method, args});
-        localStorage[this.identificator + '-state'] = 'notstarted';
+        sessionStorage[this.identificator] = JSON.stringify({controller, method, args});
+        sessionStorage[this.identificator + '-state'] = 'notstarted';
         this.generateHtml();
     }
 
     restore(identificator) {
-        let obj = JSON.parse(localStorage[identificator]);
+        let obj = JSON.parse(sessionStorage[identificator]);
         this.controller = obj.controller;
         this.method = obj.method;
         this.args = obj.args;
@@ -28,7 +28,7 @@ export class AjaxTask {
     }
 
     get state() {
-        return localStorage[this.identificator + '-state'];
+        return sessionStorage[this.identificator + '-state'];
     }
 
     get stateText() {
@@ -74,8 +74,8 @@ export class AjaxTask {
     }
 
     _delete(force = false) {
-        delete localStorage[this.identificator];
-        delete localStorage[this.identificator + '-state'];
+        delete sessionStorage[this.identificator];
+        delete sessionStorage[this.identificator + '-state'];
         delete AjaxTask.tasks[this.identificator];
         if (force)
             this.html.remove();
@@ -86,12 +86,12 @@ export class AjaxTask {
 
     start() {
         if (!navigator.onLine) {
-            localStorage[this.identificator + '-state'] = 'offline';
+            sessionStorage[this.identificator + '-state'] = 'offline';
             AjaxTask.refreshMainState();
             this.refreshHtml();
             return;
         }
-        localStorage[this.identificator + '-state'] = 'started';
+        sessionStorage[this.identificator + '-state'] = 'started';
         this.ajax = Ajax(this.controller, this.method, ...this.args);
         this.refreshHtml();
         this.ajax.then(data => {
@@ -101,7 +101,7 @@ export class AjaxTask {
         this.ajax.catch(ex => {
             console.log(ex);
             this.statusHtml.textContent = 'Błąd';
-            localStorage[this.identificator + '-state'] = 'error';
+            sessionStorage[this.identificator + '-state'] = 'error';
             this.refreshHtml();
         });
         AjaxTask.refreshMainState();
@@ -114,7 +114,7 @@ export class AjaxTask {
             let task = AjaxTask.tasks[identificator];
             task.refreshHtml();
         }
-        for (let identificator in localStorage) {
+        for (let identificator in sessionStorage) {
             if (/^task-[0-9]+-[0-9a-fA-F]+$/.exec(identificator)) {
                 if (!AjaxTask.tasks[identificator]) {
                     let task = new AjaxTask();
