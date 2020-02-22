@@ -2,6 +2,7 @@ export class ContextMenu {
     constructor(elements, parent = null) {
         this.generateHtml(elements);
         this.bindGlobalEvents();
+        this.subMenu = null;
     }
 
     generateHtml(elements) {
@@ -14,6 +15,9 @@ export class ContextMenu {
 
     generateElementHtml(element) {
         const elementHtml = document.create('li.element');
+        if(element.submenu){
+            elementHtml.classList.add('hasSubmenu');
+        }
         if (element.icon)
             elementHtml.addChild('span.icon', {className: element.icon});
         else
@@ -26,6 +30,17 @@ export class ContextMenu {
                 this.destroy()
             };
         }
+        elementHtml.onmouseenter = e => {
+            if (this.submenu) {
+                this.submenu.destroy();
+                this.submenu = null;
+            }
+            if (element.submenu) {
+                this.submenu = new ContextMenu(element.submenu);
+                document.body.appendChild(this.submenu.html);
+                this.submenu.setPositionToParent(elementHtml);
+            }
+        };
         return elementHtml;
     }
 
@@ -55,6 +70,30 @@ export class ContextMenu {
             this.html.style.top = `${event.clientY}px`;
         else
             this.html.style.botom = `${Math.min(innerHeight - event.clientY + 1, innerHeight - this.html.offsetHeight)}px`;
+    }
+
+    setPositionToParent(parent) {
+        const parentBoundingBox = parent.getBoundingClientRect();
+        const placeRight = innerWidth - parentBoundingBox.right;
+        const placeLeft = parentBoundingBox.left;
+        const placeBottom = innerHeight - parentBoundingBox.top;
+        const isRight = this.html.offsetWidth <= placeRight;
+        const isBottom = this.html.offsetHeight <= placeBottom;
+
+        this.html.style.left = 'auto';
+        this.html.style.right = 'auto';
+        this.html.style.top = 'auto';
+        this.html.style.bottom = 'auto';
+
+        if (isRight)
+            this.html.style.left = `${parentBoundingBox.right}px`;
+        else
+            this.html.style.right = `${Math.min(innerWidth - parentBoundingBox.left, innerWidth - this.html.offsetWidth)}px`;
+
+         if (isBottom)
+             this.html.style.top = `${parentBoundingBox.top}px`;
+         else
+             this.html.style.botom = `${Math.min(innerHeight - parentBoundingBox.bottom, innerHeight - this.html.offsetHeight)}px`;
     }
 
     destroy() {
