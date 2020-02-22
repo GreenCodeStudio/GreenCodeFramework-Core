@@ -112,20 +112,19 @@ function Build-Project
     yarn build
     Pop-Location
 }
-function Start-DevelopmentServer([Int]$port = 8000)
+function Start-Project
 {
     Push-Location (Find-ProjectDir).Fullname
-    try
-    {
-        Init-Project
-        cd public_html
-        php -S "localhost:$port"
+    Init-Project
 
-    }
-    finally
-    {
-        Pop-Location
-    }
+    Prepare-Build
+
+    Generate-Htaccess
+
+    composer install
+    yarn
+    yarn start
+    Pop-Location
 }
 function Find-ProjectDir()
 {
