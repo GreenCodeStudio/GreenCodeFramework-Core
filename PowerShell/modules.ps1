@@ -27,7 +27,7 @@ class ProjectModule
             $n = $this.name;
             if (!(Test-Path "./modules/$n"))
             {
-                git clone $this.ConfigGitUrl "./modules/$n"
+                git submodule add $this.ConfigGitUrl ./modules/$n
             }
         }
         Pop-Location
