@@ -59,19 +59,19 @@ function Prepare-Build
 
     node "modules/core/js/build.js"
 
-    ls modules | ? { Test-Path "modules/$_/dist" } | %{ New-SymLink "./public_html/dist/$_" "./modules/$_/dist" }
+    ls modules | ? { Test-Path "modules/$($_.Name)/dist" } | %{ New-SymLink "./public_html/dist/$($_.Name)" "../../modules/$($_.Name)/dist" }
 
     $file = ''
-    ls modules | ? { Test-Path "modules/$_/scss/mixins.scss" } | % { $file += "@import ""./modules/" + $_ + "/scss/mixins"";`r`n" }
-    ls modules | ? { Test-Path "modules/$_/scss/index.scss" } | % { $file += "@import ""./modules/" + $_ + "/scss/index"";`r`n" }
+    ls modules | ? { Test-Path "modules/$($_.Name)/scss/mixins.scss" } | % { $file += "@import ""./modules/" + $($_.Name) + "/scss/mixins"";`r`n" }
+    ls modules | ? { Test-Path "modules/$($_.Name)/scss/index.scss" } | % { $file += "@import ""./modules/" + $($_.Name)+ "/scss/index"";`r`n" }
     $file | Out-FileUtf8NoBom "scssBuild.scss"
 
     $file = ''
-    ls modules | ? { Test-Path "modules/$_/js/index.js" } | % { $file += "require( ""./modules/" + $_ + "/js/index"");`r`n" }
+    ls modules | ? { Test-Path "modules/$($_.Name)/js/index.js" } | % { $file += "require( ""./modules/" + $($_.Name)+ "/js/index"");`r`n" }
     $file | Out-FileUtf8NoBom "jsBuild.js"
 
     $composerIncludes = [System.Collections.ArrayList]::new();
-    ls modules | ? { Test-Path "modules/$_/composer.json" } | %{ $composerIncludes.Add("modules/$_/composer.json") }
+    ls modules | ? { Test-Path "modules/$($_.Name)/composer.json" } | %{ $composerIncludes.Add("modules/$($_.Name)/composer.json") }
     $composer = @{ require = @{ "wikimedia/composer-merge-plugin" = "dev-master" }; extra = @{ "merge-plugin" = @{ include = $composerIncludes } } }
     $composer | convertto-json -Depth 10 | Out-FileUtf8NoBom "composer.json"
 }
@@ -192,7 +192,17 @@ function Run-Command([Parameter(Mandatory = $true)][String]$controller, [Paramet
 }
 function New-SymLink($link, $target)
 {
-     New-Item -Path $link -ItemType SymbolicLink -Value $target
+    if ($env:OS -Like "Windows*")
+    {
+        $link = $link.replace('/', '\\')
+        $target = $target.replace('/', '\\')
+        $command = "cmd /c mklink /d"
+        invoke-expression "$command ""$link"" ""$target"""
+    }
+    else
+    {
+        New-Item -Path $link -ItemType SymbolicLink -Value $target
+    }
 }
 
 function Out-FileUtf8NoBom
