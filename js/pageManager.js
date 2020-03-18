@@ -74,7 +74,7 @@ export const pageManager = {
         return new Promise(resolve => setTimeout(resolve, 200));
     },
     isUrlLocal(url) {
-        return new URL(url).origin === window.location.origin;
+        return new URL(url,document.location).origin === window.location.origin;
     },
     async goto(url, options = {}) {
         if (!this.isUrlLocal(url)) {

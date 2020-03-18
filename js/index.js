@@ -2,6 +2,7 @@ import {pageManager} from "./pageManager";
 import {AjaxTask} from './ajaxTask';
 import {setEvent} from "./events";
 import {Ajax} from "./ajax";
+import {modal} from "./modal";
 
 pageManager.onLoad(async (page, data) => {
     let tables = page.querySelectorAll('.dataTable');
@@ -49,5 +50,6 @@ addEventListener('error', e => {
         stack: (new Error()).stack
     };
     Ajax.Log.addFrontError(obj);
+    modal("Wystąpił błąd", "error")
 });
 window.dbgAjax = Ajax;
