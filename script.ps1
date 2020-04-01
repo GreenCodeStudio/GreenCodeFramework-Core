@@ -66,8 +66,8 @@ function Prepare-Build
     ls modules | ? { Test-Path "modules/$($_.Name)/scss/index.scss" } | % { $file += "@import ""./modules/" + $($_.Name)+ "/scss/index"";`r`n" }
     $file | Out-FileUtf8NoBom "scssBuild.scss"
 
-    $file = ''
-    ls modules | ? { Test-Path "modules/$($_.Name)/js/index.js" } | % { $file += "require( ""./modules/" + $($_.Name)+ "/js/index"");`r`n" }
+    $file = "import ""./scssBuild.scss"";`r`n"
+    ls modules | ? { Test-Path "modules/$($_.Name)/js/index.js" } | % { $file += "import ""./modules/" + $($_.Name)+ "/js/index"";`r`n" }
     $file | Out-FileUtf8NoBom "jsBuild.js"
 
     $composerIncludes = [System.Collections.ArrayList]::new();

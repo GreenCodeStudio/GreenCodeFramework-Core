@@ -10,15 +10,15 @@
     },
     "devDependencies": {
         "css-loader": "^3.4.2",
-        "extract-text-webpack-plugin": "^4.0.0-beta.0",
+        "mini-css-extract-plugin": "^0.9.0",
         "node-sass": "^4.13.1",
         "sass-loader": "^8.0.2",
         "style-loader": "^1.1.3",
         "util.merge-packages": "^0.0.19",
-        "webpack": "^4.30.0",
-        "webpack-cli": "^3.3.0",
+        "webpack": "^5.0.0-beta.14",
+        "webpack-cli": "^4.0.0-beta.8",
         "path": "^0.12.7",
-        "file-loader": "^5.0.2",
-        "multi-cli": "^0.1.5"
+        "file-loader": "^6.0.0",
+        "multi-cli": "^0.1.6"
     }
 }
