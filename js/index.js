@@ -4,22 +4,6 @@ import {setEvent} from "./events";
 import {Ajax} from "./ajax";
 import {modal} from "./modal";
 
-pageManager.onLoad(async (page, data) => {
-    let tables = page.querySelectorAll('.dataTable');
-    for (let table of tables) {
-        let [{TableManager}, {DatasourceAjax}] = await Promise.all([import("./table"), import( "./datasourceAjax")]);
-        let webSocketPath = [];
-        let params = Object.fromEntries(Object.entries(table.dataset).filter(([key, value]) => /^param/.test(key)).map(([key, value]) => [key[5].toLowerCase() + key.substr(6), value]));
-        if (table.dataset.webSocketPath)
-            webSocketPath = table.dataset.webSocketPath.split('/');
-
-
-        let datasource = new DatasourceAjax(table.dataset.controller, table.dataset.method, webSocketPath, params);
-        table.datatable = new TableManager(table, datasource);
-        table.datatable.refresh();
-    }
-
-});
 addEventListener('focus', () => {
     AjaxTask.refresh();
 });
