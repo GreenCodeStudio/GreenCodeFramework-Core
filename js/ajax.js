@@ -26,6 +26,7 @@ function AjaxFunction(controller, method, ...args) {
         xhr.open('post', '/ajax/' + controller + '/' + method);
         const body = generatePostBody(args);
         xhr.setRequestHeader('x-js-origin', 'true');
+        xhr.setRequestHeader('x-idempotency-key', generateIdempotencyKey());
         xhr.onreadystatechange = e => {
             if (xhr.readyState === 4) {
                 if (xhr.status === 200) {
@@ -67,4 +68,21 @@ const AjaxHandler = {
         return new Proxy(AjaxFunction.bind(window, name), ControllerHandler);
     }
 };
+
+function generateIdempotencyKey() {
+    const uniq = /uniq=([0-9a-f]+)/.exec(document.cookie)[1];
+    if (!uniq) return null;
+
+    let requestCounter = localStorage.requestCounter;
+    requestCounter++;
+    if (isNaN(requestCounter))
+        requestCounter = 0;
+    localStorage.requestCounter = requestCounter;
+
+    let time = (+new Date()).toString(16);
+    let random = ("0" + (Math.random() * 255).toString(16)).substr(-2);
+
+    return `${uniq}_${requestCounter}_${time}_${random}`;
+}
+
 export const Ajax = new Proxy(AjaxFunction, AjaxHandler);

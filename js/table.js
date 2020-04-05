@@ -172,12 +172,22 @@ export class TableManager {
     }
 
     contextMenu(tr, event) {
-        const buttons = tr.querySelectorAll('.button, button');
-        const elements = Array.from(buttons).map(b => ({
-            text: b.title || b.textContent,
-            icon: (b.querySelector('.icon, [class^="icon-"], [class*=" icon-"]') || {}).className,
-            onclick: e => b.click()
-        }));
+        if (!this.selected.has(tr.dataset.row))
+        {
+            this.selected.clear();
+            this.selected.add(tr.dataset.row)
+            this.selectedMain = tr.dataset.row;
+            this.refreshSelectedClasses();
+        }
+        let elements=[];
+        if(this.selected.size==1) {
+            const buttons = tr.querySelectorAll('.button, button');
+            elements = Array.from(buttons).map(b => ({
+                text: b.title || b.textContent,
+                icon: (b.querySelector('.icon, [class^="icon-"], [class*=" icon-"]') || {}).className,
+                onclick: e => b.click()
+            }));
+        }
         ContextMenu.openContextMenu(event, elements);
     }
 
@@ -242,10 +252,11 @@ export class TableManager {
 
         }
     }
-    trOnCopy(row, tr, e) {
-        e.clipboardData.setData('text/html', '<table>'+tr.outerHTML+'</table>');
-        e.clipboardData.setData('text/plain', Array.from(tr.children).map(x=>x.textContent.replace(/\r\n/gm,' ')).join("\t"));
 
+    trOnCopy(row, oeyginalTr, e) {
+        const trs = Array.from(this.table.tBodies).flatMap(tbody => Array.from(tbody.children)).filter(tr => this.selected.has(tr.dataset.row));
+        e.clipboardData.setData('text/html', '<table>' + trs.map(tr => tr.outerHTML).join('') + '</table>');
+        e.clipboardData.setData('text/plain', trs.map(tr => Array.from(tr.children).map(x => x.textContent.replace(/\r\n/gm, ' ')).join("\t")).join("\r\n"));
         e.preventDefault();
     }
 
@@ -256,7 +267,7 @@ export class TableManager {
             if (this.selectedMain == tr.dataset.row) {
                 tr.tabIndex = 1;
                 tr.focus();
-               getSelection().selectAllChildren(tr)
+                getSelection().selectAllChildren(tr)
             } else {
                 tr.tabIndex = -1;
             }

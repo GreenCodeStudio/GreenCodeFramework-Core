@@ -15,8 +15,8 @@
         "sass-loader": "^8.0.2",
         "style-loader": "^1.1.3",
         "util.merge-packages": "^0.0.19",
-        "webpack": "^5.0.0-beta.14",
-        "webpack-cli": "^4.0.0-beta.8",
+        "webpack": "^4.42.1",
+        "webpack-cli": "^3.3.11",
         "path": "^0.12.7",
         "file-loader": "^6.0.0",
         "multi-cli": "^0.1.6"
