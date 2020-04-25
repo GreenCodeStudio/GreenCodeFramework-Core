@@ -42,3 +42,9 @@ class ApiEndpointAnnotation extends \mindplay\annotations\Annotation
     public $type;
     public $url;
 }
+/**
+ * @usage('method'=>true)
+ */
+class CanSafeRepeatAnnotation extends \mindplay\annotations\Annotation
+{
+}

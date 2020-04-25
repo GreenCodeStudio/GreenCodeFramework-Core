@@ -20,13 +20,65 @@ function generatePostBody(args) {
     return body;
 }
 
-function AjaxFunction(controller, method, ...args) {
+class ConnectionError extends Error {
+}
+
+class HttpErrorCode extends Error {
+    constructor(code, text) {
+        super();
+        this.code = code;
+        this.text = text;
+    }
+}
+
+function sleep(time) {
+    return new Promise(resolve => setTimeout(resolve, time));
+}
+
+function onlinePromise() {
+    if (navigator.onLine)
+        return Promise.resolve();
+    else
+        return new Promise(resolve => {
+            let handler = () => {
+                resolve();
+                removeEventListener('online', handler);
+            }
+            addEventListener('online', handler)
+        })
+}
+
+async function AjaxFunction(controller, method, ...args) {
+    const maxTime = 10 * 60 * 1000;
+    let start = new Date();
+    if (!navigator.onLine)
+        await Promise.race([onlinePromise(), sleep(maxTime)])
+    for (let i = 0; i < 10; i++) {
+        try {
+            return await TryOnceAjaxFunction(controller, method, ...args);
+        } catch (ex) {
+            if (new Date() - start > maxTime)
+                throw ex;
+
+            if (i > 1) {
+                let sleepPromise = sleep(500 * Math.pow(2, i - 1));
+                if (navigator.onLine)
+                    await sleepPromise;
+                else
+                    await Promise.race([onlinePromise(), sleepPromise]);
+            }
+        }
+    }
+}
+
+function TryOnceAjaxFunction(controller, method, ...args) {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         xhr.open('post', '/ajax/' + controller + '/' + method);
         const body = generatePostBody(args);
         xhr.setRequestHeader('x-js-origin', 'true');
         xhr.setRequestHeader('x-idempotency-key', generateIdempotencyKey());
+        xhr.onerror = (er) => console.log(er)
         xhr.onreadystatechange = e => {
             if (xhr.readyState === 4) {
                 if (xhr.status === 200) {
@@ -42,6 +94,8 @@ function AjaxFunction(controller, method, ...args) {
                     } catch (ex) {
                         reject(ex);
                     }
+                } else if (xhr.status == 0) {
+                    reject(new ConnectionError());
                 } else {
                     try {
                         let decoded = JSON.parse(xhr.responseText);
@@ -49,7 +103,7 @@ function AjaxFunction(controller, method, ...args) {
                         ConsoleCheating.eval("console.error.apply(null,data)", "", decoded.error.stack[0].file, decoded.error.stack[0].line, [decoded.error.message + '%o', decoded.error]);
                         reject(decoded.error)
                     } catch (ex) {
-                        reject(new Error('Http status:' + xhr.status + ' ' + xhr.statusText));
+                        reject(new HttpErrorCode(xhr.status, xhr.statusText));
                     }
                 }
             }

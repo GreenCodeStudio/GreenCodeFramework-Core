@@ -1,0 +1,20 @@
+<?php
+
+
+namespace Core\Repository;
+
+
+class IdempodencyKeyRepostory
+{
+    public function Test(string $key)
+    {
+        return \Core\MiniDB::GetConnection()->eval(/** @lang LUA */ "
+        if redis.call(\"GET\", ARGV[1]) then
+            return false
+        else
+            redis.call(\"SETEX\", ARGV[1], 100800, 1)
+            return true
+        end
+", ["idempotency_key_".$key]);
+    }
+}

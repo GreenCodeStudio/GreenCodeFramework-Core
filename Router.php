@@ -3,6 +3,7 @@
 namespace Core;
 
 use Core\Exceptions\NotFoundException;
+use Core\Repository\IdempodencyKeyRepostory;
 use mindplay\annotations\AnnotationCache;
 use mindplay\annotations\Annotations;
 
@@ -138,9 +139,21 @@ class Router
                 throw new \Core\Exceptions\NotFoundException();
             self::initAnnotationsCache();
             $annotations = Annotations::ofMethod($controller, $methodName);
+            $canSafeRepeat=false;
             foreach ($annotations as $annotation) {
                 if (isset($_SERVER['HTTP_X_JSON']) && is_a($annotation, 'NoAjaxLoaderAnnotation')) {
                     echo json_encode(['needFullReload' => true]);
+                    return;
+                }
+                if (is_a($annotation, 'CanSafeRepeatAnnotation')) {
+                    $canSafeRepeat=true;
+                }
+            }
+            if ($type == 'Ajax' &&!$canSafeRepeat){
+                $key=$_SERVER['HTTP_X_IDEMPOTENCY_KEY'];
+                if(empty($key)||!(new IdempodencyKeyRepostory())->Test($key)){
+                    http_response_code(409);
+                    echo json_encode(['idempotencyKeyUsed' => true]);
                     return;
                 }
             }
