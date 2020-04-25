@@ -67,7 +67,7 @@ function Prepare-Build
     $file | Out-FileUtf8NoBom "scssBuild.scss"
 
     $file = "import ""./scssBuild.scss"";`r`n"
-    ls modules | ? { Test-Path "modules/$($_.Name)/js/index.js" } | % { $file += "import ""./modules/" + $($_.Name)+ "/js/index"";`r`n" }
+    ls modules | ? { Test-Path "modules/$_/js/index.js" } | % { $file += "import  ""./modules/" + $_ + "/js/index"";`r`n" }
     $file | Out-FileUtf8NoBom "jsBuild.js"
 
     $composerIncludes = [System.Collections.ArrayList]::new();
