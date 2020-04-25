@@ -43,7 +43,7 @@ function dump()
     }
 }
 
-function dumpTime()
+function dumpTime(bool $fromStart=false)
 {
     $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
     $args = func_get_args();
@@ -51,10 +51,14 @@ function dumpTime()
     global $debugArray;
     global $_dbgTime;
     $t = microtime(true);
-    if (empty($_dbgTime))
-        $txt = 'Start';
-    else
-        $txt = number_format(($t - $_dbgTime) * 1000, 6).'ms';
+    if($fromStart){
+        $txt = number_format(($t - $_SERVER["REQUEST_TIME_FLOAT"]) * 1000, 6).'ms';
+    }else {
+        if (empty($_dbgTime))
+            $txt = 'Start';
+        else
+            $txt = number_format(($t - $_dbgTime) * 1000, 6).'ms';
+    }
 
     if ($debugType == 'html') {
 

@@ -73,7 +73,14 @@ export const pageManager = {
     waitForRemoveAnimation() {
         return new Promise(resolve => setTimeout(resolve, 200));
     },
+    isUrlLocal(url) {
+        return new URL(url,document.location).origin === window.location.origin;
+    },
     async goto(url, options = {}) {
+        if (!this.isUrlLocal(url)) {
+            document.location = url;
+            return;
+        }
         const currentLoadingSymbol = Symbol();
         this.currentLoadingSymbol = currentLoadingSymbol;
         let waitPromise = this.waitForRemoveAnimation();

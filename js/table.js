@@ -62,6 +62,9 @@ export class TableManager {
             tr.dataset.row = row.id;
             tr.oncontextmenu = this.contextMenu.bind(this, tr);
             tr.onclick = this.trOnClick.bind(this, row);
+            tr.ondblclick = this.trOnDblClick.bind(this, row, tr);
+            tr.onkeydown = this.trOnKeyDown.bind(this, row, tr);
+            tr.oncopy = this.trOnCopy.bind(this, row, tr);
             for (let th of this.table.tHead.firstElementChild.children) {
                 let td = tr.addChild('td');
                 td.dataset.header = th.textContent + ': ';
@@ -169,42 +172,105 @@ export class TableManager {
     }
 
     contextMenu(tr, event) {
-        const buttons = tr.querySelectorAll('.button, button');
-        const elements = Array.from(buttons).map(b => ({
-            text: b.title || b.textContent,
-            icon: (b.querySelector('.icon, [class^="icon-"], [class*=" icon-"]') || {}).className,
-            onclick: e => b.click()
-        }));
+        if (!this.selected.has(tr.dataset.row))
+        {
+            this.selected.clear();
+            this.selected.add(tr.dataset.row)
+            this.selectedMain = tr.dataset.row;
+            this.refreshSelectedClasses();
+        }
+        let elements=[];
+        if(this.selected.size==1) {
+            const buttons = tr.querySelectorAll('.button, button');
+            elements = Array.from(buttons).map(b => ({
+                text: b.title || b.textContent,
+                icon: (b.querySelector('.icon, [class^="icon-"], [class*=" icon-"]') || {}).className,
+                onclick: e => b.click()
+            }));
+        }
         ContextMenu.openContextMenu(event, elements);
     }
 
     trOnClick(row, e) {
         const rowsIds = this.currentRows.map(x => x.id);
-        console.log('s')
-        if (e.ctrlKey) {
-            if (e.shiftKey) {
-                const mainIndex = rowsIds.indexOf(this.selectedMain);
-                const clickedIndex = rowsIds.indexOf(row.id);
-                if (clickedIndex >= 0 && mainIndex >= 0)
-                    rowsIds.slice(Math.min(mainIndex, clickedIndex), Math.max(mainIndex, clickedIndex) + 1).forEach(x => this.selected.add(x));
-            } else {
-                if (this.selected.has(row.id))
-                    this.selected.delete(row.id);
-                else
-                    this.selected.add(row.id);
-            }
-            this.selectedMain = row.id;
-        } else {
-            this.selectedMain = null;
+        console.log('click')
+        if (!e.ctrlKey) {
             this.selected.clear();
         }
+
+        if (e.shiftKey) {
+            const mainIndex = rowsIds.indexOf(this.selectedMain);
+            const clickedIndex = rowsIds.indexOf(row.id);
+            if (clickedIndex >= 0 && mainIndex >= 0)
+                rowsIds.slice(Math.min(mainIndex, clickedIndex), Math.max(mainIndex, clickedIndex) + 1).forEach(x => this.selected.add(x));
+        } else {
+            if (this.selected.has(row.id))
+                this.selected.delete(row.id);
+            else
+                this.selected.add(row.id);
+        }
+
+        this.selectedMain = row.id;
         this.refreshSelectedClasses();
+    }
+
+    trOnDblClick(row, tr, e) {
+        const defaultButton = tr.querySelector('button.default, .button.default');
+        if (defaultButton)
+            defaultButton.click();
+    }
+
+    trOnKeyDown(row, tr, e) {
+        if (e.key === 'Enter') {
+            const defaultButton = tr.querySelector('.button.default, .button.default');
+            if (defaultButton)
+                defaultButton.click();
+        } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+            const rowsIds = this.currentRows.map(x => x.id);
+            let index = rowsIds.indexOf(this.selectedMain);
+            if (e.key === 'ArrowDown') {
+                if (index < rowsIds.length) index++;
+                else index = rowsIds.length - 1;
+            } else {
+                if (index > 0) index--;
+            }
+            const id = rowsIds[index];
+            if (e.ctrlKey) {
+            } else {
+                this.selected.clear();
+                this.selected.add(id);
+            }
+            this.selectedMain = id;
+            this.refreshSelectedClasses();
+        } else if (e.key === ' ') {
+            if (this.selected.has(this.selectedMain))
+                this.selected.delete(this.selectedMain);
+            else
+                this.selected.add(this.selectedMain);
+
+            this.refreshSelectedClasses();
+
+        }
+    }
+
+    trOnCopy(row, oeyginalTr, e) {
+        const trs = Array.from(this.table.tBodies).flatMap(tbody => Array.from(tbody.children)).filter(tr => this.selected.has(tr.dataset.row));
+        e.clipboardData.setData('text/html', '<table>' + trs.map(tr => tr.outerHTML).join('') + '</table>');
+        e.clipboardData.setData('text/plain', trs.map(tr => Array.from(tr.children).map(x => x.textContent.replace(/\r\n/gm, ' ')).join("\t")).join("\r\n"));
+        e.preventDefault();
     }
 
     refreshSelectedClasses() {
         for (const tr of Array.from(this.table.tBodies).flatMap(x => Array.from(x.children))) {
             tr.classList.toggle('selected', this.selected.has(tr.dataset.row));
             tr.classList.toggle('selectedMain', this.selectedMain == tr.dataset.row);
+            if (this.selectedMain == tr.dataset.row) {
+                tr.tabIndex = 1;
+                tr.focus();
+                getSelection().selectAllChildren(tr)
+            } else {
+                tr.tabIndex = -1;
+            }
         }
     }
 }
