@@ -14,8 +14,8 @@ export class ContextMenu {
     }
 
     generateElementHtml(element) {
-        const elementHtml = document.create('li.element');
-        if(element.submenu){
+        const elementHtml = document.create('li.element', {tabIndex:0});
+        if (element.submenu) {
             elementHtml.classList.add('hasSubmenu');
         }
         if (element.icon)
@@ -90,10 +90,10 @@ export class ContextMenu {
         else
             this.html.style.right = `${Math.min(innerWidth - parentBoundingBox.left, innerWidth - this.html.offsetWidth)}px`;
 
-         if (isBottom)
-             this.html.style.top = `${parentBoundingBox.top}px`;
-         else
-             this.html.style.botom = `${Math.min(innerHeight - parentBoundingBox.bottom, innerHeight - this.html.offsetHeight)}px`;
+        if (isBottom)
+            this.html.style.top = `${parentBoundingBox.top}px`;
+        else
+            this.html.style.botom = `${Math.min(innerHeight - parentBoundingBox.bottom, innerHeight - this.html.offsetHeight)}px`;
     }
 
     destroy() {
@@ -107,6 +107,9 @@ export class ContextMenu {
         document.body.appendChild(menu.html);
         menu.setPositionToPointer(event);
         event.preventDefault();
+        if (menu.html.firstChild)
+            menu.html.firstChild.focus();
+
         return menu;
     }
 }

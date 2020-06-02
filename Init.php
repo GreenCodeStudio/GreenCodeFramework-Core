@@ -23,6 +23,10 @@ include_once __DIR__.'/loadDotEnv.php';
 if(empty($_COOKIE["uniq"]))
     setcookie("uniq",bin2hex(openssl_random_pseudo_bytes(4)).uniqid(), time()+365*24*60*60);
 
+function t($q){
+    return \Core\Internationalization\Translator::$default->translate($q)->__toString();
+}
+
 include_once __DIR__.'/Router.php';
 \Core\DB::init();
 \Core\Router::route($_SERVER['REQUEST_URI']);
