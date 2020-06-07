@@ -28,4 +28,4 @@ class Translator
     }
 }
 
-Translator::$default = new Translator(new LanguagesHierarchy());
+Translator::$default = new Translator(LanguagesHierarchy::ReadFromUser());

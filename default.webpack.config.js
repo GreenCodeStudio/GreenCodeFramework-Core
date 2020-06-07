@@ -29,6 +29,9 @@ module.exports = {
                     outputPath: '/fonts/'
                 }
             }]
+        }, {
+            test: /i18n\.xml$/,
+            use: ["./modules/Core/js/Internationalization/I18nWebpackLoader"]
         }]
     },
     plugins: [new MiniCssExtractPlugin()],

@@ -4,9 +4,23 @@
 namespace Core\Internationalization;
 
 
+use MKrawczyk\FunQuery\FunQuery;
+
 class LanguagesHierarchy
 {
     public $langs = [];
+
+    public function __construct(array $langs = [])
+    {
+        $this->langs = $langs;
+    }
+
+    public static function ReadFromUser(): self
+    {
+        $httpHeader = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+        $splitted = FunQuery::create(explode(',', $httpHeader))->map(fn($x) => explode(';', $x)[0])->toArray();
+        return new LanguagesHierarchy($splitted);
+    }
 
     public function pickBest(array $available)
     {
