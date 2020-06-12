@@ -10,10 +10,8 @@ global $debugType;
 $debugType = 'console';
 global $debugArray;
 $debugArray = [];
-$dotenv = \Dotenv\Dotenv::create(__DIR__.'/../../');
-$dotenv->load();
 
-
+include_once __DIR__.'/loadDotEnv.php';
 include_once __DIR__.'/Router.php';
 include_once __DIR__.'/Debug.php';
 \Core\DB::init();
