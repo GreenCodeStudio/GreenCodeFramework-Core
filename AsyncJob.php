@@ -12,8 +12,8 @@ global $debugArray;
 $debugArray = [];
 
 include_once __DIR__.'/loadDotEnv.php';
-include_once __DIR__.'/Router.php';
+include_once __DIR__.'/Routing/Router.php';
 include_once __DIR__.'/Debug.php';
-\Core\DB::init();
+\Core\Database\DB::init();
 $input = json_decode(file_get_contents('php://stdin'));
-\Core\Router::routeAsyncJob($input->controller, $input->action, $input->args);
+\Core\Routing\RouterOld::routeAsyncJob($input->controller, $input->action, $input->args);

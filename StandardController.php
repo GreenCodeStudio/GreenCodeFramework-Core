@@ -51,8 +51,14 @@ abstract class StandardController extends AbstractController
 
     protected function showViews(string $group)
     {
-        if ($group == 'main' && !empty($this->debugOutput))
-            echo '<div class="debugOutput">'.$this->debugOutput.'</div>';
+        if ($group == 'main') {
+            global $debugArray;
+            if (!empty($debugArray)) {
+                echo '<div class="debugOutput">';
+                dump_render_html();
+                echo '</div>';
+            }
+        }
         if ($group == 'main')
             echo '<div class="page">';
         foreach ($this->views[$group] ?? [] as $html) {
@@ -78,5 +84,4 @@ abstract class StandardController extends AbstractController
     {
         $this->breadcrumb[] = $crumb;
     }
-
 }

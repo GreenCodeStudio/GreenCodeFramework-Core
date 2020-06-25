@@ -13,8 +13,8 @@ $debugArray = [];
 
 include_once __DIR__.'/loadDotEnv.php';
 
-include_once __DIR__.'/Router.php';
+include_once __DIR__.'/Routing/Router.php';
 include_once __DIR__.'/Debug.php';
-\Core\DB::init();
+\Core\Database\DB::init();
 $input = json_decode(preg_replace("/^\xEF\xBB\xBF/", '', file_get_contents('php://stdin')));
-\Core\Router::routeConsole($input->controller, $input->action, $input->args);
+\Core\Routing\RouterOld::routeConsole($input->controller, $input->action, $input->args);

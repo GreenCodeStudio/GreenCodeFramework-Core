@@ -9,7 +9,7 @@ spl_autoload_register(function ($class_name) {
 });
 include_once __DIR__.'/../../vendor/autoload.php';
 include_once __DIR__.'/Debug.php';
-$jobs = \Core\Router::findScheduleJobs();
+$jobs = \Core\Routing\RouterOld::findScheduleJobs();
 dump($jobs);
 foreach ($jobs as $job) {
     $descriptorspec = array(

@@ -1,6 +1,6 @@
 <?php
 
-namespace Core;
+namespace Core\Routing;
 
 use Core\Exceptions\NotFoundException;
 use Core\Repository\IdempodencyKeyRepostory;
@@ -9,7 +9,7 @@ use mindplay\annotations\Annotations;
 
 include_once __DIR__.'/Annotations.php';
 
-class Router
+class RouterOld
 {
 
     public static function routeConsole($controllerName, $methodName, $args)
@@ -43,13 +43,13 @@ class Router
                     }
                 }
             } else
-                throw new \Core\Exceptions\NotFoundException();
+                throw new NotFoundException();
             global $debugArray;
             $output = ob_get_contents();
             ob_end_clean();
             echo json_encode(['data' => $returned, 'error' => $error, 'debug' => $debugArray, 'output' => $output]);
 
-        } catch (\Core\Exceptions\NotFoundException $e) {
+        } catch (NotFoundException $e) {
 
         }
     }
@@ -58,23 +58,23 @@ class Router
      * @param string $name
      * @param string $type
      * @return string
-     * @throws Exceptions\NotFoundException
+     * @throws NotFoundException
      */
     private static function findController(string $name, string $type = 'Controllers')
     {
-        $modules = scandir(__DIR__.'/../');
+        $modules = scandir(__DIR__.'/modules/');
         foreach ($modules as $module) {
             if ($module == '.' || $module == '..') {
                 continue;
             }
-            $filename = __DIR__.'/../'.$module.'/'.$type.'/'.$name.'.php';
+            $filename = __DIR__.'/../'.$name.'.php';
             if (is_file($filename)) {
                 include_once $filename;
                 $className = "\\$module\\$type\\$name";
                 return $className;
             }
         }
-        throw new \Core\Exceptions\NotFoundException();
+        throw new NotFoundException();
     }
 
     /**
@@ -136,7 +136,7 @@ class Router
             http_response_code(200);
             list($controllerClassName, $controller) = static::dispatchController($type, $controllerName, $methodName, $args);
             if (!method_exists($controller, $methodName))
-                throw new \Core\Exceptions\NotFoundException();
+                throw new NotFoundException();
             self::initAnnotationsCache();
             $annotations = Annotations::ofMethod($controller, $methodName);
             $canSafeRepeat=false;
@@ -173,7 +173,7 @@ class Router
             }
         } catch (\Throwable $ex) {
             $responseCode = 500;
-            if ($ex instanceof \Core\Exceptions\NotFoundException)
+            if ($ex instanceof NotFoundException)
                 $responseCode = 404;
             else if ($ex instanceof \Authorization\Exceptions\NoPermissionException)
                 $responseCode = 403;
@@ -218,7 +218,7 @@ class Router
             echo json_encode($returned);
         }catch (\Throwable $ex) {
             $responseCode = 500;
-            if ($ex instanceof \Core\Exceptions\NotFoundException)
+            if ($ex instanceof NotFoundException)
                 $responseCode = 404;
             else if ($ex instanceof \Authorization\Exceptions\NoPermissionException)
                 $responseCode = 403;
@@ -264,13 +264,13 @@ class Router
     public static function listControllers(string $type)
     {
         $ret = [];
-        $modules = scandir(__DIR__.'/../');
+        $modules = scandir(__DIR__.'/modules/');
         foreach ($modules as $module) {
             if ($module == '.' || $module == '..') {
                 continue;
             }
-            if (is_dir(__DIR__.'/../'.$module.'/'.$type)) {
-                $controllers = scandir(__DIR__.'/../'.$module.'/'.$type);
+            if (is_dir(__DIR__.'/../'.$type)) {
+                $controllers = scandir(__DIR__.'/../'.$type);
                 foreach ($controllers as $controllerFile) {
                     $info = self::getControllerInfo($type, $module, $controllerFile);
                     if ($info != null) {
@@ -401,7 +401,7 @@ class Router
             $controller->initInfo->methodArguments = $args;
             return [$controllerClassName, $controller];
         } else
-            throw new \Core\Exceptions\NotFoundException();
+            throw new NotFoundException();
 
     }
 

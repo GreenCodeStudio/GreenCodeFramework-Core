@@ -6,7 +6,7 @@
  * Time: 21:04
  */
 
-namespace Core;
+namespace Core\Database;
 
 
 class MigrationMssql extends Migration
