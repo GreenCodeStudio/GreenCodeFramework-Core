@@ -34,7 +34,11 @@ class Router
         } else if (substr($url, 0, 6) === '/ajax/') {
             return new AjaxRouter();
         } else {
-            return new StandardRouter();
+            if (isset($_SERVER['HTTP_X_JSON'])) {
+                return new StandardJsonRouter();
+            } else {
+                return new StandardRouter();
+            }
         }
     }
 
@@ -42,6 +46,7 @@ class Router
     {
         http_response_code($this->getHttpCode($ex));
         $this->logExceptionIfNeeded($ex);
+        dump($ex);
     }
 
     protected function getHttpCode(\Throwable $ex)
@@ -54,6 +59,14 @@ class Router
             return 401;
         else
             return 500;
+    }
+
+    protected function logExceptionIfNeeded(\Throwable $ex)
+    {
+        if (!($ex instanceof NotFoundException) && !($ex instanceof NoPermissionException) && !($ex instanceof UnauthorizedException)) {
+            error_log($ex);
+            Log::Exception($ex);
+        }
     }
 
     protected function findControllerClass(string $type = 'Controllers')
@@ -85,11 +98,14 @@ class Router
         }
     }
 
-    protected function logExceptionIfNeeded(\Throwable $ex)
+    protected function exceptionToArray(\Throwable $exception)
     {
-        if (!($ex instanceof NotFoundException) && !($ex instanceof NoPermissionException) && !($ex instanceof UnauthorizedException)) {
-            error_log($ex);
-            Log::Exception($ex);
+        $ret = ['type' => get_class($exception), 'message' => $exception->getMessage(), 'code' => $exception->getCode()];
+        if ($_ENV['debug'] == 'true') {
+            $stack = [['file' => $exception->getFile(), 'line' => $exception->getLine()]];
+            $stack = array_merge($stack, $exception->getTrace());
+            $ret['stack'] = $stack;
         }
+        return $ret;
     }
 }

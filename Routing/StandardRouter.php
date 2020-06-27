@@ -57,6 +57,34 @@ class StandardRouter extends Router
         $this->controller->initInfo->methodArguments = $this->args;
     }
 
+    protected function sendBackSuccess()
+    {
+        echo $this->htmlResult;
+    }
+
+    protected function sendBackException(\Throwable $ex)
+    {
+        $responseCode = $this->getHttpCode($ex);
+        http_response_code($responseCode);
+        $this->logExceptionIfNeeded($ex);
+        dump($ex);
+
+        $this->prepareErrorController($ex,$responseCode);
+        echo $this->htmlResult;
+    }
+
+    protected function prepareErrorController($ex,$responseCode)
+    {
+        $this->controllerName = 'Error';
+        $this->methodName = 'index';
+        $this->prepareController();
+        $this->prepareMethod();
+        $this->controller->initInfo->error = static::exceptionToArray($ex);
+        $this->controller->initInfo->code = $responseCode;
+        $this->controller->initInfo->methodArguments = [$responseCode];
+        $this->invoke();
+    }
+
     protected function invoke()
     {
         ob_start();
@@ -70,10 +98,5 @@ class StandardRouter extends Router
         $this->controller->postAction();
         $this->htmlResult = ob_get_contents();
         ob_get_clean();
-    }
-
-    protected function sendBackSuccess()
-    {
-        echo $this->htmlResult;
     }
 }
