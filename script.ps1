@@ -176,15 +176,19 @@ function Run-Command([Parameter(Mandatory = $true)][String]$controller, [Paramet
         Write-Host $ret -BackgroundColor Red -ForegroundColor White
         return;
     }
-    if ($retObj.output.Length -gt 0)
+    if ($retObj.error)
     {
-        Write-Host $retObj.output;
+        throw $retObj.error;
     }
     $retObj.debug | %{
         $line = $_.backtrace[0];
         Write-Host ($line.function + "() " + $line.file + ":" + $line.line) -ForegroundColor blue;
-
-        $_.vars |%{
+        if($_.jsons){
+            $_.jsons | %{ConvertFrom-Json $_ }|%{
+                Write-Host $_ -ForegroundColor Green;
+            };
+        }
+        $_.strings | %{
             Write-Host $_ -ForegroundColor Green;
         };
     }

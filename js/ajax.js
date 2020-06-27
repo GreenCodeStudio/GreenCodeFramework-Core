@@ -3,7 +3,13 @@ import ConsoleCheating from 'console-cheating';
 function showServerDebug(decoded) {
     if (decoded.debug) {
         for (let dump of decoded.debug) {
-            ConsoleCheating.eval("console.log.apply(null,data)", "", dump.backtrace[0].file, dump.backtrace[0].line, dump.vars);
+            var vars;
+            if (dump.jsons)
+                vars = dump.jsons.map(x => JSON.parse(x));
+            else
+                vars = dump.strings;
+
+            ConsoleCheating.eval("console.log.apply(null,data)", "", dump.backtrace[0].file, dump.backtrace[0].line, vars);
         }
     }
 }

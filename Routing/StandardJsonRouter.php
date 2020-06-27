@@ -8,6 +8,10 @@ class StandardJsonRouter extends StandardRouter
 {
     protected function sendBackSuccess()
     {
+        ob_start();
+        dump_render_html();
+        $this->controller->debugOutput.=ob_get_contents();
+        ob_end_clean();
         echo json_encode([
             'views' => $this->controller->getViews(),
             'breadcrumb' => $this->controller->getBreadcrumb(),
@@ -16,7 +20,6 @@ class StandardJsonRouter extends StandardRouter
             'data' => $this->controller->initInfo,
             'error' => null
         ], JSON_PARTIAL_OUTPUT_ON_ERROR);
-
     }
 
     protected function sendBackException(\Throwable $ex)
@@ -26,9 +29,23 @@ class StandardJsonRouter extends StandardRouter
         $this->logExceptionIfNeeded($ex);
         dump($ex);
 
-        $this->prepareErrorController($ex,$responseCode);
-        echo json_encode(['views' => $this->controller->getViews(), 'debug' => '', 'error' => static::exceptionToArray($ex)], JSON_PARTIAL_OUTPUT_ON_ERROR);
+        $this->prepareErrorController($ex, $responseCode);
+
+        ob_start();
+        dump_render_html();
+        $this->controller->debugOutput.=ob_get_contents();
+        ob_end_clean();
+
+        echo json_encode([
+            'views' => $this->controller->getViews(),
+            'breadcrumb' => $this->controller->getBreadcrumb(),
+            'title' => $this->controller->getTitle(),
+            'debug' => $this->controller->debugOutput,
+            'data' => $this->controller->initInfo,
+            'error' => static::exceptionToArray($ex)
+        ], JSON_PARTIAL_OUTPUT_ON_ERROR);
     }
+
     protected function invoke()
     {
         ob_start();

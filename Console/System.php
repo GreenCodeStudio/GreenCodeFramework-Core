@@ -2,7 +2,7 @@
 
 namespace Core\Console;
 
-use Core\Routing\RouterOld;
+use Core\Routing\Router;
 
 class System extends \Core\AbstractController
 {
@@ -14,7 +14,7 @@ class System extends \Core\AbstractController
     function GetMethods(string $type = 'Console')
     {
         $methods = [];
-        $controllers = RouterOld::listControllers($type);
+        $controllers = Router::listControllers($type);
         foreach ($controllers as $controller) {
             if (!empty($controller->methods)) {
                 foreach ($controller->methods as $method) {
