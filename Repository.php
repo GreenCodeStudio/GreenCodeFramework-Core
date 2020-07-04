@@ -9,6 +9,8 @@
 namespace Core;
 
 
+use Core\Database\DB;
+
 abstract class Repository
 {
     public const ArchiveMode_OnlyExisting = 1;
