@@ -58,6 +58,7 @@ class AjaxRouter extends Router
 
     protected function sendBackSuccess()
     {
+        header('Content-Type: application/json');
         global $debugArray;
         $debugEnabled = $_ENV['debug'] == 'true';
         echo json_encode(['data' => $this->returned, 'error' => null, 'debug' => $debugEnabled ? $debugArray : [], 'output' => $debugEnabled ? ($controller->debugOutput ?? '') : ''], JSON_PARTIAL_OUTPUT_ON_ERROR);
@@ -66,6 +67,7 @@ class AjaxRouter extends Router
 
     protected function sendBackException($ex)
     {
+        header('Content-Type: application/json');
         $responseCode = $this->getHttpCode($ex);
         http_response_code($responseCode);
         $this->logExceptionIfNeeded($ex);
@@ -73,7 +75,7 @@ class AjaxRouter extends Router
 
         global $debugArray;
         $debugEnabled = $_ENV['debug'] == 'true';
-        echo json_encode(['error' => static::exceptionToArray($ex), 'debug' => $debugEnabled ? $debugArray : [], 'output' => $debugEnabled ? ($controller->debugOutput ?? '') : ''], JSON_PARTIAL_OUTPUT_ON_ERROR);
+        echo json_encode(['error' => $this->exceptionToArray($ex), 'debug' => $debugEnabled ? $debugArray : [], 'output' => $debugEnabled ? ($controller->debugOutput ?? '') : ''], JSON_PARTIAL_OUTPUT_ON_ERROR);
         $debugArray = [];
     }
 }

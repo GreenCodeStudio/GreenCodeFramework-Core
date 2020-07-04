@@ -85,12 +85,12 @@ abstract class Migration
     function readNewStructure()
     {
         $tables = [];
-        $modules = scandir(__DIR__.'/modules/');
+        $modules = scandir(__DIR__.'/../../');
         foreach ($modules as $module) {
             if ($module == '.' || $module == '..') {
                 continue;
             }
-            $filename = __DIR__.'/modules/'.$module.'/db.xml';
+            $filename = __DIR__.'/../../'.$module.'/db.xml';
             if (is_file($filename)) {
                 $xml = simplexml_load_string(file_get_contents($filename));
                 foreach ($xml->table as $table) {

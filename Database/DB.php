@@ -194,7 +194,6 @@ class DB
 
     public static function init()
     {
-
         DB::$dialect = $_ENV['dbDialect'];
         DB::$dsn = $_ENV['db'];
         DB::$user = $_ENV['dbUser'];

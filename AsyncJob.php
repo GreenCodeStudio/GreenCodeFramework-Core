@@ -6,14 +6,10 @@ spl_autoload_register(function ($class_name) {
     if (file_exists($path))
         include_once $path;
 });
-global $debugType;
-$debugType = 'console';
-global $debugArray;
-$debugArray = [];
 
 include_once __DIR__.'/loadDotEnv.php';
 include_once __DIR__.'/Routing/Router.php';
 include_once __DIR__.'/Debug.php';
 \Core\Database\DB::init();
 $input = json_decode(file_get_contents('php://stdin'));
-\Core\Routing\RouterOld::routeAsyncJob($input->controller, $input->action, $input->args);
+\Core\Routing\Router::routeAsyncJob($input->controller, $input->action, $input->args);

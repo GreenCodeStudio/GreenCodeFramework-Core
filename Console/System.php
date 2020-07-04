@@ -2,6 +2,7 @@
 
 namespace Core\Console;
 
+use Core\Routing\ConsoleRouter;
 use Core\Routing\Router;
 
 class System extends \Core\AbstractController
@@ -11,10 +12,10 @@ class System extends \Core\AbstractController
         return $_SERVER;
     }
 
-    function GetMethods(string $type = 'Console')
+    function GetMethods()
     {
         $methods = [];
-        $controllers = Router::listControllers($type);
+        $controllers = (new ConsoleRouter())->listControllers();
         foreach ($controllers as $controller) {
             if (!empty($controller->methods)) {
                 foreach ($controller->methods as $method) {

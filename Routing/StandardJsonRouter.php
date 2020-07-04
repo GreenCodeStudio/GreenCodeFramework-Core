@@ -42,7 +42,7 @@ class StandardJsonRouter extends StandardRouter
             'title' => $this->controller->getTitle(),
             'debug' => $this->controller->debugOutput,
             'data' => $this->controller->initInfo,
-            'error' => static::exceptionToArray($ex)
+            'error' => $this->exceptionToArray($ex)
         ], JSON_PARTIAL_OUTPUT_ON_ERROR);
     }
 

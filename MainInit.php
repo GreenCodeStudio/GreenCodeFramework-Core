@@ -23,3 +23,5 @@ function t($q){
 }
 if(empty($_COOKIE["uniq"]))
     setcookie("uniq",bin2hex(openssl_random_pseudo_bytes(4)).uniqid(), time()+365*24*60*60);
+include_once __DIR__.'/Annotations.php';
+\Core\Database\DB::init();

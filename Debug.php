@@ -1,4 +1,15 @@
 <?php
+$debugType='text';
+$debugImmediate=true;
+function setDumpDebugType(string $type, bool $immediate)
+{
+    global $debugType;
+    global $debugImmediate;
+    $debugType = $type;
+    $debugImmediate = $immediate;
+    if ($immediate)
+        dump_render();
+}
 
 function dump()
 {
@@ -6,7 +17,8 @@ function dump()
     $args = func_get_args();
     global $debugType;
     global $debugArray;
-    if ($debugType == 'string') {
+    global $debugImmediate;
+    if ($debugType == 'json') {
         $jsons = [];
         foreach ($args as $var) {
             $jsons[] = \json_encode($var);
@@ -19,41 +31,8 @@ function dump()
         }
         $debugArray[] = ['backtrace' => $backtrace, 'strings' => $strings];
     }
-//    if ($debugType == 'html') {
-//
-//        echo '<div style="background:#ffb; color:#113;border:solid 2px #113;">';
-//        $pathExploded = explode('/', str_replace('\\', '/', $backtrace[0]['file']));
-//        echo '<span title="'.htmlspecialchars($backtrace[0]['file']).'">';
-//        echo "\r\n";
-//        echo htmlspecialchars(end($pathExploded)).' ('.$backtrace[0]['line'].')';
-//        echo "\r\n";
-//        echo '</span>';
-//        echo '</div><pre style="background:#113; color:#ffb;margin-top:0;">';
-//        echo "\r\n";
-//        foreach ($args as $arg) {
-//            echo htmlspecialchars(print_r($arg, true));
-//            echo "\r\n";
-//        }
-//        echo '</pre>';
-//    } else if ($debugType == 'text') {
-//
-//        $pathExploded = explode('/', str_replace('\\', '/', $backtrace[0]['file']));
-//        echo '----'.end($pathExploded).'----';
-//        foreach ($args as $arg) {
-//            echo print_r($arg);
-//        }
-//        echo "\r\n";
-//        echo "\r\n";
-//    } else if ($debugType == 'console') {
-//        $vars = [];
-//        foreach ($args as $arg) {
-//            $vars[] = print_r($arg, true);
-//        }
-//        ob_clean();
-//        $debugArray[] = ['backtrace' => $backtrace, 'vars' => $vars];
-//    } else {
-//        $debugArray[] = ['backtrace' => $backtrace, 'vars' => $args];
-//    }
+    if ($debugImmediate)
+        dump_render();
 }
 
 function dumpTime(bool $fromStart = false)
@@ -61,6 +40,7 @@ function dumpTime(bool $fromStart = false)
     $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
     global $debugType;
     global $debugArray;
+    global $debugImmediate;
     global $_dbgTime;
     $t = microtime(true);
     if ($fromStart) {
@@ -75,6 +55,17 @@ function dumpTime(bool $fromStart = false)
     $debugArray[] = ['backtrace' => $backtrace, 'strings' => [$txt]];
 
     $_dbgTime = microtime(true);
+    if ($debugImmediate)
+        dump_render();
+}
+
+function dump_render()
+{
+    global $debugType;
+    if ($debugType == 'html')
+        dump_render_html();
+    else
+        dump_render_text();
 }
 
 function dump_render_text()
@@ -82,7 +73,7 @@ function dump_render_text()
     global $debugArray;
     foreach ($debugArray as $item) {
         $pathExploded = explode('/', str_replace('\\', '/', $item['backtrace'][0]['file']));
-        echo '----'.end($pathExploded).'----';
+        echo "---- ".end($pathExploded)." (".$item['backtrace'][0]['line'].") ----\r\n";
         if (isset($item['strings'])) {
             foreach ($item['strings'] as $str) {
                 echo $str;

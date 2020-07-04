@@ -109,6 +109,84 @@ class Router
         $router->sendBackSuccess();
     }
 
+    public static function routeAsyncJob($controllerName, $methodName, $args)
+    {
+        $router = new AsyncJobRouter();
+
+        try {
+            $router->controllerName = $controllerName;
+            $router->methodName = $methodName;
+            $router->args = $args;
+            $router->findController();
+            $router->invoke();
+        } catch (\Throwable $ex) {
+            $router->sendBackException($ex);
+            return;
+        }
+        $router->sendBackSuccess();
+    }
+
+    public function listControllers()
+    {
+        $ret = [];
+        $modules = scandir(__DIR__.'/../../');
+        foreach ($modules as $module) {
+            if ($module == '.' || $module == '..') {
+                continue;
+            }
+            if (is_dir(__DIR__.'/../../'.$module.'/'.$this->controllerType)) {
+                $controllers = scandir(__DIR__.'/../../'.$module.'/'.$this->controllerType);
+                foreach ($controllers as $controllerFile) {
+                    if (!is_dir(__DIR__.'/../../'.$module.'/'.$this->controllerType.'/'.$controllerFile)) {
+                        $info = $this->getControllerInfo($module, $controllerFile);
+                        if ($info != null) {
+                            $ret[$info->name] = $info;
+                        }
+                    }
+                }
+            }
+        }
+        return $ret;
+    }
+
+    function getControllerInfo($module, $controllerFile): ?object
+    {
+        self::initAnnotationsCache();
+        if (preg_match('/^(.*)\.php$/', $controllerFile, $matches)) {
+            $name = $matches[1];
+            $controllerInfo = new \StdClass();
+            $controllerInfo->module = $module;
+            $controllerInfo->name = $name;
+            $controllerInfo->methods = [];
+            try {
+                $classPath = "\\$module\\$this->controllerType\\$name";
+                $controllerInfo->classPath = $classPath;
+                $classReflect = new \ReflectionClass($classPath);
+                $methods = $classReflect->getMethods();
+                foreach ($methods as $methodReflect) {
+                    if (!$methodReflect->isPublic()) continue;
+                    if ('\\'.$methodReflect->class != $classPath) continue;
+                    $methodInfo = new \StdClass();
+                    $annotations = Annotations::ofMethod($classPath, $methodReflect->getName());
+                    $methodInfo->name = $methodReflect->getName();
+                    $methodInfo->parameters = $methodReflect->getParameters();
+                    $methodInfo->annotations = $annotations;
+                    $controllerInfo->methods[$methodReflect->getName()] = $methodInfo;
+                }
+            } catch (\Throwable $ex) {
+                return null;
+            }
+            return $controllerInfo;
+        }
+        return null;
+    }
+
+    protected static function initAnnotationsCache(): void
+    {
+        if (empty(Annotations::$config['cache']))
+            Annotations::$config['cache'] = new AnnotationCache(__DIR__.'/../../../cache');
+    }
+
     protected function parseUrl()
     {
         $exploded = explode('/', explode('?', $this->url)[0]);
@@ -176,63 +254,5 @@ class Router
         $this->controller->initInfo->controllerName = $this->controllerName;
         $this->controller->initInfo->methodName = $this->methodName;
         $this->controller->initInfo->methodArguments = $this->args;
-    }
-    public static function listControllers(string $type)
-    {
-        $ret = [];
-        $modules = scandir(__DIR__.'/../../');
-        foreach ($modules as $module) {
-            if ($module == '.' || $module == '..') {
-                continue;
-            }
-            if (is_dir(__DIR__.'/../../'.$module.'/'.$type)) {
-                $controllers = scandir(__DIR__.'/../../'.$module.'/'.$type);
-                foreach ($controllers as $controllerFile) {
-                    $info = self::getControllerInfo($type, $module, $controllerFile);
-                    if ($info != null) {
-                        $ret[$info->name] = $info;
-                    }
-                }
-
-            }
-        }
-        return $ret;
-    }
-    static function getControllerInfo($type, $module, $controllerFile): ?object
-    {
-        self::initAnnotationsCache();
-        if (preg_match('/^(.*)\.php$/', $controllerFile, $matches)) {
-            $name = $matches[1];
-            $controllerInfo = new \StdClass();
-            $controllerInfo->module = $module;
-            $controllerInfo->name = $name;
-            $controllerInfo->methods = [];
-            try {
-                $classPath = "\\$module\\$type\\$name";
-                $controllerInfo->classPath=$classPath;
-                $classReflect = new \ReflectionClass($classPath);
-                $methods = $classReflect->getMethods();
-                foreach ($methods as $methodReflect) {
-                    if (!$methodReflect->isPublic()) continue;
-                    if ('\\'.$methodReflect->class != $classPath) continue;
-                    $methodInfo = new \StdClass();
-                    $annotations = Annotations::ofMethod($classPath, $methodReflect->getName());
-                    $methodInfo->name = $methodReflect->getName();
-                    $methodInfo->parameters = $methodReflect->getParameters();
-                    $methodInfo->annotations = $annotations;
-                    $controllerInfo->methods[$methodReflect->getName()] = $methodInfo;
-                }
-            } catch (\Throwable $ex) {
-                return null;
-            }
-            return $controllerInfo;
-        }
-        return null;
-    }
-
-    protected static function initAnnotationsCache(): void
-    {
-        if (empty(Annotations::$config['cache']))
-            Annotations::$config['cache'] = new AnnotationCache(__DIR__.'/../../../cache');
     }
 }

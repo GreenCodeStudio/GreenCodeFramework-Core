@@ -37,7 +37,7 @@ class StandardRouter extends Router
         $this->methodName = 'index';
         $this->prepareController();
         $this->prepareMethod();
-        $this->controller->initInfo->error = static::exceptionToArray($ex);
+        $this->controller->initInfo->error = $this->exceptionToArray($ex);
         $this->controller->initInfo->code = $responseCode;
         $this->controller->initInfo->methodArguments = [$responseCode];
         $this->invoke();
