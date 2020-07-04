@@ -38,6 +38,7 @@ class TextsRepository
     private static function parseFile(string $filename)
     {
         $xml = simplexml_load_string(file_get_contents($filename));
+        if($xml===false)throw new \Exception("Bad i18n.xml file");
         return new I18nNode($xml);
     }
 }
