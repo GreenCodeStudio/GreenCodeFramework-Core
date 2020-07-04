@@ -154,7 +154,7 @@ function Load-AvaibleMethods
         })
         $paramsString = $params | & { $ofs = ','; "$input" }
         $paramsUse = ($_.parameters | % { "`$$( $_.name )" } | & { $ofs = ','; "$( $input )" })
-        iex  "Set-Item -Path function:global:Run-$( $_.controllerName )-$( $_.name ) -Value {Param ($paramsString) return Run-Command $( $_.controllerName ) $( $_.name ) @($paramsUse) }"
+        iex  "Set-Item -Path function:global:$( $_.name )-$( $_.controllerName ) -Value {Param ($paramsString) return Run-Command $( $_.controllerName ) $( $_.name ) @($paramsUse) }"
     }
 }
 function Get-AvaibleMethods
@@ -176,17 +176,22 @@ function Run-Command([Parameter(Mandatory = $true)][String]$controller, [Paramet
         Write-Host $ret -BackgroundColor Red -ForegroundColor White
         return;
     }
-    if ($retObj.output.Length -gt 0)
-    {
-        Write-Host $retObj.output;
-    }
     $retObj.debug | %{
         $line = $_.backtrace[0];
         Write-Host ($line.function + "() " + $line.file + ":" + $line.line) -ForegroundColor blue;
-
-        $_.vars |%{
+        if($_.jsons){
+            $_.jsons | %{ConvertFrom-Json $_ }|%{
+                Write-Host $_ -ForegroundColor Green;
+            };
+        }
+        $_.strings | %{
             Write-Host $_ -ForegroundColor Green;
         };
+    }
+    if ($retObj.error)
+    {
+        $retObj.error.stack | ft
+        throw [PhpException]::New($retObj.error);
     }
     return $retObj.data;
 }
@@ -259,7 +264,11 @@ function Out-FileUtf8NoBom
     }
 
 }
+function Enable-PhpDebug{
+    SET XDEBUG_CONFIG="idekey=session_name"
+}
 . ./modules/Core/PowerShell/modules.ps1
+. ./modules/Core/PowerShell/exception.ps1
 if ((test-path modules/Core) -and (test-path vendor))
 {
     Load-AvaibleMethods

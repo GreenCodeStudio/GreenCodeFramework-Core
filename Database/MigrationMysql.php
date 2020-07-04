@@ -6,7 +6,7 @@
  * Time: 21:03
  */
 
-namespace Core;
+namespace Core\Database;
 
 
 class MigrationMysql extends Migration

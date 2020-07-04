@@ -1,15 +1,6 @@
 <?php
-error_reporting(E_ALL);
-ini_set("log_errors", 1);
-ini_set("error_log", __dir__."/../../tmp/php-error.log");
-spl_autoload_register(function ($class_name) {
-    $path = __DIR__.'/../'.str_replace("\\", "/", $class_name).'.php';
-    if (file_exists($path))
-        include_once $path;
-});
-include_once __DIR__.'/../../vendor/autoload.php';
-include_once __DIR__.'/Debug.php';
-$jobs = \Core\Router::findScheduleJobs();
+include_once __DIR__.'/MainInit.php';
+$jobs = (new \Core\Routing\AsyncJobRouter())->findScheduleJobs();
 dump($jobs);
 foreach ($jobs as $job) {
     $descriptorspec = array(

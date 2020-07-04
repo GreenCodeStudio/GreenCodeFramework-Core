@@ -8,7 +8,7 @@ class IdempodencyKeyRepostory
 {
     public function Test(string $key)
     {
-        return \Core\MiniDB::GetConnection()->eval(/** @lang LUA */ "
+        return \Core\Database\MiniDB::GetConnection()->eval(/** @lang LUA */ "
         if redis.call(\"GET\", ARGV[1]) then
             return false
         else

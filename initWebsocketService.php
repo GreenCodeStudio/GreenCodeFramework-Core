@@ -6,14 +6,7 @@ ini_set("error_log", __dir__."/../../tmp/php-error.log");
 spl_autoload_register(function ($class_name) {
     include_once __DIR__.'/../'.str_replace("\\", "/", $class_name).'.php';
 });
-global $debugType;
-$debugType = 'html';
-global $debugArray;
-$debugArray = [];
-
 
 include_once __DIR__.'/loadDotEnv.php';
-
-
 include_once __DIR__.'/Debug.php';
 \Core\WebSocket\Server::init();
