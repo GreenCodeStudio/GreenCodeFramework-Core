@@ -4,6 +4,8 @@
 namespace Core\Routing;
 
 
+use Authorization\Exceptions\UnauthorizedException;
+
 class StandardRouter extends Router
 {
     var $controllerType = 'Controllers';
@@ -33,8 +35,13 @@ class StandardRouter extends Router
 
     protected function prepareErrorController($ex, $responseCode)
     {
-        $this->controllerName = 'Error';
-        $this->methodName = 'index';
+        if($ex instanceof UnauthorizedException){
+            $this->controllerName = 'Authorization';
+            $this->methodName = 'index';
+        }else {
+            $this->controllerName = 'Error';
+            $this->methodName = 'index';
+        }
         $this->prepareController();
         $this->prepareMethod();
         $this->controller->initInfo->error = $this->exceptionToArray($ex);

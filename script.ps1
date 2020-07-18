@@ -60,11 +60,11 @@ function Prepare-Build
 
     node "modules/core/js/build.js"
 
-    ls modules | ? { Test-Path "modules/$($_.Name)/dist" } | %{ New-SymLink "./public_html/dist/$($_.Name)" "../../modules/$($_.Name)/dist" }
+    ls modules | ? { Test-Path "modules/$( $_.Name )/dist" } | %{ New-SymLink "./public_html/dist/$( $_.Name )" "../../modules/$( $_.Name )/dist" }
 
     $file = ''
-    ls modules | ? { Test-Path "modules/$($_.Name)/scss/mixins.scss" } | % { $file += "@import ""./modules/" + $($_.Name) + "/scss/mixins"";`r`n" }
-    ls modules | ? { Test-Path "modules/$($_.Name)/scss/index.scss" } | % { $file += "@import ""./modules/" + $($_.Name)+ "/scss/index"";`r`n" }
+    ls modules | ? { Test-Path "modules/$( $_.Name )/scss/mixins.scss" } | % { $file += "@import ""./modules/" + $( $_.Name ) + "/scss/mixins"";`r`n" }
+    ls modules | ? { Test-Path "modules/$( $_.Name )/scss/index.scss" } | % { $file += "@import ""./modules/" + $( $_.Name ) + "/scss/index"";`r`n" }
     $file | Out-FileUtf8NoBom "scssBuild.scss"
 
     $file = "import ""./scssBuild.scss"";`r`n"
@@ -72,13 +72,13 @@ function Prepare-Build
     $file | Out-FileUtf8NoBom "jsBuild.js"
 
     $composerIncludes = [System.Collections.ArrayList]::new();
-    ls modules | ? { Test-Path "modules/$($_.Name)/composer.json" } | %{ $composerIncludes.Add("modules/$($_.Name)/composer.json") }
+    ls modules | ? { Test-Path "modules/$( $_.Name )/composer.json" } | %{ $composerIncludes.Add("modules/$( $_.Name )/composer.json") }
     $composer = @{ require = @{ "wikimedia/composer-merge-plugin" = "dev-master" }; extra = @{ "merge-plugin" = @{ include = $composerIncludes } } }
     $composer | convertto-json -Depth 10 | Out-FileUtf8NoBom "composer.json"
 }
 function Generate-Htaccess
 {
-    $timestamp=[int][double]::Parse((Get-Date -UFormat %s))
+    $timestamp = [int][double]::Parse((Get-Date -UFormat %s))
     $content = @"
     RewriteEngine on
     RewriteCond %{REQUEST_FILENAME} !-d
@@ -180,8 +180,9 @@ function Run-Command([Parameter(Mandatory = $true)][String]$controller, [Paramet
     $retObj.debug | %{
         $line = $_.backtrace[0];
         Write-Host ($line.function + "() " + $line.file + ":" + $line.line) -ForegroundColor blue;
-        if($_.jsons){
-            $_.jsons | %{ConvertFrom-Json $_ }|%{
+        if ($_.jsons)
+        {
+            $_.jsons | %{ ConvertFrom-Json $_ }|%{
                 Write-Host $_ -ForegroundColor Green;
             };
         }
@@ -265,20 +266,28 @@ function Out-FileUtf8NoBom
     }
 
 }
-function Enable-PhpDebug{
-    SET XDEBUG_CONFIG="idekey=session_name"
+function Enable-PhpDebug
+{
+    SET XDEBUG_CONFIG = "idekey=session_name"
 }
 
-function Start-WebSocketServer{
+function Start-WebSocketServer
+{
     Push-Location (Find-ProjectDir).Fullname
     php modules/Core/initWebsocketService.php
 }
-function Test-Requirements{
-$isGood=true;
-try{
+function Test-Requirements
+{
+    $isGood = true;
+    try
+    {
 
-}
-return $isGood;
+    }
+    catch
+    {
+
+    }
+    return $isGood;
 }
 . ./modules/Core/PowerShell/modules.ps1
 . ./modules/Core/PowerShell/exception.ps1

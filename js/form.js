@@ -94,4 +94,7 @@ export class FormManager {
      */
     submit(data) {
     }
+    reset(){
+        this.form.reset();
+    }
 }

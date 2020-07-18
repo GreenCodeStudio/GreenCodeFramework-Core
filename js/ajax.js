@@ -59,11 +59,12 @@ async function AjaxFunction(controller, method, ...args) {
     let start = new Date();
     if (!navigator.onLine)
         await Promise.race([onlinePromise(), sleep(maxTime)])
-    for (let i = 0; i < 10; i++) {
+    const maxTries = 1;
+    for (let i = 0; i < maxTries; i++) {
         try {
             return await TryOnceAjaxFunction(controller, method, ...args);
         } catch (ex) {
-            if (new Date() - start > maxTime)
+            if (new Date() - start > maxTime || i + 1 === maxTries)
                 throw ex;
 
             if (i > 1) {
