@@ -83,8 +83,3 @@ function Update-ProjectModules
         Get-ProjectModules| %{ $_.Update() }
     }
 }
-
-function Start-WebSocketServer{
-    Push-Location (Find-ProjectDir).Fullname
-    php modules/Core/initWebsocketService.php
-}

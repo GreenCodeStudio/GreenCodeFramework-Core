@@ -1,5 +1,6 @@
 function Init-Project
 {
+    Test-Requirements
     Push-Location (Find-ProjectDir).Fullname
     $dirs = "js", "scss", "modules", "cache", "public_html", "public_html/dist"
     $dirs | %{
@@ -266,6 +267,18 @@ function Out-FileUtf8NoBom
 }
 function Enable-PhpDebug{
     SET XDEBUG_CONFIG="idekey=session_name"
+}
+
+function Start-WebSocketServer{
+    Push-Location (Find-ProjectDir).Fullname
+    php modules/Core/initWebsocketService.php
+}
+function Test-Requirements{
+$isGood=true;
+try{
+
+}
+return $isGood;
 }
 . ./modules/Core/PowerShell/modules.ps1
 . ./modules/Core/PowerShell/exception.ps1
