@@ -97,9 +97,9 @@ function Generate-Htaccess
     </IfModule>
 "@
 
-    echo $content | Out-FileUtf8NoBom .\public_html/.htaccess
+    echo $content | Out-FileUtf8NoBom ./public_html/.htaccess
 }
-function Build-Project
+function Build-Project([switch]$production)
 {
     Push-Location (Find-ProjectDir).Fullname
     Init-Project
@@ -110,7 +110,14 @@ function Build-Project
 
     composer install
     yarn
-    yarn build
+    if ($production)
+    {
+        yarn buldProd
+    }
+    else
+    {
+        yarn buld
+    }
     Pop-Location
 }
 function Start-Project
