@@ -172,15 +172,14 @@ export class TableManager {
     }
 
     contextMenu(tr, event) {
-        if (!this.selected.has(tr.dataset.row))
-        {
+        if (!this.selected.has(tr.dataset.row)) {
             this.selected.clear();
             this.selected.add(tr.dataset.row)
             this.selectedMain = tr.dataset.row;
             this.refreshSelectedClasses();
         }
-        let elements=[];
-        if(this.selected.size==1) {
+        let elements = [];
+        if (this.selected.size == 1) {
             const buttons = tr.querySelectorAll('.button, button');
             elements = Array.from(buttons).map(b => ({
                 text: b.title || b.textContent,
@@ -220,7 +219,22 @@ export class TableManager {
             defaultButton.click();
     }
 
+    selectRange(start, end) {
+        const rowsIds = this.currentRows.map(x => x.id);
+        let startIndex = rowsIds.indexOf(start);
+        let endIndex = rowsIds.indexOf(end);
+        if (endIndex < startIndex) {
+            let tmp = startIndex;
+            startIndex = endIndex;
+            endIndex = tmp;
+        }
+        for (let i = startIndex; i <= endIndex; i++) {
+            this.selected.add(rowsIds[i]);
+        }
+    }
+
     trOnKeyDown(row, tr, e) {
+        console.log('trOnKeyDown')
         if (e.key === 'Enter') {
             const defaultButton = tr.querySelector('.button.default, .button.default');
             if (defaultButton)
@@ -235,13 +249,23 @@ export class TableManager {
                 if (index > 0) index--;
             }
             const id = rowsIds[index];
-            if (e.ctrlKey) {
-            } else {
+            if (!e.ctrlKey) {
                 this.selected.clear();
-                this.selected.add(id);
+            }
+            if (e.shiftKey) {
+                if (!this.selectedShiftStart) {
+                    this.selectedShiftStart = this.selectedMain;
+                }
+                this.selectRange(this.selectedShiftStart, id)
+            } else {
+                this.selectedShiftStart = null;
+                if (!e.ctrlKey) {
+                    this.selected.add(id);
+                }
             }
             this.selectedMain = id;
             this.refreshSelectedClasses();
+            e.preventDefault();
         } else if (e.key === ' ') {
             if (this.selected.has(this.selectedMain))
                 this.selected.delete(this.selectedMain);
@@ -249,7 +273,7 @@ export class TableManager {
                 this.selected.add(this.selectedMain);
 
             this.refreshSelectedClasses();
-
+            e.preventDefault();
         }
     }
 
