@@ -112,11 +112,11 @@ function Build-Project([switch]$production)
     yarn
     if ($production)
     {
-        yarn buldProd
+        yarn buildProd
     }
     else
     {
-        yarn buld
+        yarn build
     }
     Pop-Location
 }
