@@ -13,6 +13,7 @@ use Core\Log;
 use Core\Repository\IdempodencyKeyRepostory;
 use mindplay\annotations\AnnotationCache;
 use mindplay\annotations\Annotations;
+use MKrawczyk\FunQuery\FunQuery;
 use ReflectionMethod;
 
 class Router
@@ -84,6 +85,12 @@ class Router
                 return true;
         }
         return false;
+    }
+
+    protected static function initAnnotationsCache(): void
+    {
+        if (empty(Annotations::$config['cache']))
+            Annotations::$config['cache'] = new AnnotationCache(__DIR__.'/../../../cache');
     }
 
     protected function sendBackException(\Throwable $ex)
@@ -201,18 +208,12 @@ class Router
         return null;
     }
 
-    protected static function initAnnotationsCache(): void
-    {
-        if (empty(Annotations::$config['cache']))
-            Annotations::$config['cache'] = new AnnotationCache(__DIR__.'/../../../cache');
-    }
-
     protected function parseUrl()
     {
         $exploded = explode('/', explode('?', $this->url)[0]);
         $controllerName = empty($exploded[1]) ? 'Start' : $exploded[1];
         $methodName = empty($exploded[2]) ? 'index' : $exploded[2];
-        $this->args = array_slice($exploded, 3);
+        $this->args = FunQuery::create(array_slice($exploded, 3))->map(fn($x) => urldecode($x))->toArray();
         $this->controllerName = preg_replace('/[^a-zA-Z0-9_]/', '', $controllerName);
         $this->methodName = preg_replace('/[^a-zA-Z0-9_]/', '', $methodName);
     }
