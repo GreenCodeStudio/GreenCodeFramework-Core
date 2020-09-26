@@ -7,8 +7,10 @@ namespace Core\Routing;
 use Authorization\Authorization;
 use Authorization\Exceptions\NoPermissionException;
 use Authorization\Exceptions\UnauthorizedException;
+use CanSafeRepeatAnnotation;
 use Core\Exceptions\NotFoundException;
 use Core\Log;
+use Core\Repository\IdempodencyKeyRepostory;
 use mindplay\annotations\AnnotationCache;
 use mindplay\annotations\Annotations;
 use ReflectionMethod;
@@ -58,12 +60,30 @@ class Router
     protected function runMethod()
     {
         $reflectionMethod = new ReflectionMethod($this->controllerClassName, $this->controller->initInfo->methodName);
+        if (!empty($_SERVER['HTTP_X_IDEMPOTENCY_KEY'])) {
+            if (!$this->canSafeRepeat($this->controllerClassName, $this->controller->initInfo->methodName)) {
+                if (!(new IdempodencyKeyRepostory())->Test($_SERVER['HTTP_X_IDEMPOTENCY_KEY'])) {
+                    throw new \Exception('Idempodency key used');
+                }
+            }
+        }
         $this->returned = $reflectionMethod->invokeArgs($this->controller, $this->controller->initInfo->methodArguments);
 
         if (method_exists($this->controller, $this->controller->initInfo->methodName.'_data')) {
             $reflectionMethodData = new ReflectionMethod($this->controllerClassName, $this->controller->initInfo->methodName.'_data');
             $this->controller->initInfo->data = $reflectionMethodData->invokeArgs($this->controller, $this->controller->initInfo->methodArguments);
         }
+    }
+
+    private function canSafeRepeat($className, $methodName)
+    {
+        self::initAnnotationsCache();
+        $annotations = Annotations::ofMethod($className, $methodName);
+        foreach ($annotations as $annotation) {
+            if ($annotation instanceof CanSafeRepeatAnnotation)
+                return true;
+        }
+        return false;
     }
 
     protected function sendBackException(\Throwable $ex)

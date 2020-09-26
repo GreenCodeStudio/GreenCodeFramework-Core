@@ -36,4 +36,12 @@ addEventListener('error', e => {
     Ajax.Log.addFrontError(obj);
     modal("Wystąpił błąd", "error")
 });
+addEventListener('unhandledrejection', e=> {
+    let obj = {
+        message: e.reason.message,
+        stack: e.reason.stack
+    };
+    Ajax.Log.addFrontError(obj);
+    modal("Wystąpił błąd", "error")
+});
 window.dbgAjax = Ajax;

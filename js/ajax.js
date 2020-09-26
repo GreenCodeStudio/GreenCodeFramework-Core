@@ -56,19 +56,23 @@ function onlinePromise() {
 
 async function AjaxFunction(controller, method, ...args) {
     const maxTime = 10 * 60 * 1000;
+    const idempotencyKey = generateIdempotencyKey();
     let start = new Date();
     if (!navigator.onLine)
         await Promise.race([onlinePromise(), sleep(maxTime)])
-    const maxTries = 1;
+    const maxTries = 10;
     for (let i = 0; i < maxTries; i++) {
         try {
-            return await TryOnceAjaxFunction(controller, method, ...args);
+            return await TryOnceAjaxFunction(idempotencyKey, controller, method, ...args);
         } catch (ex) {
+            if (!(ex instanceof ConnectionError))
+                throw ex;
+
             if (new Date() - start > maxTime || i + 1 === maxTries)
                 throw ex;
 
             if (i > 1) {
-                let sleepPromise = sleep(500 * Math.pow(2, i - 1));
+                let sleepPromise = sleep(100 * Math.pow(2, i - 1));
                 if (navigator.onLine)
                     await sleepPromise;
                 else
@@ -78,14 +82,13 @@ async function AjaxFunction(controller, method, ...args) {
     }
 }
 
-function TryOnceAjaxFunction(controller, method, ...args) {
+function TryOnceAjaxFunction(idempotencyKey, controller, method, ...args) {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         xhr.open('post', '/ajax/' + controller + '/' + method);
         const body = generatePostBody(args);
         xhr.setRequestHeader('x-js-origin', 'true');
-        xhr.setRequestHeader('x-idempotency-key', generateIdempotencyKey());
-        xhr.onerror = (er) => console.log(er)
+        xhr.setRequestHeader('x-idempotency-key', idempotencyKey);
         xhr.onreadystatechange = e => {
             if (xhr.readyState === 4) {
                 if (xhr.status === 200) {
