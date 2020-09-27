@@ -19,6 +19,14 @@ class LanguagesHierarchy
     {
         $httpHeader = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
         $splitted = FunQuery::create(explode(',', $httpHeader))->map(fn($x) => explode(';', $x)[0])->toArray();
+        if(!empty($_COOKIE['lang'])) {
+            $splitted = [$_COOKIE['lang'], ...$splitted];
+        }
+        if(!empty($_GET['lang'])) {
+            $splitted = [$_GET['lang'], ...$splitted];
+            setcookie('lang', $_GET['lang'], time()+1000000000);
+        }
+
         return new LanguagesHierarchy($splitted);
     }
 
