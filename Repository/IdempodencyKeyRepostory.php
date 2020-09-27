@@ -12,7 +12,7 @@ class IdempodencyKeyRepostory
         if redis.call(\"GET\", ARGV[1]) then
             return false
         else
-            redis.call(\"SETEX\", ARGV[1], 100800, 1)
+            redis.call(\"SETEX\", ARGV[1], 86400, 1)
             return true
         end
 ", ["idempotency_key_".$key]);

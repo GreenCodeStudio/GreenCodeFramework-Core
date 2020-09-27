@@ -7,10 +7,13 @@ namespace Core\Routing;
 use Authorization\Authorization;
 use Authorization\Exceptions\NoPermissionException;
 use Authorization\Exceptions\UnauthorizedException;
+use CanSafeRepeatAnnotation;
 use Core\Exceptions\NotFoundException;
 use Core\Log;
+use Core\Repository\IdempodencyKeyRepostory;
 use mindplay\annotations\AnnotationCache;
 use mindplay\annotations\Annotations;
+use MKrawczyk\FunQuery\FunQuery;
 use ReflectionMethod;
 
 class Router
@@ -58,12 +61,36 @@ class Router
     protected function runMethod()
     {
         $reflectionMethod = new ReflectionMethod($this->controllerClassName, $this->controller->initInfo->methodName);
+        if (!empty($_SERVER['HTTP_X_IDEMPOTENCY_KEY'])) {
+            if (!$this->canSafeRepeat($this->controllerClassName, $this->controller->initInfo->methodName)) {
+                if (!(new IdempodencyKeyRepostory())->Test($_SERVER['HTTP_X_IDEMPOTENCY_KEY'])) {
+                    throw new \Exception('Idempodency key used');
+                }
+            }
+        }
         $this->returned = $reflectionMethod->invokeArgs($this->controller, $this->controller->initInfo->methodArguments);
 
         if (method_exists($this->controller, $this->controller->initInfo->methodName.'_data')) {
             $reflectionMethodData = new ReflectionMethod($this->controllerClassName, $this->controller->initInfo->methodName.'_data');
             $this->controller->initInfo->data = $reflectionMethodData->invokeArgs($this->controller, $this->controller->initInfo->methodArguments);
         }
+    }
+
+    private function canSafeRepeat($className, $methodName)
+    {
+        self::initAnnotationsCache();
+        $annotations = Annotations::ofMethod($className, $methodName);
+        foreach ($annotations as $annotation) {
+            if ($annotation instanceof CanSafeRepeatAnnotation)
+                return true;
+        }
+        return false;
+    }
+
+    protected static function initAnnotationsCache(): void
+    {
+        if (empty(Annotations::$config['cache']))
+            Annotations::$config['cache'] = new AnnotationCache(__DIR__.'/../../../cache');
     }
 
     protected function sendBackException(\Throwable $ex)
@@ -181,18 +208,12 @@ class Router
         return null;
     }
 
-    protected static function initAnnotationsCache(): void
-    {
-        if (empty(Annotations::$config['cache']))
-            Annotations::$config['cache'] = new AnnotationCache(__DIR__.'/../../../cache');
-    }
-
     protected function parseUrl()
     {
         $exploded = explode('/', explode('?', $this->url)[0]);
         $controllerName = empty($exploded[1]) ? 'Start' : $exploded[1];
         $methodName = empty($exploded[2]) ? 'index' : $exploded[2];
-        $this->args = array_slice($exploded, 3);
+        $this->args = FunQuery::create(array_slice($exploded, 3))->map(fn($x) => urldecode($x))->toArray();
         $this->controllerName = preg_replace('/[^a-zA-Z0-9_]/', '', $controllerName);
         $this->methodName = preg_replace('/[^a-zA-Z0-9_]/', '', $methodName);
     }
