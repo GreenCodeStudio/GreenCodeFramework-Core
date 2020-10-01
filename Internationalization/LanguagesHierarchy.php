@@ -17,14 +17,14 @@ class LanguagesHierarchy
 
     public static function ReadFromUser(): self
     {
-        $httpHeader = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+        $httpHeader = $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? 'en';
         $splitted = FunQuery::create(explode(',', $httpHeader))->map(fn($x) => explode(';', $x)[0])->toArray();
-        if(!empty($_COOKIE['lang'])) {
+        if (!empty($_COOKIE['lang'])) {
             $splitted = [$_COOKIE['lang'], ...$splitted];
         }
-        if(!empty($_GET['lang'])) {
+        if (!empty($_GET['lang'])) {
             $splitted = [$_GET['lang'], ...$splitted];
-            setcookie('lang', $_GET['lang'], time()+1000000000);
+            setcookie('lang', $_GET['lang'], time() + 1000000000);
         }
 
         return new LanguagesHierarchy($splitted);
@@ -33,6 +33,9 @@ class LanguagesHierarchy
     public function pickBest(array $available)
     {
         foreach ($this->langs as $lang) {
+            if (empty($lang)) {
+                continue;
+            }
             foreach ($available as $x) {
                 if ($lang == $x) return $x;
             }

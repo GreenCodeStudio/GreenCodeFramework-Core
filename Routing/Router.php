@@ -20,6 +20,7 @@ class Router
 {
     public static function routeHttp($url)
     {
+        Log::Request($url);
         $router = self::getHttpRouter($url);
         try {
             $router->url = $url;

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<root>
+    <node name="mainPage">
+        <value lang="pl">Strona główna</value>
+        <value lang="en">Main page</value>
+    </node>
+</root>

@@ -6,8 +6,12 @@ abstract class StandardController extends AbstractController
 {
 
     private $views = [];
-    private $breadcrumb = [['title' => 'Strona główna', 'url' => '/']];
+    private $breadcrumb;
 
+    public function __construct()
+    {
+        $this->breadcrumb = [['title' => t('Core.mainPage'), 'url' => '/']];
+    }
 
     public function postAction()
     {
