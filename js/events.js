@@ -5,7 +5,7 @@ export function setEvent(type, selector, callback, root = document) {
         root[eventsSymbol] = {};
     if (!root[eventsSymbol][type]) {
         root[eventsSymbol][type] = [];
-        document.addEventListener(type, e => {
+        root.addEventListener(type, e => {
             let elem = e.target;
             let callbacks = root[eventsSymbol][type];
             if (!callbacks) return;
