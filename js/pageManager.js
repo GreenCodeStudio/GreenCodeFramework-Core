@@ -98,6 +98,11 @@ export const pageManager = {
         if (this.currentLoadingSymbol != currentLoadingSymbol)//other request
             return;
 
+        if('ga' in window){//Google Analitycs
+            ga('set', 'page', url);
+            ga('send', 'pageview');
+        }
+
         if (options.ignoreHistory) {
             if (data.needFullReload)
                 document.location.reload();
