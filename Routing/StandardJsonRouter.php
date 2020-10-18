@@ -10,7 +10,7 @@ class StandardJsonRouter extends StandardRouter
     {
         ob_start();
         dump_render_html();
-        $this->controller->debugOutput.=ob_get_contents();
+        $this->controller->debugOutput .= ob_get_contents();
         ob_end_clean();
         echo json_encode([
             'views' => $this->controller->getViews(),
@@ -30,10 +30,12 @@ class StandardJsonRouter extends StandardRouter
         dump($ex);
 
         $this->prepareErrorController($ex, $responseCode);
-
+        if (!isset($this->controller->debugOutput)) {
+            $this->controller->debugOutput = "";
+        }
         ob_start();
         dump_render_html();
-        $this->controller->debugOutput.=ob_get_contents();
+        $this->controller->debugOutput .= ob_get_contents();
         ob_end_clean();
 
         echo json_encode([

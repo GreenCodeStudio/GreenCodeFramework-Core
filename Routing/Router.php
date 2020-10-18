@@ -272,7 +272,9 @@ class Router
         if (!method_exists($this->controller, $this->methodName)) {
             throw new NotFoundException();
         }
-
+        if (!isset($this->controller->initInfo)) {
+            $this->controller->initInfo = new \stdClass();
+        }
         $this->controller->initInfo->controllerName = $this->controllerName;
         $this->controller->initInfo->methodName = $this->methodName;
         $this->controller->initInfo->methodArguments = $this->args;
