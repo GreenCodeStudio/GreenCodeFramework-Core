@@ -4,6 +4,8 @@
 namespace Core\Routing;
 
 
+use Core\Log;
+
 class AsyncJobRouter extends Router
 {
     var $controllerType = 'AsyncJobs';

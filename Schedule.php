@@ -17,7 +17,7 @@ foreach ($jobs as $job) {
         fclose($pipes[1]);
         $return_value = proc_close($process);
         $returnedObj=json_decode($returned);
-        var_dump($returned);
+        echo($returned);
         var_dump($returnedObj);
     }
 }
