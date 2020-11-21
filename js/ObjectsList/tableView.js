@@ -10,6 +10,19 @@ export class TableView extends HTMLElement {
         for (let column of this.objectsList.columns) {
             let node = this.head.addChild('.column')
             node.addChild('span.name', {text: column.name});
+            if (column.sortName) {
+                node.classList.add('ableToSort');
+                node.dataset.sortName = column.sortName
+                node.onclick = () => {
+                    let sortName = column.sortName || x.dataset.value;
+                    if (this.objectsList.sort && this.objectsList.sort.col === column.sortName) {
+                        this.objectsList.sort.desc = !this.objectsList.sort.desc;
+                    } else {
+                        this.objectsList.sort = {col: column.sortName, desc: false};
+                    }
+                    this.objectsList.refresh();
+                }
+            }
         }
 
         this.body = this.addChild('.bodyContainer').addChild('table').addChild('tbody');
@@ -19,6 +32,8 @@ export class TableView extends HTMLElement {
 
     loadData(data) {
         this.body.children.removeAll();
+
+        this.refreshSortIndicators();
 
         for (let row of data.rows) {
             this.body.append(this.generateRow(row));
@@ -87,6 +102,11 @@ export class TableView extends HTMLElement {
         }
     }
 
+    refreshSortIndicators() {
+        this.head.querySelectorAll('[data-order]').forEach(x => delete x.dataset.order);
+        if (this.objectsList.sort)
+            this.head.querySelectorAll(`[data-sort-name="${this.objectsList.sort.col}"]`).forEach(x => x.dataset.order = this.objectsList.sort.desc ? 'desc' : 'asc');
+    }
 }
 
 customElements.define('table-view', TableView);
