@@ -4,4 +4,18 @@
         <value lang="pl">Strona główna</value>
         <value lang="en">Main page</value>
     </node>
+    <node name="objectList">
+        <node name="search">
+            <value lang="pl">Szukaj</value>
+            <value lang="en">Search</value>
+        </node>
+        <node name="paginationMode">
+            <value lang="pl">Tryb paginacji</value>
+            <value lang="en">Pagination mode</value>
+        </node>
+        <node name="scrollMode">
+            <value lang="pl">Tryb scrollowania</value>
+            <value lang="en">Scroll mode</value>
+        </node>
+    </node>
 </root>
