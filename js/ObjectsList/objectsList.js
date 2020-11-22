@@ -19,13 +19,21 @@ export class ObjectsList extends HTMLElement {
         this.dataById = new Map();
         this.initFoot();
         this.addEventListener('contextmenu', e => this.showGlobalContextMenu(e));
+        addEventListener('resize', e => this.resize());
         this.infiniteScrollEnabled = false;
+    }
+
+    refreshLimit() {
+        this.limit = this.insideView.calcMaxVisibleItems(this.clientHeight - this.foot.clientHeight - 2);
+        if (this.limit < 1) this.limit = 1;
+        this.start = Math.floor(Math.min(this.total, this.start) / this.limit) * this.limit;
     }
 
     async refresh() {
         if (!this.insideView)
             this.initInsideView();
 
+        this.refreshLimit();
         const refreshSymbol = Symbol();
         this.lastRefreshSymbol = refreshSymbol;
         let data = await this.datasource.get(this);
@@ -98,6 +106,14 @@ export class ObjectsList extends HTMLElement {
             onclick: () => this.infiniteScrollEnabled = true
         }];
         ContextMenu.openContextMenu(e, elements);
+    }
+
+    resize() {
+        let limit = this.limit;
+        this.refreshLimit();
+        if (limit != this.limit) {
+            this.refresh();
+        }
     }
 }
 

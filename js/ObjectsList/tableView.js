@@ -256,6 +256,9 @@ export class TableView extends HTMLElement {
         e.preventDefault();
     }
 
+    calcMaxVisibleItems(height) {
+        return Math.floor((height - this.head.clientHeight) / 41);
+    }
 }
 
 customElements.define('table-view', TableView);
