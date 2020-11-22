@@ -121,6 +121,7 @@ export class TableView extends HTMLElement {
     }
 
     contextMenu(tr, event) {
+        event.stopPropagation();
         if (!this.objectsList.selected.has(tr.dataset.row)) {
             this.objectsList.selected.clear();
             this.objectsList.selected.add(tr.dataset.row)
