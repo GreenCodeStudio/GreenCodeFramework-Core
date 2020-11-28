@@ -69,7 +69,7 @@ export class ObjectsList extends HTMLElement {
 
     initFoot() {
         this.foot = this.addChild('.foot');
-        let menuButton = this.foot.addChild('button.menuButton.icon-menu');
+        let menuButton = this.foot.addChild('button.menuButton span.icon-settings');
         menuButton.onclick = e => this.showGlobalContextMenu(e);
         this.pagination = new PaginationButtons();
         this.pagination.onpageclick = (page) => {

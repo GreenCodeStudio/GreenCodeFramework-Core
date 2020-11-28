@@ -46,6 +46,7 @@ export class TableView extends HTMLElement {
 
     generateRow(data) {
         const tr = document.createElement('tr');
+        tr.draggable=true;
         tr.addChild('td.icon');
         for (let column of this.objectsList.columns) {
             let td = tr.addChild('td');
@@ -72,6 +73,7 @@ export class TableView extends HTMLElement {
         tr.ondblclick = this.trOnDblClick.bind(this, data, tr);
         tr.onkeydown = this.trOnKeyDown.bind(this, data, tr);
         tr.oncopy = this.trOnCopy.bind(this, data, tr);
+        tr.ondragstart = this.trOnDragStart.bind(this, data, tr);
 
         return tr;
     }
@@ -250,11 +252,20 @@ export class TableView extends HTMLElement {
         }
     }
 
-    trOnCopy(row, oeyginalTr, e) {
-        const trs = Array.from(this.table.tBodies).flatMap(tbody => Array.from(tbody.children)).filter(tr => this.objectsList.selected.has(tr.dataset.row));
-        e.clipboardData.setData('text/html', '<table>' + trs.map(tr => tr.outerHTML).join('') + '</table>');
-        e.clipboardData.setData('text/plain', trs.map(tr => Array.from(tr.children).map(x => x.textContent.replace(/\r\n/gm, ' ')).join("\t")).join("\r\n"));
+    trOnCopy(row, oryginalTr, e) {
+        this.fillDataTransfer(e.clipboardData);
         e.preventDefault();
+    }
+
+    trOnDragStart(row, oryginalTr, e) {
+        this.fillDataTransfer(e.dataTransfer);
+    }
+
+    fillDataTransfer(dataTransfer) {
+        const trs = Array.from(this.body.children).filter(tr => this.objectsList.selected.has(tr.dataset.row));
+        dataTransfer.setData('text/html', '<table>' + trs.map(tr => tr.outerHTML).join('') + '</table>');
+        dataTransfer.setData('text/plain', trs.map(tr => Array.from(tr.children).map(x => x.textContent.replace(/\r\n/gm, ' ')).join("\t")).join("\r\n"));
+
     }
 
     calcMaxVisibleItems(height) {

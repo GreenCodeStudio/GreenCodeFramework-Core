@@ -69,7 +69,7 @@ export class ContextMenu {
         if (isBottom)
             this.html.style.top = `${event.clientY}px`;
         else
-            this.html.style.botom = `${Math.min(innerHeight - event.clientY + 1, innerHeight - this.html.offsetHeight)}px`;
+            this.html.style.bottom = `${Math.min(innerHeight - event.clientY + 1, innerHeight - this.html.offsetHeight)}px`;
     }
 
     setPositionToParent(parent) {
@@ -93,7 +93,7 @@ export class ContextMenu {
         if (isBottom)
             this.html.style.top = `${parentBoundingBox.top}px`;
         else
-            this.html.style.botom = `${Math.min(innerHeight - parentBoundingBox.bottom, innerHeight - this.html.offsetHeight)}px`;
+            this.html.style.bottom = `${Math.min(innerHeight - parentBoundingBox.bottom, innerHeight - this.html.offsetHeight)}px`;
     }
 
     destroy() {
