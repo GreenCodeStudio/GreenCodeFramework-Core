@@ -122,7 +122,7 @@ export class TableView extends HTMLElement {
         let needed = [{base: 30, grow: 0}];
 
         for (let column of this.objectsList.columns) {
-            needed.push({base: column.width || 10, grow: column.widthGrow || 1});
+            needed.push({base: column.width || 10, grow: typeof (column.widthGrow) == "number" ? column.widthGrow : 1});
         }
         let actionWidth = Math.ceil(Array.from(this.querySelectorAll('.td.actions')).map(x => {
             return x.lastElementChild.getBoundingClientRect().right - x.getBoundingClientRect().left + parseFloat(getComputedStyle(x).paddingRight);

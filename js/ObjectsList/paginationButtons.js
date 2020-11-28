@@ -45,7 +45,7 @@ export class PaginationButtons extends HTMLElement {
             boxes.push(0);
             boxes.push(null);
             for (
-                let i = pages - Math.floor((boxesCount - 1) / 2) - 2;
+                let i = this.totalPages - Math.floor((boxesCount - 1) / 2) - 2;
                 i < this.totalPages;
                 i++
             ) {
@@ -55,8 +55,8 @@ export class PaginationButtons extends HTMLElement {
             boxes.push(0);
             boxes.push(null);
             for (
-                let i = this.page - Math.floor((boxesCount - 5) / 2);
-                i <= this.page + Math.ceil((boxesCount - 5) / 2);
+                let i = this.currentPage - Math.floor((boxesCount - 5) / 2);
+                i <= this.currentPage + Math.ceil((boxesCount - 5) / 2);
                 i++
             ) {
                 boxes.push(i);
