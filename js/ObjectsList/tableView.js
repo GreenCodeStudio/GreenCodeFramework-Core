@@ -28,31 +28,55 @@ export class TableView extends HTMLElement {
             }
         }
 
-        this.body = this.addChild('.bodyContainer').addChild('table').addChild('tbody');
+        this.body = this.addChild('.bodyContainer').addChild('.body');
         this.setColumnsWidths();
         addEventListener('resize', this.setColumnsWidths.bind(this))
     }
 
     loadData(data) {
-        this.body.children.removeAll();
 
         this.refreshSortIndicators();
-
+        let top = 0;
+        let isOdd = true;
+        let newChildren = [];
         for (let row of data.rows) {
-            this.body.append(this.generateRow(row));
+            let tr = this.generateRow(row);
+            tr.style.top = `${top}px`;
+            tr.classList.toggle('odd', isOdd)
+            tr.classList.toggle('even', !isOdd)
+            newChildren.push(tr);
+            top += 41;
+            isOdd = !isOdd;
+        }
+        let oldChildren = Array.from(this.body.children);
+        for (let tr of oldChildren.filter(tr => !newChildren.includes(tr))) {
+            tr.remove();
+        }
+
+        for (let tr of newChildren.filter(tr => !oldChildren.includes(tr))) {
+            this.body.appendChild(tr);
         }
         this.setColumnsWidths();
     }
 
     generateRow(data) {
-        const tr = document.createElement('tr');
-        tr.draggable=true;
-        tr.addChild('td.icon');
+        let tr = this.body.querySelector(`.tr[data-row="${data.id}"]`);
+        if (!tr) {
+            tr = document.create('.tr');
+            tr.draggable = true;
+        }
+        this.fillRowContent(tr, data);
+        return tr;
+    }
+
+    fillRowContent(tr, data) {
+        tr.children.removeAll();
+        tr.addChild('.td.icon');
         for (let column of this.objectsList.columns) {
-            let td = tr.addChild('td');
+            let td = tr.addChild('.td');
             td.append(column.content(data));
         }
-        let actionsTd = tr.addChild('td.actions');
+        let actionsTd = tr.addChild('.td.actions');
         let actions = this.objectsList.generateActions([data], 'row');
         for (let action of actions) {
             let actionButton = actionsTd.addChild(action.href ? 'a.button' : 'button', {
@@ -74,15 +98,13 @@ export class TableView extends HTMLElement {
         tr.onkeydown = this.trOnKeyDown.bind(this, data, tr);
         tr.oncopy = this.trOnCopy.bind(this, data, tr);
         tr.ondragstart = this.trOnDragStart.bind(this, data, tr);
-
-        return tr;
     }
 
     setColumnsWidths() {
         const widths = this.calculateColumnsWidths();
-        if (this.body.firstChild) {
+        for (let tr of this.body.children) {
             for (let i = 0; i < widths.length; i++) {
-                this.body.firstChild.children[i].style.width = widths[i] + 'px';
+                tr.children[i].style.width = widths[i] + 'px';
             }
         }
         let sum = 0;
@@ -102,11 +124,10 @@ export class TableView extends HTMLElement {
         for (let column of this.objectsList.columns) {
             needed.push({base: column.width || 10, grow: column.widthGrow || 1});
         }
-        let actionWidth = Math.ceil(Array.from(this.querySelectorAll('td.actions')).map(x => {
+        let actionWidth = Math.ceil(Array.from(this.querySelectorAll('.td.actions')).map(x => {
             return x.lastElementChild.getBoundingClientRect().right - x.getBoundingClientRect().left + parseFloat(getComputedStyle(x).paddingRight);
         }).max());
         needed.push({base: actionWidth, grow: 0});
-
         let availableToGrow = this.clientWidth - needed.sum(x => x.base);
         let sumGrow = needed.sum(x => x.grow);
         if (availableToGrow > 0 && sumGrow > 0) {
