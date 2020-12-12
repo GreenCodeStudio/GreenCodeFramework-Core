@@ -17,7 +17,10 @@ export const pageManager = {
         }
     },
     async initController(initInfo) {
-        let controllerGroup = this._constrollers[initInfo.controllerName];
+        if(!initInfo.controllerName)
+            return null;
+
+        let controllerGroup = this._constrollers[initInfo.controllerName.toLowerCase()];
         if (!controllerGroup)
             return null;
 
@@ -166,6 +169,7 @@ export const pageManager = {
     },
     _updateBreadcrumb(breadcrumb) {
         let existingBreadcrumb = document.querySelector('.breadcrumb ul');
+        if(!existingBreadcrumb) return;
         while (existingBreadcrumb.children.length > breadcrumb.length) {
             existingBreadcrumb.lastChild.remove();
         }
@@ -189,7 +193,7 @@ export const pageManager = {
     }
     ,
     registerController(name, controller) {
-        this._constrollers[name] = controller;
+        this._constrollers[name.toLowerCase()] = controller;
     }
 };
 window.dbgPageManager = pageManager;

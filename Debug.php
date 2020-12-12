@@ -1,6 +1,10 @@
 <?php
 $debugType = 'text';
 $debugImmediate = true;
+/**
+ * @param string $type
+ * @param bool $immediate
+ */
 function setDumpDebugType(string $type, bool $immediate)
 {
     global $debugType;
@@ -10,7 +14,10 @@ function setDumpDebugType(string $type, bool $immediate)
     if ($immediate)
         dump_render();
 }
-
+function getDumpDebugType(){
+    global $debugType;
+    return $debugType;
+}
 function dump()
 {
     $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
