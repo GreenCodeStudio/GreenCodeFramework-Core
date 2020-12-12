@@ -23,6 +23,7 @@ export class TableView extends HTMLElement {
                     } else {
                         this.objectsList.sort = {col: column.sortName, desc: false};
                     }
+                    this.objectsList.start = 0;
                     this.objectsList.refresh();
                 }
             }
@@ -232,9 +233,14 @@ export class TableView extends HTMLElement {
     trOnKeyDown(row, tr, e) {
         console.log('trOnKeyDown')
         if (e.key === 'Enter') {
-            const defaultButton = tr.querySelector('.button.default, .button.default');
-            if (defaultButton)
-                defaultButton.click();
+            let action = this.objectsList.generateActions(this.objectsList.getSelectedData(), 'enter').find(x => x.main);
+            if (action) {
+                if (action.command) {
+                    action.command();
+                } else if (action.href) {
+                    pageManager.goto(action.href)
+                }
+            }
         } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
             const rowsIds = this.objectsList.currentRows.map(x => x.id);
             let index = rowsIds.indexOf(this.objectsList.selectedMain);
@@ -284,9 +290,22 @@ export class TableView extends HTMLElement {
 
     fillDataTransfer(dataTransfer) {
         const trs = Array.from(this.body.children).filter(tr => this.objectsList.selected.has(tr.dataset.row));
-        dataTransfer.setData('text/html', '<table>' + trs.map(tr => tr.outerHTML).join('') + '</table>');
+        dataTransfer.setData('text/html', this.generateTableHtml(trs));
         dataTransfer.setData('text/plain', trs.map(tr => Array.from(tr.children).map(x => x.textContent.replace(/\r\n/gm, ' ')).join("\t")).join("\r\n"));
+        let action = this.objectsList.generateActions(this.objectsList.getSelectedData(), 'dataTransfer').find(x => x.main);
+        if (action && action.href) {
+            dataTransfer.setData('text/uri-list', new URL(action.href, document.baseURI));
+        }
+    }
 
+    generateTableHtml(trs) {
+        const thead = '<thead><tr>' + Array.from(this.head.querySelectorAll('.column')).map(x => '<th>' + x.innerHTML + '</th>').join('') + '</tr></thead>';
+        const tbody = '<tbody>' + trs.map(tr => {
+            return '<tr>' + Array.from(tr.children).slice(1,-1).map(td => {
+                return '<td>' + td.innerHTML + '</td>';
+            }).join('') + '</tr>';
+        }).join('') + '</tbody>'
+        return '<table>' + thead + tbody + '</table>';
     }
 
     calcMaxVisibleItems(height) {

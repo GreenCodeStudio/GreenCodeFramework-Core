@@ -84,7 +84,10 @@ export class ObjectsList extends HTMLElement {
             type: 'search',
             placeholder: t('objectList.search')
         });
-        searchInput.oninput = e => this.refresh();
+        searchInput.oninput = e => {
+            this.start = 0;
+            this.refresh();
+        }
 
     }
 
