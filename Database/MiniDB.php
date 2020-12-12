@@ -4,22 +4,16 @@
 namespace Core\Database;
 
 
-use Core\Database\MiniDB\FileMiniDB;
-
 class MiniDB
 {
-    private static $instance;
+    private static $redis;
 
     public static function GetConnection()
     {
-        if(static::$instance===null) {
-            if(strtolower($_ENV['miniDB'])==='redis') {
-                static::$instance = new \Redis();
-                static::$instance->connect('127.0.0.1');
-            }else{
-                static::$instance = new FileMiniDB();
-            }
+        if(static::$redis===null) {
+            static::$redis = new \Redis();
+            static::$redis->connect('127.0.0.1');
         }
-        return static::$instance;
+        return static::$redis;
     }
 }
