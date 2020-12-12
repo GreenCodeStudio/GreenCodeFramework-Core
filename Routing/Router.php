@@ -21,6 +21,7 @@ class Router
     public static function routeHttp($url)
     {
         Log::Request($url);
+        setDumpDebugType('text', false);
         $router = self::getHttpRouter($url);
         try {
             $router->url = $url;
@@ -41,6 +42,7 @@ class Router
         } else if (substr($url, 0, 6) === '/ajax/') {
             return new AjaxRouter();
         } else {
+            setDumpDebugType('text', false);
             if (isset($_SERVER['HTTP_X_JSON'])) {
                 return new StandardJsonRouter();
             } else {

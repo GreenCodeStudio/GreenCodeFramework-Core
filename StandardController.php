@@ -48,8 +48,8 @@ abstract class StandardController extends AbstractController
     protected function addView(string $module, string $name, $data = null, string $group = 'main')
     {
         $debugType=getDumpDebugType();
-        setDumpDebugType('html', true);
         ob_start();
+        setDumpDebugType('html', true);
         try {
             require __DIR__.'/../'.$module.'/Views/'.$name.'.php';
             $this->views[$group][] = ob_get_contents();

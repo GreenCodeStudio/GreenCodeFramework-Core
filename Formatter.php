@@ -15,11 +15,11 @@ class Formatter
         }
         $today = new DateTime('today');
         $daysDiff = $datetime->diff($today);
-        if ($datetime > $today && $daysDiff->d == 0)
+        if ($datetime > $today && $daysDiff->days == 0)
             $date = 'dziś';
-        else if ($datetime > $today && $daysDiff->d == 1)
+        else if ($datetime > $today && $daysDiff->days == 1)
             $date = 'jutro';
-        else if ($datetime <=> $today && $daysDiff->d == 0)
+        else if ($datetime <=> $today && $daysDiff->days == 0)
             $date = 'wczoraj';
         else
             $date = $datetime->format('d.m.Y');
