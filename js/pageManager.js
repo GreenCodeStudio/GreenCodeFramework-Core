@@ -1,9 +1,14 @@
 import "prototype-extensions";
 import {ReplaceContentHtml} from "./replaceContent";
+import {Permissions} from "./permissions";
 
 export const pageManager = {
     _constrollers: {},
     initPage(initInfo, page, firstInit = false) {
+        if (initInfo.permissions) {
+            Permissions.data = initInfo.permissions;
+        }
+
         if (firstInit && initInfo.controllerName == 'Cache' && initInfo.methodName == 'offline') {
             this.goto(document.location.href, {ignoreHistory: true});
         } else {
@@ -77,7 +82,7 @@ export const pageManager = {
         return new Promise(resolve => setTimeout(resolve, 200));
     },
     isUrlLocal(url) {
-        return new URL(url,document.location).origin === window.location.origin;
+        return new URL(url, document.location).origin === window.location.origin;
     },
     async goto(url, options = {}) {
         if (!this.isUrlLocal(url)) {
@@ -101,7 +106,7 @@ export const pageManager = {
         if (this.currentLoadingSymbol != currentLoadingSymbol)//other request
             return;
 
-        if('ga' in window){//Google Analitycs
+        if ('ga' in window) {//Google Analitycs
             ga('set', 'page', url);
             ga('send', 'pageview');
         }
