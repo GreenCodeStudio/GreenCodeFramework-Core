@@ -1,7 +1,7 @@
 <?php
 
 
-namespace CommonBase;
+namespace Core;
 
 
 use DateTime;
