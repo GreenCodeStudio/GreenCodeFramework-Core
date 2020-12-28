@@ -81,9 +81,14 @@ export class TableView extends HTMLElement {
         let actions = this.objectsList.generateActions([data], 'row');
         for (let action of actions) {
             let actionButton = actionsTd.addChild(action.href ? 'a.button' : 'button', {
-                href: action.href,
                 title: action.name
             });
+            if (action.href) {
+                actionButton.href = action.href;
+            }
+            if (action.command) {
+                actionButton.onclick = action.command;
+            }
             if (action.icon) {
                 actionButton.addChild('span', {classList: [action.icon]});
             } else {
@@ -126,7 +131,10 @@ export class TableView extends HTMLElement {
             needed.push({base: column.width || 10, grow: typeof (column.widthGrow) == "number" ? column.widthGrow : 1});
         }
         let actionWidth = Math.ceil(Array.from(this.querySelectorAll('.td.actions')).map(x => {
-            return x.lastElementChild.getBoundingClientRect().right - x.getBoundingClientRect().left + parseFloat(getComputedStyle(x).paddingRight);
+            if (x.lastElementChild)
+                return x.lastElementChild.getBoundingClientRect().right - x.getBoundingClientRect().left + parseFloat(getComputedStyle(x).paddingRight);
+            else
+                return 0;
         }).max());
         needed.push({base: actionWidth, grow: 0});
         let availableToGrow = this.clientWidth - needed.sum(x => x.base);
@@ -301,7 +309,7 @@ export class TableView extends HTMLElement {
     generateTableHtml(trs) {
         const thead = '<thead><tr>' + Array.from(this.head.querySelectorAll('.column')).map(x => '<th>' + x.innerHTML + '</th>').join('') + '</tr></thead>';
         const tbody = '<tbody>' + trs.map(tr => {
-            return '<tr>' + Array.from(tr.children).slice(1,-1).map(td => {
+            return '<tr>' + Array.from(tr.children).slice(1, -1).map(td => {
                 return '<td>' + td.innerHTML + '</td>';
             }).join('') + '</tr>';
         }).join('') + '</tbody>'
