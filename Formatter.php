@@ -8,7 +8,7 @@ use DateTime;
 
 class Formatter
 {
-    public static function formatDate($datetime)
+    public static function formatDate($datetime, bool $absolute=false)
     {
         if (!$datetime instanceof DateTime) {
             $datetime = new DateTime(($datetime));
@@ -27,7 +27,7 @@ class Formatter
         return "$date $time";
     }
 
-    public static function formatDateHtml($datetime){
+    public static function formatDateHtml($datetime, bool $absolute=false){
         return self::formatDate($datetime);
     }
 }
