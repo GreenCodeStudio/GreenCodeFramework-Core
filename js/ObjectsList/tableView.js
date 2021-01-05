@@ -32,6 +32,7 @@ export class TableView extends HTMLElement {
         this.body = this.addChild('.bodyContainer').addChild('.body');
         this.setColumnsWidths();
         addEventListener('resize', this.setColumnsWidths.bind(this))
+        addEventListener('copy', this.onCopy.bind(this));
     }
 
     loadData(data) {
@@ -102,7 +103,6 @@ export class TableView extends HTMLElement {
         tr.onclick = this.trOnClick.bind(this, data);
         tr.ondblclick = this.trOnDblClick.bind(this, data, tr);
         tr.onkeydown = this.trOnKeyDown.bind(this, data, tr);
-        tr.oncopy = this.trOnCopy.bind(this, data, tr);
         tr.ondragstart = this.trOnDragStart.bind(this, data, tr);
     }
 
@@ -287,9 +287,11 @@ export class TableView extends HTMLElement {
         }
     }
 
-    trOnCopy(row, oryginalTr, e) {
-        this.fillDataTransfer(e.clipboardData);
-        e.preventDefault();
+    onCopy(e) {
+        if(document.querySelector(':focus')?.findParent(x=>x===this)){
+            this.fillDataTransfer(e.clipboardData);
+            e.preventDefault();
+        }
     }
 
     trOnDragStart(row, oryginalTr, e) {
@@ -299,7 +301,7 @@ export class TableView extends HTMLElement {
     fillDataTransfer(dataTransfer) {
         const trs = Array.from(this.body.children).filter(tr => this.objectsList.selected.has(tr.dataset.row));
         dataTransfer.setData('text/html', this.generateTableHtml(trs));
-        dataTransfer.setData('text/plain', trs.map(tr => Array.from(tr.children).map(x => x.textContent.replace(/\r\n/gm, ' ')).join("\t")).join("\r\n"));
+        dataTransfer.setData('text/plain', this.generateTableTextPlain(trs));
         let action = this.objectsList.generateActions(this.objectsList.getSelectedData(), 'dataTransfer').find(x => x.main);
         if (action && action.href) {
             dataTransfer.setData('text/uri-list', new URL(action.href, document.baseURI));
@@ -314,6 +316,11 @@ export class TableView extends HTMLElement {
             }).join('') + '</tr>';
         }).join('') + '</tbody>'
         return '<table>' + thead + tbody + '</table>';
+    }
+    generateTableTextPlain(trs) {
+        const head=Array.from(this.head.querySelectorAll('.column')).map(x => x.textContent.replace(/\r\n/gm, ' ')).join("\t")
+        const body=trs.map(tr => Array.from(tr.children).map(x => x.textContent.replace(/\r\n/gm, ' ')).join("\t")).join("\r\n")
+        return head+"\r\n"+body;
     }
 
     calcMaxVisibleItems(height) {

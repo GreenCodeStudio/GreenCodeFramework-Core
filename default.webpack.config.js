@@ -31,7 +31,7 @@ module.exports = {
             }]
         }, {
             test: /i18n\.xml$/,
-            use: ["./modules/Core/js/Internationalization/I18nWebpackLoader"]
+            use: ["./modules/Core/js/Internationalization/i18nWebpackLoader"]
         }]
     },
     plugins: [new MiniCssExtractPlugin()],
