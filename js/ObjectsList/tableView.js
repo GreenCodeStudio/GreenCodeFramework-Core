@@ -160,12 +160,20 @@ export class TableView extends HTMLElement {
             this.objectsList.selectedMain = tr.dataset.row;
             this.refreshSelectedClasses();
         }
-        let actions = this.objectsList.generateActions(this.objectsList.getSelectedData(), 'contextMenu');
+        const rows = this.objectsList.getSelectedData();
+        let actions = this.objectsList.generateActions(rows, 'contextMenu');
         let elements = actions.map(action => ({
             text: action.name,
             icon: action.icon,
             onclick: action.command || (() => pageManager.goto(action.href))
         }));
+        elements.push({
+            text: 'copy',
+            icon: 'icon-copy',
+            onclick: () => {
+                this.forceCopy(rows);
+            }
+        })
         ContextMenu.openContextMenu(event, elements);
     }
 
@@ -288,18 +296,21 @@ export class TableView extends HTMLElement {
     }
 
     onCopy(e) {
-        if(document.querySelector(':focus')?.findParent(x=>x===this)){
-            this.fillDataTransfer(e.clipboardData);
+        if (this.copyForced) {
+            this.fillDataTransfer(e.clipboardData, this.copyForced);
+            e.preventDefault();
+        } else if (document.querySelector(':focus')?.findParent(x => x === this)) {
+            this.fillDataTransfer(e.clipboardData, this.objectsList.selected);
             e.preventDefault();
         }
     }
 
     trOnDragStart(row, oryginalTr, e) {
-        this.fillDataTransfer(e.dataTransfer);
+        this.fillDataTransfer(e.dataTransfer, this.objectsList.selected);
     }
 
-    fillDataTransfer(dataTransfer) {
-        const trs = Array.from(this.body.children).filter(tr => this.objectsList.selected.has(tr.dataset.row));
+    fillDataTransfer(dataTransfer, ids) {
+        const trs = Array.from(this.body.children).filter(tr => ids.has(tr.dataset.row));
         dataTransfer.setData('text/html', this.generateTableHtml(trs));
         dataTransfer.setData('text/plain', this.generateTableTextPlain(trs));
         let action = this.objectsList.generateActions(this.objectsList.getSelectedData(), 'dataTransfer').find(x => x.main);
@@ -317,14 +328,21 @@ export class TableView extends HTMLElement {
         }).join('') + '</tbody>'
         return '<table>' + thead + tbody + '</table>';
     }
+
     generateTableTextPlain(trs) {
-        const head=Array.from(this.head.querySelectorAll('.column')).map(x => x.textContent.replace(/\r\n/gm, ' ')).join("\t")
-        const body=trs.map(tr => Array.from(tr.children).map(x => x.textContent.replace(/\r\n/gm, ' ')).join("\t")).join("\r\n")
-        return head+"\r\n"+body;
+        const head = Array.from(this.head.querySelectorAll('.column')).map(x => x.textContent.replace(/\r\n/gm, ' ')).join("\t")
+        const body = trs.map(tr => Array.from(tr.children).map(x => x.textContent.replace(/\r\n/gm, ' ')).join("\t")).join("\r\n")
+        return head + "\r\n" + body;
     }
 
     calcMaxVisibleItems(height) {
         return Math.floor((height - this.head.clientHeight) / 41);
+    }
+
+    forceCopy(rows) {
+        this.copyForced = new Set(rows.map(x => x.id));
+        document.execCommand("copy");
+        setTimeout(() => this.copyForced = null, 100);
     }
 }
 
