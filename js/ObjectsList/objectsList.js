@@ -26,10 +26,16 @@ export class ObjectsList extends HTMLElement {
     refreshLimit() {
         this.limit = this.insideView.calcMaxVisibleItems(this.clientHeight - this.foot.clientHeight - 2);
         if (this.limit < 1) this.limit = 1;
-        this.start = Math.floor(Math.min(this.total, this.start) / this.limit) * this.limit;
+        if (this.infiniteScrollEnabled) {
+            this.limit = Math.ceil(this.limit / 20) * 20 + 40;
+        } else {
+            this.start = Math.floor(Math.min(this.total, this.start) / this.limit) * this.limit;
+        }
     }
 
     async refresh() {
+        this.classList.toggle('infiniteScrollEnabled', this.infiniteScrollEnabled);
+
         if (!this.insideView)
             this.initInsideView();
 
@@ -41,7 +47,7 @@ export class ObjectsList extends HTMLElement {
             this.currentRows = data.rows;
             this.fillDataById(data.rows);
             this.total = data.total;
-            this.insideView.loadData(data);
+            this.insideView.loadData(data, this.start, this.limit, this.infiniteScrollEnabled);
             this.pagination.currentPage = Math.floor(this.start / this.limit);
             this.pagination.totalPages = Math.ceil(this.total / this.limit);
             this.pagination.render();
@@ -51,6 +57,13 @@ export class ObjectsList extends HTMLElement {
     initInsideView() {
         this.insideView = new TableView(this);
         this.insertBefore(this.insideView, this.foot);
+        this.insideView.onPaginationChanged = (start, limit) => {
+            if (this.start != start) {
+                this.start = start;
+                //this.limit=limit;
+                this.refresh();
+            }
+        }
     }
 
     fillDataById(rows) {
@@ -102,11 +115,17 @@ export class ObjectsList extends HTMLElement {
         let elements = [{
             text: t('objectList.paginationMode'),
             icon: 'icon-pagination',
-            onclick: () => this.infiniteScrollEnabled = false
+            onclick: () => {
+                this.infiniteScrollEnabled = false;
+                this.refresh();
+            }
         }, {
             text: t('objectList.scrollMode'),
             icon: 'icon-scroll',
-            onclick: () => this.infiniteScrollEnabled = true
+            onclick: () => {
+                this.infiniteScrollEnabled = true;
+                this.refresh();
+            }
         }];
         ContextMenu.openContextMenu(e, elements);
     }

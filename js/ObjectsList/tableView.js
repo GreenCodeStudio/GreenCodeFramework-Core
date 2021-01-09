@@ -33,13 +33,18 @@ export class TableView extends HTMLElement {
         this.setColumnsWidths();
         addEventListener('resize', this.setColumnsWidths.bind(this))
         addEventListener('copy', this.onCopy.bind(this));
+        this.addEventListener('scroll', this.onScroll.bind(this));
     }
 
-    loadData(data) {
-
+    loadData(data, start, limit, infiniteScrollEnabled) {
+        this.style.setProperty('--height', (data.total * 41) + 'px');
         this.refreshSortIndicators();
         let top = 0;
         let isOdd = true;
+        if (infiniteScrollEnabled) {
+            top = 41 * start;
+            isOdd = start % 2 == 0;
+        }
         let newChildren = [];
         for (let row of data.rows) {
             let tr = this.generateRow(row);
@@ -343,6 +348,15 @@ export class TableView extends HTMLElement {
         this.copyForced = new Set(rows.map(x => x.id));
         document.execCommand("copy");
         setTimeout(() => this.copyForced = null, 100);
+    }
+    onScroll(e){
+        if(this.onPaginationChanged){
+            let start=Math.round(this.scrollTop/41);
+            let passedStart=Math.floor(start/20)*20 -20;
+            if(passedStart<0)
+                passedStart=0;
+            this.onPaginationChanged(passedStart);
+        }
     }
 }
 

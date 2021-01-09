@@ -33,7 +33,7 @@ addEventListener('error', e => {
         error: e.error,
         stack: (new Error()).stack
     };
-    Ajax.Log.addFrontError(obj);
+    Ajax.Log.addFrontError(obj).catch(()=>{});
     modal("Wystąpił błąd", "error")
 });
 addEventListener('unhandledrejection', e=> {
@@ -41,7 +41,7 @@ addEventListener('unhandledrejection', e=> {
         message: e.reason.message,
         stack: e.reason.stack
     };
-    Ajax.Log.addFrontError(obj);
+    Ajax.Log.addFrontError(obj).catch(()=>{});
     modal("Wystąpił błąd", "error")
 });
 window.dbgAjax = Ajax;
