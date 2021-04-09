@@ -14,7 +14,7 @@ export class ContextMenu {
     }
 
     generateElementHtml(element) {
-        const elementHtml = document.create('li.element', {tabIndex:0});
+        const elementHtml = document.create('li.element', {tabIndex: 0});
         if (element.submenu) {
             elementHtml.classList.add('hasSubmenu');
         }
@@ -29,8 +29,19 @@ export class ContextMenu {
                 element.onclick.call(elementHtml, e);
                 this.destroy()
             };
+            elementHtml.onkeydown = e => {
+                if (e.key == 'Enter') {
+                    element.onclick.call(elementHtml, e);
+                    this.destroy()
+                } else if (e.key == 'ArrowDown') {
+                    (elementHtml.nextElementSibling ?? elementHtml.parentNode.firstElementChild).focus();
+                } else if (e.key == 'ArrowUp') {
+                    (elementHtml.previousElementSibling ?? elementHtml.parentNode.lastElementChild).focus();
+                }
+            };
         }
         elementHtml.onmouseenter = e => {
+            elementHtml.focus();
             if (this.submenu) {
                 this.submenu.destroy();
                 this.submenu = null;

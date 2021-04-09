@@ -285,7 +285,7 @@ function Start-WebSocketServer
 }
 function Test-Requirements
 {
-    $isGood = true;
+    $isGood = $true;
     try
     {
 

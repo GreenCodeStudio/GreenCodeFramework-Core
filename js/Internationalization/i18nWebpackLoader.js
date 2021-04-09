@@ -11,7 +11,7 @@ import {LanguagesHierarchy} from "../Core/js/Internationalization/languagesHiera
 console.log(I18nNode);
 export const node = ${xmlToNode(doc.documentElement)};
 export const translator=new Translator(LanguagesHierarchy.default, node.node);
-export function t(q){return translator.translate(q).toString();}
+export function t(q){var x=translator.translate(q);return x?x.toString():'';}
 `;
 }
 

@@ -28,7 +28,7 @@ export class I18nNode {
     }
 
     getValue(languageHierarchy) {
-        let bestLang = languageHierarchy.pickBest(this._values.keys());
+        let bestLang = languageHierarchy.pickBest(Array.from(this._values.keys()));
         return this._values.get(bestLang);
     }
 }
