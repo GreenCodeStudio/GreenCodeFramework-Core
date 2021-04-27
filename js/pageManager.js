@@ -18,7 +18,7 @@ export const pageManager = {
                     page.controller = new c(page, initInfo.data);
                 }
             });
-            this._loadedEvent(page, initInfo.data, initInfo.controllerName, initInfo.methodName);
+            this._loadedEvent(page, initInfo.data, initInfo.controllerName.toLowerCase(), initInfo.methodName.toLowerCase());
         }
     },
     async initController(initInfo) {
@@ -34,8 +34,8 @@ export const pageManager = {
         if (controllerGroup.then)
             controllerGroup = await controllerGroup;
 
-        if (controllerGroup[initInfo.methodName])
-            return controllerGroup[initInfo.methodName];
+        if (controllerGroup[initInfo.methodName.toLowerCase()])
+            return controllerGroup[initInfo.methodName.toLowerCase()];
         else if (controllerGroup.default)
             return controllerGroup.default
         else
