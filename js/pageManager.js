@@ -22,7 +22,7 @@ export const pageManager = {
         }
     },
     async initController(initInfo) {
-        if(!initInfo.controllerName)
+        if (!initInfo.controllerName)
             return null;
 
         let controllerGroup = this._constrollers[initInfo.controllerName.toLowerCase()];
@@ -110,6 +110,13 @@ export const pageManager = {
             ga('set', 'page', url);
             ga('send', 'pageview');
         }
+        if ('gtag' in window) {
+            let clearUrl=url;
+            if(clearUrl.startsWith(document.location.origin)) {
+                clearUrl = clearUrl.substr(document.location.origin.length)
+            }
+            gtag('config', window.GA_MEASUREMENT_ID, {'page_path': clearUrl});
+        }
 
         if (options.ignoreHistory) {
             if (data.needFullReload)
@@ -174,7 +181,7 @@ export const pageManager = {
     },
     _updateBreadcrumb(breadcrumb) {
         let existingBreadcrumb = document.querySelector('.breadcrumb ul');
-        if(!existingBreadcrumb) return;
+        if (!existingBreadcrumb) return;
         while (existingBreadcrumb.children.length > breadcrumb.length) {
             existingBreadcrumb.lastChild.remove();
         }
