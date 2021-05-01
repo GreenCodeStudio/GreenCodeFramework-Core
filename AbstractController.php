@@ -33,7 +33,7 @@ abstract class AbstractController
         return ($_ENV['debug'] ?? '') == 'true';
     }
 
-    public function hasPermission()
+    public function hasPermission(string $methodName)
     {
         return true;
     }
