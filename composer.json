@@ -5,7 +5,7 @@
         "phpmailer/phpmailer": "^6.0",
         "cboden/ratchet": "^0.4.1",
         "textalk/websocket": "^1.2",
-        "php-amqplib/php-amqplib": "^2.9",
+        "php-amqplib/php-amqplib": "^2.12.2",
         "vlucas/phpdotenv": "^4.1.0",
         "mkrawczyk/funquery": "^1.1.0"
     },
