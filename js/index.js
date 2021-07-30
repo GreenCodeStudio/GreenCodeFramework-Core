@@ -20,7 +20,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
     }
 });
 setTimeout(() => pageManager.initPage(window.controllerInitInfo, document.querySelector('.page'), true));
-setEvent('click', 'a', function (e) {
+setEvent('click', 'a:not(.nativeLink)', function (e) {
     e.preventDefault();
     pageManager.goto(this.href);
 });
