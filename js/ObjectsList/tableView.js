@@ -23,7 +23,9 @@ export class TableView extends HTMLElement {
                     } else {
                         this.objectsList.sort = {col: column.sortName, desc: false};
                     }
-                    this.objectsList.start = 0;
+                    if (!this.objectsList.infiniteScrollEnabled) {
+                        this.objectsList.start = 0;
+                    }
                     this.objectsList.refresh();
                 }
             }
@@ -349,12 +351,13 @@ export class TableView extends HTMLElement {
         document.execCommand("copy");
         setTimeout(() => this.copyForced = null, 100);
     }
-    onScroll(e){
-        if(this.onPaginationChanged){
-            let start=Math.round(this.scrollTop/41);
-            let passedStart=Math.floor(start/20)*20 -20;
-            if(passedStart<0)
-                passedStart=0;
+
+    onScroll(e) {
+        if (this.onPaginationChanged) {
+            let start = Math.round(this.scrollTop / 41);
+            let passedStart = Math.floor(start / 20) * 20 - 20;
+            if (passedStart < 0)
+                passedStart = 0;
             this.onPaginationChanged(passedStart);
         }
     }
