@@ -2,6 +2,8 @@
 
 namespace Core\Database;
 
+use MKrawczyk\FunQuery\FunQuery;
+
 class DB
 {
     /**
@@ -17,13 +19,24 @@ class DB
     {
         static::connect();
         $sth = static::$pdo->prepare($sql, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
-        $params2 = [];
-        foreach ($params as $name => $value) {
-            $params2[':'.$name] = $value;
-        }
         $sth->execute(array_map('self::toSqlValue', $params));
         $ret = $sth->fetchAll(\PDO::FETCH_CLASS, 'stdClass');
         return $ret;
+    }
+
+    static function iterate(string $sql, $params = [])
+    {
+        static::connect();
+        $sth = static::$pdo->prepare($sql, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
+        $sth->execute(array_map('self::toSqlValue', $params));
+        while ($x = $sth->fetchObject()) {
+            yield $x;
+        }
+    }
+
+    static function funquery(string $sql, $params = [])
+    {
+        return FunQuery::create(static::iterate($sql, $params));
     }
 
     static function connect()
@@ -46,7 +59,7 @@ class DB
         $sth = static::$pdo->prepare($sql, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
         $params2 = [];
         foreach ($params as $name => $value) {
-            $params2[':'.$name] = $value;
+            $params2[':' . $name] = $value;
         }
         $sth->execute(array_map('self::toSqlValue', $params));
         $ret = $sth->fetchAll(\PDO::FETCH_ASSOC);
@@ -84,7 +97,7 @@ class DB
             return null;
         if (is_int($val))
             return (int)$val;
-        return "'".static::$pdo->quote($val)."'";
+        return "'" . static::$pdo->quote($val) . "'";
     }
 
     static function update(string $table, $data, $id)
@@ -114,8 +127,8 @@ class DB
         static::connect();
         $clean = preg_replace('/[^A-Za-z0-9_]+/', '', $val);
         if (static::$dialect == 'mysql')
-            return '`'.$clean.'`'; else
-            return '"'.$clean.'"';
+            return '`' . $clean . '`'; else
+            return '"' . $clean . '"';
     }
 
     static function query(string $sql, $params = [])
@@ -124,7 +137,7 @@ class DB
         $sth = static::$pdo->prepare($sql, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
         $params2 = [];
         foreach ($params as $name => $value) {
-            $params2[':'.$name] = $value;
+            $params2[':' . $name] = $value;
         }
         $sth->execute(array_map('self::toSqlValue', $params));
     }
@@ -167,7 +180,7 @@ class DB
         $dataSql = [];
         $example = [];
         foreach ($data as $row) {
-            $row=(array)$row;
+            $row = (array)$row;
             $example += $row;
         }
 
@@ -177,14 +190,14 @@ class DB
         }
         $valuesJoinedArray = [];
         foreach ($data as $i => $row) {
-            $row=(array)$row;
+            $row = (array)$row;
             $values = [];
             foreach ($example as $name => $value) {
-                $nameCleared = static::clearName($name).'_'.$i;
+                $nameCleared = static::clearName($name) . '_' . $i;
                 $values[] = " :$nameCleared ";
                 $dataSql[$nameCleared] = $row[$name] ?? NULL;
             }
-            $valuesJoinedArray[] = '('.implode(',', $values).')';
+            $valuesJoinedArray[] = '(' . implode(',', $values) . ')';
         }
         $colsJoined = implode(',', $cols);
         $valuesJoinedJoined = implode(',', $valuesJoinedArray);

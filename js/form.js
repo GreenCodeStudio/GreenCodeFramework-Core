@@ -74,7 +74,7 @@ export class FormManager {
         let data = {};
         let formElements = this.form.elements;
         for (var elem of formElements) {
-            if (elem.type == 'checkbox') {
+            if (elem.type == 'checkbox' || elem.type == 'radio') {
                 if (!elem.checked)
                     continue;
             }
@@ -94,7 +94,8 @@ export class FormManager {
      */
     submit(data) {
     }
-    reset(){
+
+    reset() {
         this.form.reset();
     }
 }
