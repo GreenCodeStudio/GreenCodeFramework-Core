@@ -2,6 +2,8 @@ function Run-UnitTests{
     try{
         Push-Location (Find-ProjectDir).Fullname
         Prepare-Build
+        composer install
+        yarn
         foreach($d in (ls ./modules/)){
             if(test-path "./modules/$d/Tests"){
                 echo "./modules/$d/Tests";
@@ -21,6 +23,7 @@ function Run-E2eTests{
     try{
         Push-Location (Find-ProjectDir).Fullname
         Run-TestEnvironment
+        node ./modules/E2eTests/Selenium/selenium.js
         Pop-Location
     }
     catch{
