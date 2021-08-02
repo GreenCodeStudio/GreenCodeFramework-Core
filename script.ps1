@@ -58,7 +58,7 @@ function Prepare-Build
         composer install
     }
 
-    node "modules/core/js/build.js"
+    node "modules/Core/js/build.js"
 
     ls modules | ? { Test-Path "modules/$( $_.Name )/dist" } | %{ New-SymLink "./public_html/dist/$( $_.Name )" "../../modules/$( $_.Name )/dist" }
 
