@@ -1,18 +1,28 @@
 function Run-UnitTests{
-    Push-Location (Find-ProjectDir).Fullname
-    foreach($d in (ls ./modules/)){
-        if(test-path "./modules/$d/Tests"){
-            echo "./modules/$d/Tests";
-            ./vendor/bin/phpunit "./modules/$d/Tests"
+    try{
+        Push-Location (Find-ProjectDir).Fullname
+        foreach($d in (ls ./modules/)){
+            if(test-path "./modules/$d/Tests"){
+                echo "./modules/$d/Tests";
+                ./vendor/bin/phpunit "./modules/$d/Tests"
+            }
         }
+        #yarn test
+        Pop-Location
     }
-    #yarn test
-    Pop-Location
+    catch{
+      exit -1
+    }
 }
 function Run-E2eTests{
-    Push-Location (Find-ProjectDir).Fullname
-    Run-TestEnvironment
-    Pop-Location
+    try{
+        Push-Location (Find-ProjectDir).Fullname
+        Run-TestEnvironment
+        Pop-Location
+    }
+    catch{
+      exit -1
+    }
 }
 
 function Run-TestEnvironment{
