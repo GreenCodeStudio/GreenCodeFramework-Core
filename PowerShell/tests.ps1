@@ -1,7 +1,7 @@
 function Run-UnitTests{
     try{
         Push-Location (Find-ProjectDir).Fullname
-        Init-Project
+        Prepare-Build
         foreach($d in (ls ./modules/)){
             if(test-path "./modules/$d/Tests"){
                 echo "./modules/$d/Tests";
