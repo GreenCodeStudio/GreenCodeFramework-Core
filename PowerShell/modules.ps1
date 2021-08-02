@@ -1,4 +1,4 @@
-class ProjectModule
+ class ProjectModule
 {
     [string]$Name;
     [Boolean]$FolderExist;

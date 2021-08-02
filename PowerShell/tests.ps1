@@ -1,6 +1,7 @@
 function Run-UnitTests{
     try{
         Push-Location (Find-ProjectDir).Fullname
+        Init-Project
         foreach($d in (ls ./modules/)){
             if(test-path "./modules/$d/Tests"){
                 echo "./modules/$d/Tests";
@@ -11,6 +12,8 @@ function Run-UnitTests{
         Pop-Location
     }
     catch{
+      Write-Host "An error occurred:"
+      Write-Host $_
       exit -1
     }
 }
