@@ -16,7 +16,7 @@ class AjaxRouter extends Router
         $this->prepareMethod();
     }
 
-    protected function parseUrl()
+    public function parseUrl()
     {
         $exploded = explode('/', explode('?', $this->url)[0]);
         $controllerName = empty($exploded[2]) ? 'Start' : $exploded[2];

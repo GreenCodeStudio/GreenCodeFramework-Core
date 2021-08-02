@@ -16,7 +16,7 @@ class ApiRouter extends Router
         $this->prepareMethod();
     }
 
-    protected function parseUrl()
+    public function parseUrl()
     {
         $list = $this->listControllers();
         $url = substr($this->url, 5);

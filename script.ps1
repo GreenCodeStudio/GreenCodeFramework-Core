@@ -298,6 +298,7 @@ function Test-Requirements
 }
 . ./modules/Core/PowerShell/modules.ps1
 . ./modules/Core/PowerShell/exception.ps1
+. ./modules/Core/PowerShell/tests.ps1
 if ((test-path modules/Core) -and (test-path vendor))
 {
     Load-AvaibleMethods

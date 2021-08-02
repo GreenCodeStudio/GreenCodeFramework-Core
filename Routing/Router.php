@@ -35,7 +35,7 @@ class Router
 
     }
 
-    protected static function getHttpRouter(string $url): Router
+    public static function getHttpRouter(string $url): Router
     {
         if (substr($url, 0, 5) === '/api/') {
             return new ApiRouter();
@@ -211,7 +211,7 @@ class Router
         return null;
     }
 
-    protected function parseUrl()
+    public function parseUrl()
     {
         $exploded = explode('/', explode('?', $this->url)[0]);
         $controllerName = empty($exploded[1]) ? 'Start' : $exploded[1];
