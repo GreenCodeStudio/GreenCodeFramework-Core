@@ -134,7 +134,8 @@ const AjaxHandler = {
 };
 
 function generateIdempotencyKey() {
-    const uniq = /uniq=([0-9a-f]+)/.exec(document.cookie)[1];
+    const uniqExecuted=/uniq=([0-9a-f]+)/.exec(document.cookie)??[];
+    const uniq = uniqExecuted[1];
     if (!uniq) return null;
 
     let requestCounter = localStorage.requestCounter;
