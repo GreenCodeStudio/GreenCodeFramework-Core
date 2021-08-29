@@ -265,6 +265,12 @@ class Router
                 $className = "\\$module\\$type\\$this->controllerName";
                 return $className;
             }
+            $filename = $modulesPath.'/'.$module.'/'.$type.'/'.$this->controllerName.'Controller.php';
+            if (is_file($filename)) {
+                include_once $filename;
+                $className = "\\$module\\$type\\{$this->controllerName}Controller";
+                return $className;
+            }
         }
         throw new NotFoundException();
     }
