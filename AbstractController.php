@@ -7,6 +7,7 @@ use Authorization\Exceptions\NoPermissionException;
 abstract class AbstractController
 {
     public $initInfo;
+    public $debugOutput = '';
 
     public function __construct()
     {
