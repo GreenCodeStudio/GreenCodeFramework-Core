@@ -16,7 +16,7 @@ export class LanguagesHierarchy {
     }
 
     static readFromUser() {
-        return new LanguagesHierarchy(navigator.languages);
+        return new LanguagesHierarchy([document.documentElement.lang,...navigator.languages]);
     }
 }
 

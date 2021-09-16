@@ -1,5 +1,7 @@
 import ConsoleCheating from 'console-cheating';
 
+export const ajaxHeaders = {};
+
 function showServerDebug(decoded) {
     if (decoded.debug) {
         for (let dump of decoded.debug) {
@@ -89,6 +91,9 @@ function TryOnceAjaxFunction(idempotencyKey, controller, method, ...args) {
         const body = generatePostBody(args);
         xhr.setRequestHeader('x-js-origin', 'true');
         xhr.setRequestHeader('x-idempotency-key', idempotencyKey);
+        for (let header in ajaxHeaders) {
+            xhr.setRequestHeader(header, ajaxHeaders[header]);
+        }
         xhr.onreadystatechange = e => {
             if (xhr.readyState === 4) {
                 if (xhr.status === 200) {
@@ -134,7 +139,7 @@ const AjaxHandler = {
 };
 
 function generateIdempotencyKey() {
-    const uniqExecuted=/uniq=([0-9a-f]+)/.exec(document.cookie)??[];
+    const uniqExecuted = /uniq=([0-9a-f]+)/.exec(document.cookie) ?? [];
     const uniq = uniqExecuted[1];
     if (!uniq) return null;
 
