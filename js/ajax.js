@@ -136,7 +136,6 @@ const AjaxHandler = {
 function generateIdempotencyKey() {
     const uniqExecuted=/uniq=([0-9a-f]+)/.exec(document.cookie)??[];
     const uniq = uniqExecuted[1];
-    if (!uniq) return null;
 
     let requestCounter = localStorage.requestCounter;
     requestCounter++;
@@ -145,7 +144,7 @@ function generateIdempotencyKey() {
     localStorage.requestCounter = requestCounter;
 
     let time = (+new Date()).toString(16);
-    let random = ("0" + (Math.random() * 255).toString(16)).substr(-2);
+    let random = ("000" + (Math.random() * 0xffff).toString(16)).substr(-4);
 
     return `${uniq}_${requestCounter}_${time}_${random}`;
 }
