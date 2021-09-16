@@ -97,6 +97,7 @@ async function installOffline() {
     var response = await fetch('/ajax/Cache/list', {headers: {'x-js-origin': 'true'}});
     var list = await response.json();
     let cache = await cachePromise;
+    if(!list.data?.normal) return;
     for (let filePath of list.data.normal) {
         cache.match(filePath).then(matches => {
             if (!matches || matches.headers.get('x-sw-version') !== currentVersion) {
