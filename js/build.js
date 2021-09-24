@@ -1,7 +1,7 @@
 var merge = require('util.merge-packages').default;
 var fs = require('fs');
 
-var dst = fs.readFileSync('package.json');
+var dst = fs.readFileSync('modules/Core/package.json');
 
 var folders = fs.readdirSync('modules');
 for (let module of folders) {
