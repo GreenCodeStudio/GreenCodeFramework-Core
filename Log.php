@@ -28,7 +28,7 @@ class Log
 
             $amqpMsg = new AMQPMessage(json_encode($msg));
             $channel->basic_publish($amqpMsg, '', 'log');
-        } catch ($ex) {
+        } catch (\Throwable $ex) {
             dump($ex);
         }
     }
@@ -43,6 +43,7 @@ class Log
 
     public static function ErrorHandle($errno, $errstr, $errfile, $errline)
     {
+        dump("$msg->type on line $errline in file $errfile\r\n$errstr");
         try {
             $connection = static::connect();
             $channel = $connection->channel();
@@ -63,10 +64,9 @@ class Log
 
             $amqpMsg = new AMQPMessage(json_encode($msg));
             $channel->basic_publish($amqpMsg, '', 'log');
-        } catch ($ex) {
+        } catch (\Throwable $ex) {
             dump($ex);
         }
-        dump("$msg->type on line $errline in file $errfile\r\n$errstr");
     }
 
     static function FriendlyErrorType($type)
