@@ -22,6 +22,8 @@ function Run-UnitTests{
 function Run-E2eTests{
     try{
         Push-Location (Find-ProjectDir).Fullname
+        composer install
+        composer install
         try{
         Run-Command Migration Preview
         }catch{
