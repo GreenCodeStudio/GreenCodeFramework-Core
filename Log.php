@@ -14,19 +14,23 @@ class Log
 
     public static function Request(string $url)
     {
-        $connection = static::connect();
-        $channel = $connection->channel();
-        $channel->queue_declare('log', false, false, false, false);
+        try {
+            $connection = static::connect();
+            $channel = $connection->channel();
+            $channel->queue_declare('log', false, false, false, false);
 
-        $msg = new \stdClass();
-        $msg->type = 'Request';
-        $msg->server = $_SERVER;
-        $msg->urlRouting = $url;
-        $msg->stamp = (new \DateTime())->format('Y-m-d H:i:s.u');
-        $msg->user = (\Authorization\Authorization::getUserData());
+            $msg = new \stdClass();
+            $msg->type = 'Request';
+            $msg->server = $_SERVER;
+            $msg->urlRouting = $url;
+            $msg->stamp = (new \DateTime())->format('Y-m-d H:i:s.u');
+            $msg->user = (\Authorization\Authorization::getUserData());
 
-        $amqpMsg = new AMQPMessage(json_encode($msg));
-        $channel->basic_publish($amqpMsg, '', 'log');
+            $amqpMsg = new AMQPMessage(json_encode($msg));
+            $channel->basic_publish($amqpMsg, '', 'log');
+        } catch ($ex) {
+            dump($ex);
+        }
     }
 
     static function connect()
@@ -39,25 +43,29 @@ class Log
 
     public static function ErrorHandle($errno, $errstr, $errfile, $errline)
     {
-        $connection = static::connect();
-        $channel = $connection->channel();
-        $channel->queue_declare('log', false, false, false, false);
+        try {
+            $connection = static::connect();
+            $channel = $connection->channel();
+            $channel->queue_declare('log', false, false, false, false);
 
-        $msg = new \stdClass();
-        $msg->type = 'Error';
-        $msg->lang = "php";
-        $msg->level = self::FriendlyErrorType($errno);
-        $msg->message = $errstr;
-        $msg->file = $errfile;
-        $msg->line = $errline;
-        $msg->column = null;
-        $msg->stamp = (new \DateTime())->format('Y-m-d H:i:s.u');
-        $msg->server = $_SERVER;
-        $msg->user = (\Authorization\Authorization::getUserData());
-        $msg->stack = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+            $msg = new \stdClass();
+            $msg->type = 'Error';
+            $msg->lang = "php";
+            $msg->level = self::FriendlyErrorType($errno);
+            $msg->message = $errstr;
+            $msg->file = $errfile;
+            $msg->line = $errline;
+            $msg->column = null;
+            $msg->stamp = (new \DateTime())->format('Y-m-d H:i:s.u');
+            $msg->server = $_SERVER;
+            $msg->user = (\Authorization\Authorization::getUserData());
+            $msg->stack = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
-        $amqpMsg = new AMQPMessage(json_encode($msg));
-        $channel->basic_publish($amqpMsg, '', 'log');
+            $amqpMsg = new AMQPMessage(json_encode($msg));
+            $channel->basic_publish($amqpMsg, '', 'log');
+        } catch ($ex) {
+            dump($ex);
+        }
         dump("$msg->type on line $errline in file $errfile\r\n$errstr");
     }
 
@@ -108,7 +116,7 @@ class Log
         $msg->type = 'Error';
         $msg->lang = "php";
         $msg->level = 'Exception';
-        $msg->message = get_class($ex)."\r\n".$ex->getMessage();
+        $msg->message = get_class($ex) . "\r\n" . $ex->getMessage();
         $msg->file = $ex->getFile();
         $msg->line = $ex->getLine();
         $msg->column = null;
@@ -121,6 +129,7 @@ class Log
         $channel->basic_publish($amqpMsg, '', 'log');
 
     }
+
     public static function FrontException($event)
     {
         $connection = static::connect();
@@ -131,14 +140,14 @@ class Log
         $msg->type = 'Error';
         $msg->lang = "js";
         $msg->level = 'Exception';
-        $msg->message = $event->message??null;
-        $msg->file =$event->filename??null;
-        $msg->line = $event->lineno??null;
-        $msg->column = $event->colno??null;
+        $msg->message = $event->message ?? null;
+        $msg->file = $event->filename ?? null;
+        $msg->line = $event->lineno ?? null;
+        $msg->column = $event->colno ?? null;
         $msg->stamp = (new \DateTime())->format('Y-m-d H:i:s.u');
         $msg->server = $_SERVER;
         $msg->user = (\Authorization\Authorization::getUserData());
-        $msg->stack = $event->stack??null;
+        $msg->stack = $event->stack ?? null;
 
         $amqpMsg = new AMQPMessage(json_encode($msg));
         $channel->basic_publish($amqpMsg, '', 'log');
