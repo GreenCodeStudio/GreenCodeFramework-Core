@@ -22,8 +22,21 @@ function Run-UnitTests{
 function Run-E2eTests{
     try{
         Push-Location (Find-ProjectDir).Fullname
-        Preview-Migration
-        Upgrade-Migration
+        try{
+        Run-Command Migration Preview
+        }catch{
+       Write-Host $_
+       }
+       try{
+        Run-Command Migration Upgrade
+        }catch{
+       Write-Host $_
+       }
+       try{
+        Run-Command System server
+        }catch{
+       Write-Host $_
+       }
         Run-TestEnvironment
         node ./modules/E2eTests/Selenium/selenium.js
         Pop-Location
