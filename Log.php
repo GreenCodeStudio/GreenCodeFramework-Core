@@ -43,7 +43,7 @@ class Log
 
     public static function ErrorHandle($errno, $errstr, $errfile, $errline)
     {
-        dump("$msg->type on line $errline in file $errfile\r\n$errstr");
+        dump("Error on line $errline in file $errfile\r\n$errstr");
         try {
             $connection = static::connect();
             $channel = $connection->channel();
