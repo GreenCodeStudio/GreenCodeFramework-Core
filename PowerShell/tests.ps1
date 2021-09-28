@@ -29,6 +29,8 @@ function Run-E2eTests{
         Pop-Location
     }
     catch{
+       Write-Host "An error occurred:"
+       Write-Host $_
       exit -1
     }
 }
