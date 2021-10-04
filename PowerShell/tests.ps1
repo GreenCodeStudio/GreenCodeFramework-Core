@@ -29,7 +29,9 @@ function Run-E2eTests
     try
     {
         Push-Location (Find-ProjectDir).Fullname
+        echo "start of composer install"
         composer install
+        echo "start of composer install 2"
         composer install
         echo "start of migration"
         try
@@ -56,6 +58,7 @@ function Run-E2eTests
         echo "user added"
 
         Run-TestEnvironment
+        echo "start selenium"
         node ./modules/E2eTests/Selenium/selenium.js $mail $password
         Pop-Location
     }
