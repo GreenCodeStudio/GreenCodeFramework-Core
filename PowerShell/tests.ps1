@@ -33,7 +33,7 @@ function Run-E2eTests
         composer install
         try
         {
-            Run-Command Migration Preview
+            Load-AvaibleMethods
         }
         catch
         {
@@ -41,16 +41,24 @@ function Run-E2eTests
         }
         try
         {
-            Run-Command Migration Upgrade
+            Preview-Migration
+        }
+        catch
+        {
+            Write-Host $_
+        }
+        try
+        {
+            Upgrade-Migration
         }
         catch
         {
             Write-Host $_
         }
 
-        $mail = "e2etest_"+ -join ((65..90) + (97..122) | Get-Random -Count 5 | % {[char]$_}) + "@green-code.studio"
-        $password = -join ((65..90) + (97..122) | Get-Random -Count 20 | % {[char]$_})
-        Run-Command User Add Test Admin $mail $password
+        $mail = "e2etest_" + -join ((65..90) + (97..122) | Get-Random -Count 5 | % { [char]$_ }) + "@green-code.studio"
+        $password = -join ((65..90) + (97..122) | Get-Random -Count 20 | % { [char]$_ })
+        Add-User Test Admin $mail $password
 
         Run-TestEnvironment
         node ./modules/E2eTests/Selenium/selenium.js $mail $password
