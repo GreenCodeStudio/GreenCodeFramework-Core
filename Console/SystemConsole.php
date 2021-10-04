@@ -5,7 +5,7 @@ namespace Core\Console;
 use Core\Routing\ConsoleRouter;
 use Core\Routing\Router;
 
-class System extends \Core\AbstractController
+class SystemConsole extends \Core\AbstractController
 {
     function server()
     {
