@@ -6,7 +6,7 @@
         "cboden/ratchet": "^0.4.1",
         "textalk/websocket": "^1.2",
         "php-amqplib/php-amqplib": "^3.0.0",
-        "vlucas/phpdotenv": "^4.1.0",
+        "vlucas/phpdotenv": "4.2.0",
         "mkrawczyk/funquery": "^1.4.0"
     },
     "require-dev": {
