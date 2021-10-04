@@ -31,9 +31,10 @@ function Run-E2eTests
         Push-Location (Find-ProjectDir).Fullname
         composer install
         composer install
+        echo "start of migration"
         try
         {
-            Run-Command Migration Preview
+            Run-Command Migration preview
         }
         catch
         {
@@ -41,16 +42,18 @@ function Run-E2eTests
         }
         try
         {
-            Run-Command Migration Upgrade
+            Run-Command Migration upgrade
         }
         catch
         {
             Write-Host $_
         }
 
+        echo "migrated"
         $mail = "e2etest_"+ -join ((65..90) + (97..122) | Get-Random -Count 5 | % {[char]$_}) + "@green-code.studio"
         $password = -join ((65..90) + (97..122) | Get-Random -Count 20 | % {[char]$_})
-        Run-Command User Add @("Test", "Admin", $mail, $password)
+        Run-Command User add @("Test", "Admin", $mail, $password)
+        echo "user added"
 
         Run-TestEnvironment
         node ./modules/E2eTests/Selenium/selenium.js $mail $password
@@ -66,6 +69,7 @@ function Run-E2eTests
 
 function Run-TestEnvironment
 {
+    echo "starting etst environment"
     Push-Location (Find-ProjectDir).Fullname
     Build-Project -Production
     cd public_html
