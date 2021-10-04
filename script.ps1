@@ -65,10 +65,15 @@ function Prepare-Build
     $file = ''
     Get-ChildItem modules | ? { Test-Path "modules/$_/scss/mixins.scss" } | % { $file += "@import ""./modules/" +  $_ + "/scss/mixins"";`r`n" }
     Get-ChildItem modules | ? { Test-Path "modules/$_/scss/index.scss" } | % { $file += "@import ""./modules/" +  $_ + "/scss/index"";`r`n" }
+    echo "SCSS preparing"
+    Get-ChildItem modules | % { "modules/$_/scss/index.scss" } | ft
+    Get-ChildItem modules | % { Test-Path "modules/$_/scss/index.scss" } | ft
     $file | Out-FileUtf8NoBom "scssBuild.scss"
 
     $file = "import ""./scssBuild.scss"";`r`n"
     Get-ChildItem modules | ? { Test-Path "modules/$_/js/index.js" } | % { $file += "import  ""./modules/" + $_ + "/js/index"";`r`n" }
+    Get-ChildItem modules | % {  "modules/$_/js/index.js" } | ft
+    Get-ChildItem modules | % { Test-Path "modules/$_/js/index.js" } | ft
     $file | Out-FileUtf8NoBom "jsBuild.js"
 
     $composerIncludes = [System.Collections.ArrayList]::new();
