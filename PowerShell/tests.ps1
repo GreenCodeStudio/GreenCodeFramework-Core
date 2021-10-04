@@ -50,8 +50,8 @@ function Run-E2eTests
         }
 
         echo "migrated"
-        $mail = "e2etest_"+ -join ((65..90) + (97..122) | Get-Random -Count 5 | % {[char]$_}) + "@green-code.studio"
-        $password = -join ((65..90) + (97..122) | Get-Random -Count 20 | % {[char]$_})
+        $mail = "e2etest_" + -join ((65..90) + (97..122) | Get-Random -Count 5 | % { [char]$_ }) + "@green-code.studio"
+        $password = -join ((65..90) + (97..122) | Get-Random -Count 20 | % { [char]$_ })
         Run-Command User add @("Test", "Admin", $mail, $password)
         echo "user added"
 

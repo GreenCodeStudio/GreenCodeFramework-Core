@@ -283,7 +283,7 @@ function Start-WebSocketServer
     Push-Location (Find-ProjectDir).Fullname
     php modules/Core/initWebsocketService.php
 }
-function Start-DevServer([int] $port=80)
+function Start-DevServer([int] $port = 80)
 {
     Push-Location (Find-ProjectDir).Fullname
     cd public_html
