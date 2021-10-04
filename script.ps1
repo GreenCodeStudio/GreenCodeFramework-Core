@@ -63,8 +63,8 @@ function Prepare-Build
     Get-ChildItem modules | ? { Test-Path "modules/$( $_ )/dist" } | %{ New-SymLink "./public_html/dist/$($_.Name)" "../../modules/$($_.Name)/dist" }
 
     $file = ""
-    Get-ChildItem modules | ? { Test-Path "modules/$($_.Name)/scss/mixins.scss" } | % { $file += "@import ""./modules/" +  $_.Name + "/scss/mixins"";`r`n" }
-    Get-ChildItem modules | ? { Test-Path "modules/$($_.Name)/scss/index.scss" } | % { $file += "@import ""./modules/" +  $_.Name + "/scss/index"";`r`n" }
+    Get-ChildItem modules | ? { Test-Path "modules/$($_.Name)/scss/mixins.scss" } | % { $file += "@import ""./modules/" +  $_.Name + "/scss/mixins.scss"";`r`n" }
+    Get-ChildItem modules | ? { Test-Path "modules/$($_.Name)/scss/index.scss" } | % { $file += "@import ""./modules/" +  $_.Name + "/scss/index.scss"";`r`n" }
     echo "SCSS preparing"
     Get-ChildItem modules | % { "modules/$($_.Name)/scss/index.scss" } | ft
     Get-ChildItem modules | % { Test-Path "modules/$($_.Name)/scss/index.scss" } | ft
@@ -72,7 +72,7 @@ function Prepare-Build
     $file | Out-FileUtf8NoBom "scssBuild.scss"
 
     $file = "import ""./scssBuild.scss"";`r`n"
-    Get-ChildItem modules | ? { Test-Path "modules/$($_.Name)/js/index.js" } | % { $file += "import  ""./modules/" + $_ + "/js/index"";`r`n" }
+    Get-ChildItem modules | ? { Test-Path "modules/$($_.Name)/js/index.js" } | % { $file += "import  ""./modules/" + $_.Name + "/js/index"";`r`n" }
     Get-ChildItem modules | % {  "modules/$($_.Name)/js/index.js" } | ft
     Get-ChildItem modules | % { Test-Path "modules/$($_.Name)/js/index.js" } | ft
     echo $file
