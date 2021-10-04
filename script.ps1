@@ -60,19 +60,19 @@ function Prepare-Build
 
     node "modules/Core/js/build.js"
 
-    ls modules | ? { Test-Path "modules/$( $_.Name )/dist" } | %{ New-SymLink "./public_html/dist/$( $_.Name )" "../../modules/$( $_.Name )/dist" }
+    Get-ChildItem modules | ? { Test-Path "modules/$( $_.Name )/dist" } | %{ New-SymLink "./public_html/dist/$( $_.Name )" "../../modules/$( $_.Name )/dist" }
 
     $file = ''
-    ls modules | ? { Test-Path "modules/$( $_.Name )/scss/mixins.scss" } | % { $file += "@import ""./modules/" + $( $_.Name ) + "/scss/mixins"";`r`n" }
-    ls modules | ? { Test-Path "modules/$( $_.Name )/scss/index.scss" } | % { $file += "@import ""./modules/" + $( $_.Name ) + "/scss/index"";`r`n" }
+    Get-ChildItem modules | ? { Test-Path "modules/$( $_ )/scss/mixins.scss" } | % { $file += "@import ""./modules/" + $( $_ ) + "/scss/mixins"";`r`n" }
+    Get-ChildItem modules | ? { Test-Path "modules/$( $_ )/scss/index.scss" } | % { $file += "@import ""./modules/" + $( $_ ) + "/scss/index"";`r`n" }
     $file | Out-FileUtf8NoBom "scssBuild.scss"
 
     $file = "import ""./scssBuild.scss"";`r`n"
-    ls modules | ? { Test-Path "modules/$_/js/index.js" } | % { $file += "import  ""./modules/" + $_ + "/js/index"";`r`n" }
+    Get-ChildItem modules | ? { Test-Path "modules/$_/js/index.js" } | % { $file += "import  ""./modules/" + $_ + "/js/index"";`r`n" }
     $file | Out-FileUtf8NoBom "jsBuild.js"
 
     $composerIncludes = [System.Collections.ArrayList]::new();
-    ls modules | ? { Test-Path "modules/$( $_.Name )/composer.json" } | %{ $composerIncludes.Add("modules/$( $_.Name )/composer.json") }
+    Get-ChildItem modules | ? { Test-Path "modules/$( $_.Name )/composer.json" } | %{ $composerIncludes.Add("modules/$( $_.Name )/composer.json") }
     $composer = @{ require = @{ "wikimedia/composer-merge-plugin" = "dev-master" }; extra = @{ "merge-plugin" = @{ include = $composerIncludes } } }
     $composer | convertto-json -Depth 10 | Out-FileUtf8NoBom "composer.json"
 }
