@@ -60,11 +60,11 @@ function Prepare-Build
 
     node "modules/Core/js/build.js"
 
-    Get-ChildItem modules | ? { Test-Path "modules/$( $_ )/dist" } | %{ New-SymLink "./public_html/dist/$( $_ )" "../../modules/$( $_ )/dist" }
+    Get-ChildItem modules | ? { Test-Path "modules/$( $_ )/dist" } | %{ New-SymLink "./public_html/dist/$_" "../../modules/$_/dist" }
 
     $file = ''
-    Get-ChildItem modules | ? { Test-Path "modules/$( $_ )/scss/mixins.scss" } | % { $file += "@import ""./modules/" + $( $_ ) + "/scss/mixins"";`r`n" }
-    Get-ChildItem modules | ? { Test-Path "modules/$( $_ )/scss/index.scss" } | % { $file += "@import ""./modules/" + $( $_ ) + "/scss/index"";`r`n" }
+    Get-ChildItem modules | ? { Test-Path "modules/$_/scss/mixins.scss" } | % { $file += "@import ""./modules/" +  $_ + "/scss/mixins"";`r`n" }
+    Get-ChildItem modules | ? { Test-Path "modules/$_/scss/index.scss" } | % { $file += "@import ""./modules/" +  $_ + "/scss/index"";`r`n" }
     $file | Out-FileUtf8NoBom "scssBuild.scss"
 
     $file = "import ""./scssBuild.scss"";`r`n"
