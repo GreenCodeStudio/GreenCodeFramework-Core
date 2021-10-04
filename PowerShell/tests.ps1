@@ -34,11 +34,6 @@ function Run-E2eTests{
         }catch{
        Write-Host $_
        }
-       try{
-        Run-Command System server
-        }catch{
-       Write-Host $_
-       }
         Run-TestEnvironment
         node ./modules/E2eTests/Selenium/selenium.js
         Pop-Location
