@@ -60,20 +60,22 @@ function Prepare-Build
 
     node "modules/Core/js/build.js"
 
-    Get-ChildItem modules | ? { Test-Path "modules/$( $_ )/dist" } | %{ New-SymLink "./public_html/dist/$_" "../../modules/$_/dist" }
+    Get-ChildItem modules | ? { Test-Path "modules/$( $_ )/dist" } | %{ New-SymLink "./public_html/dist/$($_.Name)" "../../modules/$($_.Name)/dist" }
 
-    $file = ''
-    Get-ChildItem modules | ? { Test-Path "modules/$_/scss/mixins.scss" } | % { $file += "@import ""./modules/" +  $_ + "/scss/mixins"";`r`n" }
-    Get-ChildItem modules | ? { Test-Path "modules/$_/scss/index.scss" } | % { $file += "@import ""./modules/" +  $_ + "/scss/index"";`r`n" }
+    $file = ""
+    Get-ChildItem modules | ? { Test-Path "modules/$($_.Name)/scss/mixins.scss" } | % { $file += "@import ""./modules/" +  $_.Name + "/scss/mixins"";`r`n" }
+    Get-ChildItem modules | ? { Test-Path "modules/$($_.Name)/scss/index.scss" } | % { $file += "@import ""./modules/" +  $_.Name + "/scss/index"";`r`n" }
     echo "SCSS preparing"
-    Get-ChildItem modules | % { "modules/$_/scss/index.scss" } | ft
-    Get-ChildItem modules | % { Test-Path "modules/$_/scss/index.scss" } | ft
+    Get-ChildItem modules | % { "modules/$($_.Name)/scss/index.scss" } | ft
+    Get-ChildItem modules | % { Test-Path "modules/$($_.Name)/scss/index.scss" } | ft
+    echo $file
     $file | Out-FileUtf8NoBom "scssBuild.scss"
 
     $file = "import ""./scssBuild.scss"";`r`n"
-    Get-ChildItem modules | ? { Test-Path "modules/$_/js/index.js" } | % { $file += "import  ""./modules/" + $_ + "/js/index"";`r`n" }
-    Get-ChildItem modules | % {  "modules/$_/js/index.js" } | ft
-    Get-ChildItem modules | % { Test-Path "modules/$_/js/index.js" } | ft
+    Get-ChildItem modules | ? { Test-Path "modules/$($_.Name)/js/index.js" } | % { $file += "import  ""./modules/" + $_ + "/js/index"";`r`n" }
+    Get-ChildItem modules | % {  "modules/$($_.Name)/js/index.js" } | ft
+    Get-ChildItem modules | % { Test-Path "modules/$($_.Name)/js/index.js" } | ft
+    echo $file
     $file | Out-FileUtf8NoBom "jsBuild.js"
 
     $composerIncludes = [System.Collections.ArrayList]::new();
