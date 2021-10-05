@@ -64,7 +64,7 @@ class Router
     protected function runMethod()
     {
         $reflectionMethod = new ReflectionMethod($this->controllerClassName, $this->controller->initInfo->methodName);
-        if (!empty($_SERVER['HTTP_X_IDEMPOTENCY_KEY'])) {
+        if (!empty($_SERVER['HTTP_X_IDEMPOTENCY_KEY']) && $_SERVER['HTTP_X_IDEMPOTENCY_KEY'] != 'null') {
             if (!$this->canSafeRepeat($this->controllerClassName, $this->controller->initInfo->methodName)) {
                 if (!(new IdempodencyKeyRepostory())->Test($_SERVER['HTTP_X_IDEMPOTENCY_KEY'])) {
                     throw new \Exception('Idempodency key used');
@@ -73,8 +73,8 @@ class Router
         }
         $this->returned = $reflectionMethod->invokeArgs($this->controller, $this->controller->initInfo->methodArguments);
 
-        if (method_exists($this->controller, $this->controller->initInfo->methodName.'_data')) {
-            $reflectionMethodData = new ReflectionMethod($this->controllerClassName, $this->controller->initInfo->methodName.'_data');
+        if (method_exists($this->controller, $this->controller->initInfo->methodName . '_data')) {
+            $reflectionMethodData = new ReflectionMethod($this->controllerClassName, $this->controller->initInfo->methodName . '_data');
             $this->controller->initInfo->data = $reflectionMethodData->invokeArgs($this->controller, $this->controller->initInfo->methodArguments);
         }
     }
@@ -93,7 +93,7 @@ class Router
     protected static function initAnnotationsCache(): void
     {
         if (empty(Annotations::$config['cache']))
-            Annotations::$config['cache'] = new AnnotationCache(__DIR__.'/../../../cache');
+            Annotations::$config['cache'] = new AnnotationCache(__DIR__ . '/../../../cache');
     }
 
     protected function sendBackException(\Throwable $ex)
@@ -159,15 +159,15 @@ class Router
     public function listControllers()
     {
         $ret = [];
-        $modules = scandir(__DIR__.'/../../');
+        $modules = scandir(__DIR__ . '/../../');
         foreach ($modules as $module) {
             if ($module == '.' || $module == '..') {
                 continue;
             }
-            if (is_dir(__DIR__.'/../../'.$module.'/'.$this->controllerType)) {
-                $controllers = scandir(__DIR__.'/../../'.$module.'/'.$this->controllerType);
+            if (is_dir(__DIR__ . '/../../' . $module . '/' . $this->controllerType)) {
+                $controllers = scandir(__DIR__ . '/../../' . $module . '/' . $this->controllerType);
                 foreach ($controllers as $controllerFile) {
-                    if (!is_dir(__DIR__.'/../../'.$module.'/'.$this->controllerType.'/'.$controllerFile)) {
+                    if (!is_dir(__DIR__ . '/../../' . $module . '/' . $this->controllerType . '/' . $controllerFile)) {
                         $info = $this->getControllerInfo($module, $controllerFile);
                         if ($info != null) {
                             $ret[$info->name] = $info;
@@ -186,7 +186,11 @@ class Router
             $name = $matches[1];
             $controllerInfo = new \StdClass();
             $controllerInfo->module = $module;
-            $controllerInfo->name = $name;
+            if (str_ends_with($name, $this->controllerType)) {
+                $controllerInfo->name = substr($name, 0, -strlen($this->controllerType));
+            } else {
+                $controllerInfo->name = $name;
+            }
             $controllerInfo->methods = [];
             try {
                 $classPath = "\\$module\\$this->controllerType\\$name";
@@ -195,7 +199,7 @@ class Router
                 $methods = $classReflect->getMethods();
                 foreach ($methods as $methodReflect) {
                     if (!$methodReflect->isPublic()) continue;
-                    if ('\\'.$methodReflect->class != $classPath) continue;
+                    if ('\\' . $methodReflect->class != $classPath) continue;
                     $methodInfo = new \StdClass();
                     $annotations = Annotations::ofMethod($classPath, $methodReflect->getName());
                     $methodInfo->name = $methodReflect->getName();
@@ -253,22 +257,26 @@ class Router
     protected function findControllerClass()
     {
         $type = $this->controllerType;
-        $modulesPath = __DIR__.'/../../../modules';
+        $suffix = $type;
+        if ($type == 'Controllers') {
+            $suffix = 'Controller';
+        }
+        $modulesPath = __DIR__ . '/../../../modules';
         $modules = scandir($modulesPath);
         foreach ($modules as $module) {
             if ($module == '.' || $module == '..') {
                 continue;
             }
-            $filename = $modulesPath.'/'.$module.'/'.$type.'/'.$this->controllerName.'.php';
+            $filename = $modulesPath . '/' . $module . '/' . $type . '/' . $this->controllerName . '.php';
             if (is_file($filename)) {
                 include_once $filename;
                 $className = "\\$module\\$type\\$this->controllerName";
                 return $className;
             }
-            $filename = $modulesPath.'/'.$module.'/'.$type.'/'.$this->controllerName.'Controller.php';
+            $filename = $modulesPath . '/' . $module . '/' . $type . '/' . $this->controllerName . $suffix . '.php';
             if (is_file($filename)) {
                 include_once $filename;
-                $className = "\\$module\\$type\\{$this->controllerName}Controller";
+                $className = "\\$module\\$type\\{$this->controllerName}$suffix";
                 return $className;
             }
         }

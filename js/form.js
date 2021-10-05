@@ -9,7 +9,7 @@ export class FormManager {
         for (const elem of formElements) {
             let value = this.parseFormItemNameRead(elem, data);
             if (elem.type == 'checkbox') {
-                elem.checked = value
+                elem.checked = value && value != '0'
             } else if (elem.type == 'datetime-local') {
                 if (value)
                     elem.value = value.replace(' ', 'T');
