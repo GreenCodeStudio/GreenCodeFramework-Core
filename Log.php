@@ -22,9 +22,9 @@ class Log
         $msg = new \stdClass();
         $msg->type = 'Request';
         $msg->server = [];
-        $msg->hostname = $_SERVER['HTTP_HOST'];
-        $msg->serverIP = $_SERVER['SERVER_ADDR'];
-        $msg->userAgent = $_SERVER['HTTP_USER_AGENT'];
+        $msg->hostname = $_SERVER['HTTP_HOST']??null;
+        $msg->serverIP = $_SERVER['SERVER_ADDR']??null;
+        $msg->userAgent = $_SERVER['HTTP_USER_AGENT']??null;
         $msg->debug = $_ENV['debug'] == 'true';
         $msg->machine = gethostname();
         $msg->projectPath = dirname(__DIR__, 2);
