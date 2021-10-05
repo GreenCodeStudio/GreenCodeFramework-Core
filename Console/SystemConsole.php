@@ -2,8 +2,11 @@
 
 namespace Core\Console;
 
+use Core\Routing\AjaxRouter;
 use Core\Routing\ConsoleRouter;
 use Core\Routing\Router;
+use Core\Routing\StandardRouter;
+use MKrawczyk\FunQuery\FunQuery;
 
 class SystemConsole extends \Core\AbstractController
 {
@@ -34,5 +37,21 @@ class SystemConsole extends \Core\AbstractController
             }
         }
         return $methods;
+    }
+
+    function getControllers()
+    {
+        return FunQuery::create((new StandardRouter())->listControllers())->map(fn($x) => (object)['name' => $x->name, 'module' => $x->module, 'classPath' => $x->classPath,
+            'methods' => FunQuery::create($x->methods)]);
+    }
+
+    function getControllerMethods()
+    {
+        return FunQuery::create((new StandardRouter())->listControllers())->map(fn($x) => FunQuery::create($x->methods)->map(fn($y) => (object)['controller' => $x->name, 'method' => $y->name, 'parameters' => $y->parameters, 'annotations' => $y->annotations]));
+    }
+
+    function getAjaxControllers()
+    {
+        return (new AjaxRouter())->listControllers();
     }
 }

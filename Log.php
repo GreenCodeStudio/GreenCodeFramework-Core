@@ -32,7 +32,7 @@ class Log
     static function connect()
     {
         if (static::$connection == null) {
-            static::$connection = new AMQPStreamConnection('localhost', 5672, 'guest', 'guest');
+            static::$connection = new AMQPStreamConnection($_ENV['rabbitmq_server']??'localhost', 5672, 'guest', 'guest');
         }
         return static::$connection;
     }
