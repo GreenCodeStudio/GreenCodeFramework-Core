@@ -9,7 +9,7 @@ export class FormManager {
         for (const elem of formElements) {
             let value = this.parseFormItemNameRead(elem, data);
             if (elem.type == 'checkbox') {
-                elem.checked = value
+                elem.checked = value && value != '0'
             } else if (elem.type == 'datetime-local') {
                 if (value)
                     elem.value = value.replace(' ', 'T');
@@ -74,7 +74,7 @@ export class FormManager {
         let data = {};
         let formElements = this.form.elements;
         for (var elem of formElements) {
-            if (elem.type == 'checkbox') {
+            if (elem.type == 'checkbox' || elem.type == 'radio') {
                 if (!elem.checked)
                     continue;
             }
@@ -94,7 +94,8 @@ export class FormManager {
      */
     submit(data) {
     }
-    reset(){
+
+    reset() {
         this.form.reset();
     }
 }

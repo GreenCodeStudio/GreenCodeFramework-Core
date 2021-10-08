@@ -14,10 +14,13 @@ function setDumpDebugType(string $type, bool $immediate)
     if ($immediate)
         dump_render();
 }
-function getDumpDebugType(){
+
+function getDumpDebugType()
+{
     global $debugType;
     return $debugType;
 }
+
 function dump()
 {
     $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
@@ -42,6 +45,45 @@ function dump()
         dump_render();
 }
 
+function dumpE()
+{
+    $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+    $args = func_get_args();
+    global $debugType;
+    global $debugArray;
+    global $debugImmediate;
+
+    $strings = [];
+    foreach ($args as $var) {
+        $strings[] = var_export($var, true);
+    }
+    $debugArray[] = ['backtrace' => $backtrace, 'strings' => $strings];
+
+    if ($debugImmediate)
+        dump_render();
+}
+
+function dumpD()
+{
+    $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+    $args = func_get_args();
+    global $debugType;
+    global $debugArray;
+    global $debugImmediate;
+
+    $strings = [];
+    foreach ($args as $var) {
+        ob_start();
+        var_dump($var, true);
+        $strings[] = ob_get_contents();
+        ob_end_clean();
+    }
+    $debugArray[] = ['backtrace' => $backtrace, 'strings' => $strings];
+
+    if ($debugImmediate)
+        dump_render();
+}
+
 function dumpTime(bool $fromStart = false)
 {
     $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
@@ -51,12 +93,12 @@ function dumpTime(bool $fromStart = false)
     global $_dbgTime;
     $t = microtime(true);
     if ($fromStart) {
-        $txt = number_format(($t - $_SERVER["REQUEST_TIME_FLOAT"]) * 1000, 6).'ms';
+        $txt = number_format(($t - $_SERVER["REQUEST_TIME_FLOAT"]) * 1000, 6) . 'ms';
     } else {
         if (empty($_dbgTime))
             $txt = 'Start';
         else
-            $txt = number_format(($t - $_dbgTime) * 1000, 6).'ms';
+            $txt = number_format(($t - $_dbgTime) * 1000, 6) . 'ms';
     }
 
     $debugArray[] = ['backtrace' => $backtrace, 'strings' => [$txt]];
@@ -81,7 +123,7 @@ function dump_render_text()
     if (($_ENV['debug'] ?? '') == 'true') {
         foreach ($debugArray as $item) {
             $pathExploded = explode('/', str_replace('\\', '/', $item['backtrace'][0]['file']));
-            echo "---- ".end($pathExploded)." (".$item['backtrace'][0]['line'].") ----\r\n";
+            echo "---- " . end($pathExploded) . " (" . $item['backtrace'][0]['line'] . ") ----\r\n";
             if (isset($item['strings'])) {
                 foreach ($item['strings'] as $str) {
                     echo $str;
@@ -105,9 +147,9 @@ function dump_render_html()
         foreach ($debugArray as $item) {
             echo '<div style="background:#ffb; color:#113;border:solid 2px #113;">';
             $pathExploded = explode('/', str_replace('\\', '/', $item['backtrace'][0]['file']));
-            echo '<span title="'.htmlspecialchars($item['backtrace'][0]['file']).'">';
+            echo '<span title="' . htmlspecialchars($item['backtrace'][0]['file']) . '">';
             echo "\r\n";
-            echo htmlspecialchars(end($pathExploded)).' ('.$item['backtrace'][0]['line'].')';
+            echo htmlspecialchars(end($pathExploded)) . ' (' . $item['backtrace'][0]['line'] . ')';
             echo "\r\n";
             echo '</span>';
             echo '</div><pre style="background:#113; color:#ffb;margin-top:0;">';

@@ -5,13 +5,14 @@ export class ListRenderer {
         this.renderFunction = renderFunction;
         this.list = list;
         this.key = key;
-        this.map = new WeakMap();
+        this.map = this.config.useWeakMap ? new WeakMap() : new Map();
         this.render();
     }
 
     getDefaultConfig() {
         return {
-            reverse: false
+            reverse: false,
+            useWeakMap: true
         }
     }
 
@@ -53,6 +54,18 @@ export class ListRenderer {
         }
         for (; wantedIndex < wantedChildren.length; wantedIndex++) {
             this.container.appendChild(wantedChildren[wantedIndex]);
+        }
+        this.clearMap();
+    }
+
+    clearMap() {
+        if (this.map instanceof Map) {
+            let arr = Array.from(this.map);
+            for (let [key, value] of arr) {
+                if (value.parentNode == null) {
+                    this.map.delete(key);
+                }
+            }
         }
     }
 }

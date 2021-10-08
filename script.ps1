@@ -58,7 +58,7 @@ function Prepare-Build
         composer install
     }
 
-    node "modules/core/js/build.js"
+    node "modules/Core/js/build.js"
 
     ls modules | ? { Test-Path "modules/$( $_.Name )/dist" } | %{ New-SymLink "./public_html/dist/$( $_.Name )" "../../modules/$( $_.Name )/dist" }
 
@@ -283,6 +283,12 @@ function Start-WebSocketServer
     Push-Location (Find-ProjectDir).Fullname
     php modules/Core/initWebsocketService.php
 }
+function Start-DevServer([int] $port=80)
+{
+    Push-Location (Find-ProjectDir).Fullname
+    cd public_html
+    php -S 0.0.0.0:$port
+}
 function Test-Requirements
 {
     $isGood = $true;
@@ -298,6 +304,7 @@ function Test-Requirements
 }
 . ./modules/Core/PowerShell/modules.ps1
 . ./modules/Core/PowerShell/exception.ps1
+. ./modules/Core/PowerShell/tests.ps1
 if ((test-path modules/Core) -and (test-path vendor))
 {
     Load-AvaibleMethods

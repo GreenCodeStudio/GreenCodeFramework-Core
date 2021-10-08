@@ -10,6 +10,7 @@ addEventListener('focus', () => {
 AjaxTask.refresh();
 if ('serviceWorker' in navigator && !window.DEBUG) {
     window.swRegistratonPromise = navigator.serviceWorker.register('/dist/serviceWorker.js', {scope: '/'});
+    window.swRegistratonPromise.catch(()=>{});
 }
 window.addEventListener('beforeinstallprompt', (e) => {
     let btn = document.create('button.installPWA span.icon-install');
@@ -20,7 +21,7 @@ window.addEventListener('beforeinstallprompt', (e) => {
     }
 });
 setTimeout(() => pageManager.initPage(window.controllerInitInfo, document.querySelector('.page'), true));
-setEvent('click', 'a', function (e) {
+setEvent('click', 'a:not(.nativeLink)', function (e) {
     e.preventDefault();
     pageManager.goto(this.href);
 });
