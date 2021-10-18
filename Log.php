@@ -14,15 +14,22 @@ class Log
 
     public static function Request(string $url)
     {
+        if (getenv('logErrors') == 'false') return;
         $connection = static::connect();
         $channel = $connection->channel();
         $channel->queue_declare('log', false, false, false, false);
 
         $msg = new \stdClass();
         $msg->type = 'Request';
-        $msg->server = $_SERVER;
+        $msg->server = [];
+        $msg->hostname = $_SERVER['HTTP_HOST']??null;
+        $msg->serverIP = $_SERVER['SERVER_ADDR']??null;
+        $msg->userAgent = $_SERVER['HTTP_USER_AGENT']??null;
+        $msg->debug = $_ENV['debug'] == 'true';
+        $msg->machine = gethostname();
+        $msg->projectPath = dirname(__DIR__, 2);
         $msg->urlRouting = $url;
-        $msg->stamp = (new \DateTime())->format('Y-m-d H:i:s.u');
+        $msg->stamp = (new \DateTime("now", new \DateTimeZone("UTC")))->format('Y-m-d H:i:s.u');
         $msg->user = (\Authorization\Authorization::getUserData());
 
         $amqpMsg = new AMQPMessage(json_encode($msg));
@@ -39,6 +46,7 @@ class Log
 
     public static function ErrorHandle($errno, $errstr, $errfile, $errline)
     {
+        if (getenv('logErrors') == 'false') return;
         $connection = static::connect();
         $channel = $connection->channel();
         $channel->queue_declare('log', false, false, false, false);
@@ -51,8 +59,11 @@ class Log
         $msg->file = $errfile;
         $msg->line = $errline;
         $msg->column = null;
-        $msg->stamp = (new \DateTime())->format('Y-m-d H:i:s.u');
+        $msg->stamp = (new \DateTime("now", new \DateTimeZone("UTC")))->format('Y-m-d H:i:s.u');
         $msg->server = $_SERVER;
+        $msg->machine = gethostname();
+        $msg->debug = $_ENV['debug'] == 'true';
+        $msg->projectPath = dirname(__DIR__, 2);
         $msg->user = (\Authorization\Authorization::getUserData());
         $msg->stack = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
@@ -100,6 +111,7 @@ class Log
 
     public static function Exception(\Throwable $ex)
     {
+        if (getenv('logErrors') == 'false') return;
         $connection = static::connect();
         $channel = $connection->channel();
         $channel->queue_declare('log', false, false, false, false);
@@ -108,7 +120,7 @@ class Log
         $msg->type = 'Error';
         $msg->lang = "php";
         $msg->level = 'Exception';
-        $msg->message = get_class($ex)."\r\n".$ex->getMessage();
+        $msg->message = get_class($ex) . "\r\n" . $ex->getMessage();
         $msg->file = $ex->getFile();
         $msg->line = $ex->getLine();
         $msg->column = null;
@@ -121,8 +133,10 @@ class Log
         $channel->basic_publish($amqpMsg, '', 'log');
 
     }
+
     public static function FrontException($event)
     {
+        if (getenv('logErrors') == 'false') return;
         $connection = static::connect();
         $channel = $connection->channel();
         $channel->queue_declare('log', false, false, false, false);
