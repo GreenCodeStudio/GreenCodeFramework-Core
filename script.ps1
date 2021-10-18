@@ -43,7 +43,7 @@ function Repair-Build
 }
 function Prepare-Build
 {
-    if(!(Test-Path "tmp" ){
+    if(!(Test-Path "tmp" )){
         mkdir "tmp"
     }
     if (!(test-path "webpack.config.js"))
