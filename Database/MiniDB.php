@@ -10,9 +10,9 @@ class MiniDB
 
     public static function GetConnection()
     {
-        if(static::$redis===null) {
+        if (static::$redis === null) {
             static::$redis = new \Redis();
-            static::$redis->connect('127.0.0.1');
+            static::$redis->connect($_ENV['redis'] ?? '127.0.0.1');
         }
         return static::$redis;
     }
