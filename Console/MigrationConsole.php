@@ -2,7 +2,7 @@
 
 namespace Core\Console;
 
-class Migration extends \Core\AbstractController
+class MigrationConsole extends \Core\AbstractController
 {
     function Upgrade()
     {

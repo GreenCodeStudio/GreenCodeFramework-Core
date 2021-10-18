@@ -186,7 +186,11 @@ class Router
             $name = $matches[1];
             $controllerInfo = new \StdClass();
             $controllerInfo->module = $module;
-            $controllerInfo->name = $name;
+            if (str_ends_with($name, $this->controllerType)) {
+                $controllerInfo->name = substr($name, 0, -strlen($this->controllerType));
+            } else {
+                $controllerInfo->name = $name;
+            }
             $controllerInfo->methods = [];
             try {
                 $classPath = "\\$module\\$this->controllerType\\$name";
@@ -253,6 +257,10 @@ class Router
     protected function findControllerClass()
     {
         $type = $this->controllerType;
+        $suffix = $type;
+        if ($type == 'Controllers') {
+            $suffix = 'Controller';
+        }
         $modulesPath = __DIR__ . '/../../../modules';
         $modules = scandir($modulesPath);
         foreach ($modules as $module) {
@@ -265,10 +273,10 @@ class Router
                 $className = "\\$module\\$type\\$this->controllerName";
                 return $className;
             }
-            $filename = $modulesPath . '/' . $module . '/' . $type . '/' . $this->controllerName . 'Controller.php';
+            $filename = $modulesPath . '/' . $module . '/' . $type . '/' . $this->controllerName . $suffix . '.php';
             if (is_file($filename)) {
                 include_once $filename;
-                $className = "\\$module\\$type\\{$this->controllerName}Controller";
+                $className = "\\$module\\$type\\{$this->controllerName}$suffix";
                 return $className;
             }
         }
