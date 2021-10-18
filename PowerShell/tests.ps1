@@ -83,6 +83,6 @@ function Run-TestEnvironment
     Push-Location (Find-ProjectDir).Fullname
     Build-Project -Production
     cd public_html
-    Start-Job -ScriptBlock  { php -S 0.0.0.0:8080 }
+    Start-Job -ScriptBlock  { php -S 0.0.0.0:8080 > ../tmp/TestEnvironment.log }
     Pop-Location
 }

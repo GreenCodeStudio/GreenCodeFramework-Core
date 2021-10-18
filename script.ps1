@@ -43,6 +43,9 @@ function Repair-Build
 }
 function Prepare-Build
 {
+    if(!(Test-Path "tmp" ){
+        mkdir "tmp"
+    }
     if (!(test-path "webpack.config.js"))
     {
         copy "modules/Core/default.webpack.config.js" "./webpack.config.js"
