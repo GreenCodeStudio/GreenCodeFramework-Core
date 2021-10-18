@@ -38,7 +38,7 @@ abstract class Migration
         $tables = [];
         foreach ($tablesList as $tableName) {
             $table = new \stdClass();
-            $table->columns = DB::get("SELECT COLUMN_NAME as name, COLUMN_TYPE as type, EXTRA,  IS_NULLABLE as `null` FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?", [$schema, $tableName->name]);
+            $table->columns = DB::get("SELECT COLUMN_NAME as name, COLUMN_TYPE as type, EXTRA,  IS_NULLABLE as `null`, COLUMN_DEFAULT as `default` FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?", [$schema, $tableName->name]);
             foreach ($table->columns as &$column) {
                 if (strpos($column->EXTRA, 'auto_increment') !== false)
                     $column->autoincrement = 'YES';
@@ -200,7 +200,8 @@ abstract class Migration
         }
         $null = strtoupper($old->null ?? 'NO') == strtoupper($new->null ?? 'NO');
         $autoincrement = strtoupper($old->autoincrement??'NO') == strtoupper($new->autoincrement??'NO');
-        return $name && $type && $null && $autoincrement;
+        $default = strtoupper($old->default??null) === strtoupper($new->default??null);
+        return $name && $type && $null && $autoincrement&& $default;
     }
 
     /**
@@ -211,7 +212,7 @@ abstract class Migration
     {
         $safename = DB::safeKey($column->name);
         $col = $safename.' '.$column->type.' '.(strtolower($column->null) == 'yes' ? 'NULL' : 'NOT NULL');
-        if (!empty($column->default))
+        if (isset($column->default))
             $col .= ' DEFAULT '.DB::safe($column->default->__toString());
         if (!empty($column->autoincrement) && strtolower($column->autoincrement) == 'yes')
             $col .= " AUTO_INCREMENT";
