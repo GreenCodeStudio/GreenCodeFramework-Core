@@ -8,9 +8,9 @@ class MiniDB
 {
     private static $redis;
 
-    public static function GetConnection()
+    public static function GetConnection(): \Redis
     {
-        if(static::$redis===null) {
+        if (static::$redis === null) {
             static::$redis = new \Redis();
             static::$redis->connect('127.0.0.1');
         }
