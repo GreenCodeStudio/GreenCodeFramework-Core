@@ -71,11 +71,32 @@ class Router
                 }
             }
         }
+        $parameters = $reflectionMethod->getParameters();
+        foreach ($this->controller->initInfo->methodArguments as $i => &$value) {
+            $parameter = $parameters[$i] ?? null;
+            if ($parameter != null) {
+                $type = $parameter->getType();
+                if ($type != null) {
+                    $typeName = $type->getName();
+                    $value = $this->convertType($typeName, $value);
+                }
+            }
+
+        }
         $this->returned = $reflectionMethod->invokeArgs($this->controller, $this->controller->initInfo->methodArguments);
 
         if (method_exists($this->controller, $this->controller->initInfo->methodName . '_data')) {
             $reflectionMethodData = new ReflectionMethod($this->controllerClassName, $this->controller->initInfo->methodName . '_data');
             $this->controller->initInfo->data = $reflectionMethodData->invokeArgs($this->controller, $this->controller->initInfo->methodArguments);
+        }
+    }
+
+    private function convertType($type, $value)
+    {
+        if ($type == 'DateTime') {
+            return new \DateTime($value);
+        } else {
+            return $value;
         }
     }
 
