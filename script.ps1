@@ -83,12 +83,16 @@ function Generate-Htaccess
     RewriteEngine on
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteRule . index.php [L]
+    RewriteRule . index.php?oryginal_request_uri=%{REQUEST_URI} [L]
 
     <IfModule mod_headers.c>
-        Header set Cache-Control "no-cache, no-store, must-revalidate"
-        Header set Pragma "no-cache"
-        Header set Expires 0
+        <If "%{REQUEST_URI} =~ /File/">
+        </If>
+        <Else>
+            Header set Cache-Control "no-cache, no-store, must-revalidate"
+            Header set Pragma "no-cache"
+            Header set Expires 0
+        </Else>
         Header set Service-Worker-Allowed "/"
         Header set x-sw-version "${timestamp}"
         <FilesMatch "/dist/.*">
