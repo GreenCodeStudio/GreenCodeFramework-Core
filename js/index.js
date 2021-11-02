@@ -14,7 +14,7 @@ if ('serviceWorker' in navigator && !window.DEBUG) {
 }
 window.addEventListener('beforeinstallprompt', (e) => {
     let btn = document.create('button.installPWA span.icon-install');
-    document.querySelector('body > header').insertBefore(btn, document.querySelector('body > header .tasks'));
+    document.querySelector('body > header')?.insertBefore(btn, document.querySelector('body > header .tasks'));
     btn.onclick = () => {
         e.prompt();
         btn.remove();
