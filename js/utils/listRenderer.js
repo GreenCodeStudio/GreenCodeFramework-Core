@@ -7,12 +7,15 @@ export class ListRenderer {
         this.key = key;
         this.map = this.config.useWeakMap ? new WeakMap() : new Map();
         this.render();
+        this.removingSymbol = Symbol;
     }
 
     getDefaultConfig() {
         return {
             reverse: false,
-            useWeakMap: true
+            useWeakMap: true,
+            removeDelay: 0,
+            removeClass: null
         }
     }
 
@@ -42,7 +45,18 @@ export class ListRenderer {
         while (currentIndex < this.container.childNodes.length) {
             let current = this.container.childNodes[currentIndex];
             if (!set.has(current)) {
-                current.remove();
+
+                if (current[this.removingSymbol] !== undefined) {
+                    currentIndex++;
+                } else {
+                    if (this.config.removeDelay > 0) {
+                        current[this.removingSymbol] = setTimeout(() => current.remove(), this.config.removeDelay)
+                        if (this.config.removeClass)
+                            current.classList.add(this.config.removeClass)
+                        currentIndex++;
+                    } else
+                        current.remove();
+                }
             } else if (current == wantedChildren[wantedIndex]) {
                 wantedIndex++;
                 currentIndex++;
@@ -54,8 +68,18 @@ export class ListRenderer {
         }
         for (; wantedIndex < wantedChildren.length; wantedIndex++) {
             this.container.appendChild(wantedChildren[wantedIndex]);
+            this.recycle(wantedChildren[wantedIndex])
         }
         this.clearMap();
+    }
+
+    recycle(item) {
+        if (item[this.removingSymbol]) {
+            clearTimeout(item[this.removingSymbol])
+            delete item[this.removingSymbol];
+        }
+        if (this.config.removeClass)
+            item.classList.remove(this.config.removeClass)
     }
 
     clearMap() {
