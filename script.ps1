@@ -86,7 +86,7 @@ function Generate-Htaccess
     RewriteRule . index.php?oryginal_request_uri=%{REQUEST_URI} [L]
 
     <IfModule mod_headers.c>
-        <If "%{REQUEST_URI} =~ /File/">
+        <If "%{QUERY_STRING} =~ /File.get/">
         </If>
         <Else>
             Header set Cache-Control "no-cache, no-store, must-revalidate"
