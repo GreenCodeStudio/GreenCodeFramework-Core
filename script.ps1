@@ -83,7 +83,7 @@ function Generate-Htaccess
     RewriteEngine on
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteRule . index.php?oryginal_request_uri=%{REQUEST_URI} [L]
+    RewriteRule . index.php?oryginal_request_uri=%{REQUEST_URI}&%{QUERY_STRING} [L]
 
     <IfModule mod_headers.c>
         <If "%{QUERY_STRING} =~ /File.get/">
