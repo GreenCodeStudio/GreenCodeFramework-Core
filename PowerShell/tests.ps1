@@ -56,7 +56,8 @@ function Run-E2eTests
         $password = -join ((65..90) + (97..122) | Get-Random -Count 20 | % { [char]$_ })
         try
         {
-            Run-Command User add @("Test", "Admin", $mail, $password)
+            $user = Run-Command User add @("Test", "Admin", $mail, $password)
+            Run-Command User addAllPermissions @($user.id)
         }
         catch
         {
