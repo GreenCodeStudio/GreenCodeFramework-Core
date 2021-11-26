@@ -14,6 +14,7 @@ class Log
 
     public static function Request(string $url)
     {
+        try {
         if (getenv('logErrors') == 'false') return;
         $connection = static::connect();
         $channel = $connection->channel();
@@ -34,6 +35,9 @@ class Log
 
         $amqpMsg = new AMQPMessage(json_encode($msg));
         $channel->basic_publish($amqpMsg, '', 'log');
+        } catch (\Throwable $ex) {
+            dump($ex);
+        }
     }
 
     static function connect()
@@ -46,30 +50,34 @@ class Log
 
     public static function ErrorHandle($errno, $errstr, $errfile, $errline)
     {
-        if (getenv('logErrors') == 'false') return;
-        $connection = static::connect();
-        $channel = $connection->channel();
-        $channel->queue_declare('log', false, false, false, false);
+        dump("Error on line $errline in file $errfile\r\n$errstr");
+        try {
+            if (getenv('logErrors') == 'false') return;
+            $connection = static::connect();
+            $channel = $connection->channel();
+            $channel->queue_declare('log', false, false, false, false);
 
-        $msg = new \stdClass();
-        $msg->type = 'Error';
-        $msg->lang = "php";
-        $msg->level = self::FriendlyErrorType($errno);
-        $msg->message = $errstr;
-        $msg->file = $errfile;
-        $msg->line = $errline;
-        $msg->column = null;
-        $msg->stamp = (new \DateTime("now", new \DateTimeZone("UTC")))->format('Y-m-d H:i:s.u');
-        $msg->server = $_SERVER;
-        $msg->machine = gethostname();
-        $msg->debug = $_ENV['debug'] == 'true';
-        $msg->projectPath = dirname(__DIR__, 2);
-        $msg->user = (\Authorization\Authorization::getUserData());
-        $msg->stack = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+            $msg = new \stdClass();
+            $msg->type = 'Error';
+            $msg->lang = "php";
+            $msg->level = self::FriendlyErrorType($errno);
+            $msg->message = $errstr;
+            $msg->file = $errfile;
+            $msg->line = $errline;
+            $msg->column = null;
+            $msg->stamp = (new \DateTime("now", new \DateTimeZone("UTC")))->format('Y-m-d H:i:s.u');
+            $msg->server = $_SERVER;
+            $msg->machine = gethostname();
+            $msg->debug = $_ENV['debug'] == 'true';
+            $msg->projectPath = dirname(__DIR__, 2);
+            $msg->user = (\Authorization\Authorization::getUserData());
+            $msg->stack = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
-        $amqpMsg = new AMQPMessage(json_encode($msg));
-        $channel->basic_publish($amqpMsg, '', 'log');
-        dump("$msg->type on line $errline in file $errfile\r\n$errstr");
+            $amqpMsg = new AMQPMessage(json_encode($msg));
+            $channel->basic_publish($amqpMsg, '', 'log');
+        } catch (\Throwable $ex) {
+            dump($ex);
+        }
     }
 
     static function FriendlyErrorType($type)
@@ -145,14 +153,14 @@ class Log
         $msg->type = 'Error';
         $msg->lang = "js";
         $msg->level = 'Exception';
-        $msg->message = $event->message??null;
-        $msg->file =$event->filename??null;
-        $msg->line = $event->lineno??null;
-        $msg->column = $event->colno??null;
+        $msg->message = $event->message ?? null;
+        $msg->file = $event->filename ?? null;
+        $msg->line = $event->lineno ?? null;
+        $msg->column = $event->colno ?? null;
         $msg->stamp = (new \DateTime("now", new \DateTimeZone("UTC")))->format('Y-m-d H:i:s.u');
         $msg->server = $_SERVER;
         $msg->user = (\Authorization\Authorization::getUserData());
-        $msg->stack = $event->stack??null;
+        $msg->stack = $event->stack ?? null;
 
         $amqpMsg = new AMQPMessage(json_encode($msg));
         $channel->basic_publish($amqpMsg, '', 'log');
