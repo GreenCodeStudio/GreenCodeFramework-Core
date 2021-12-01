@@ -4,6 +4,8 @@
 namespace Core\Routing;
 
 
+use Core\Exceptions\NotFoundException;
+
 class ApiRouter extends Router
 {
 
@@ -47,6 +49,7 @@ class ApiRouter extends Router
                 }
             }
         }
+        throw new NotFoundException();
     }
 
     protected function sendBackSuccess()
