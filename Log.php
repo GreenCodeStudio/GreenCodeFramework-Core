@@ -132,7 +132,7 @@ class Log
         $msg->file = $ex->getFile();
         $msg->line = $ex->getLine();
         $msg->column = null;
-        $msg->stamp = (new \DateTime())->format('Y-m-d H:i:s.u');
+        $msg->stamp = (new \DateTime("now", new \DateTimeZone("UTC")))->format('Y-m-d H:i:s.u');
         $msg->server = $_SERVER;
         $msg->user = (\Authorization\Authorization::getUserData());
         $msg->stack = $ex->getTrace();
@@ -157,7 +157,7 @@ class Log
         $msg->file = $event->filename ?? null;
         $msg->line = $event->lineno ?? null;
         $msg->column = $event->colno ?? null;
-        $msg->stamp = (new \DateTime())->format('Y-m-d H:i:s.u');
+        $msg->stamp = (new \DateTime("now", new \DateTimeZone("UTC")))->format('Y-m-d H:i:s.u');
         $msg->server = $_SERVER;
         $msg->user = (\Authorization\Authorization::getUserData());
         $msg->stack = $event->stack ?? null;
