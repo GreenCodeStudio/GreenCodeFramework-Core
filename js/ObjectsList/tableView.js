@@ -324,12 +324,13 @@ export class TableView extends HTMLElement {
 
     fillDataTransfer(dataTransfer, ids) {
         const trs = Array.from(this.body.children).filter(tr => ids.has(tr.dataset.row));
-        dataTransfer.setData('text/html', this.generateTableHtml(trs));
-        dataTransfer.setData('text/plain', this.generateTableTextPlain(trs));
         let action = this.objectsList.generateActions(this.objectsList.getSelectedData(), 'dataTransfer').find(x => x.main);
         if (action && action.href) {
             dataTransfer.setData('text/uri-list', new URL(action.href, document.baseURI));
         }
+        dataTransfer.setData('text/html', this.generateTableHtml(trs));
+        dataTransfer.setData('text/plain', this.generateTableTextPlain(trs));
+
     }
 
     generateTableHtml(trs) {
@@ -344,7 +345,7 @@ export class TableView extends HTMLElement {
 
     generateTableTextPlain(trs) {
         const head = Array.from(this.head.querySelectorAll('.column')).map(x => x.textContent.replace(/\r\n/gm, ' ')).join("\t")
-        const body = trs.map(tr => Array.from(tr.children).map(x => x.textContent.replace(/\r\n/gm, ' ')).join("\t")).join("\r\n")
+        const body = trs.map(tr => Array.from(tr.children).slice(1).map(x => x.textContent.replace(/\r\n/gm, ' ')).join("\t")).join("\r\n")
         return head + "\r\n" + body;
     }
 
