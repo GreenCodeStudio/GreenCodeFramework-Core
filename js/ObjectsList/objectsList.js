@@ -2,6 +2,7 @@ import {TableView} from "./tableView";
 import {t} from "../../i18n.xml";
 import {PaginationButtons} from "./paginationButtons";
 import {ContextMenu} from "../contextMenu";
+import {ConcurencyLimiter} from "../utils/concurencyLimiter";
 
 export class ObjectsList extends HTMLElement {
     constructor(datasource) {
@@ -9,6 +10,7 @@ export class ObjectsList extends HTMLElement {
         this.columns = [];
         this.generateActions = () => {
         };
+        this.loadConcurencyLimiter = new ConcurencyLimiter();
         this.datasource = datasource;
         this.datasource.onchange = () => this.refresh();
         this.start = 0;
@@ -42,8 +44,12 @@ export class ObjectsList extends HTMLElement {
         this.refreshLimit();
         const refreshSymbol = Symbol();
         this.lastRefreshSymbol = refreshSymbol;
-        let data = await this.datasource.get(this);
-        if (this.lastRefreshSymbol == refreshSymbol) {
+        await this.loadConcurencyLimiter.run(async () => {
+            if (this.lastRefreshSymbol != refreshSymbol) return;
+
+            let data = await this.datasource.get(this);
+            if (this.lastRefreshSymbol != refreshSymbol) return;
+
             this.currentRows = data.rows;
             this.fillDataById(data.rows);
             this.total = data.total;
@@ -51,7 +57,7 @@ export class ObjectsList extends HTMLElement {
             this.pagination.currentPage = Math.floor(this.start / this.limit);
             this.pagination.totalPages = Math.ceil(this.total / this.limit);
             this.pagination.render();
-        }
+        });
     }
 
     initInsideView() {
