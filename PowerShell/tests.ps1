@@ -68,6 +68,9 @@ function Run-E2eTests
         Run-TestEnvironment
         echo "start selenium"
         node ./modules/E2eTests/Test/Selenium/init.js $mail $password
+        if($LASTEXITCODE -ne 0){
+            exit $LASTEXITCODE;
+        }
         Pop-Location
     }
     catch
