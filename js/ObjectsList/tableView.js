@@ -313,6 +313,12 @@ export class TableView extends HTMLElement {
     }
 
     trOnDragStart(row, oryginalTr, e) {
+        if(!this.objectsList.selected.has(row.id))
+        {
+            this.objectsList.selected.clear()
+            this.objectsList.selected.add(row.id)
+            this.refreshSelectedClasses();
+        }
         this.fillDataTransfer(e.dataTransfer, this.objectsList.selected);
     }
 
