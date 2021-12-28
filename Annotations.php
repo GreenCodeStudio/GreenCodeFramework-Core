@@ -41,6 +41,8 @@ class ApiEndpointAnnotation extends \mindplay\annotations\Annotation
 {
     public $type;
     public $url;
+    public $description="";
+    public $responses=[];
 }
 /**
  * @usage('method'=>true)
