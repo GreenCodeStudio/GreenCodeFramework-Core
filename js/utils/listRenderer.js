@@ -39,6 +39,7 @@ export class ListRenderer {
     }
 
     changeChildrenFor(wantedChildren) {
+        wantedChildren.forEach(x=>x.classList?.remove(this.config.removeClass))
         let set = new Set(wantedChildren);
         let currentIndex = 0;
         let wantedIndex = 0;
