@@ -51,7 +51,10 @@ export class ListRenderer {
                     currentIndex++;
                 } else {
                     if (this.config.removeDelay > 0) {
-                        current[this.removingSymbol] = setTimeout(() => current.remove(), this.config.removeDelay)
+                        current[this.removingSymbol] = setTimeout(() => {
+                            current.remove();
+                            delete current[this.removingSymbol];
+                        }, this.config.removeDelay)
                         if (this.config.removeClass)
                             current.classList.add(this.config.removeClass)
                         currentIndex++;
