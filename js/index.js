@@ -23,15 +23,18 @@ addEventListener('error', e => {
         error: e.error,
         stack: (new Error()).stack
     };
-    Ajax.Log.addFrontError(obj).catch(()=>{});
-    modal("Wystąpił błąd", "error")
+    if (new URL(e.filename).origin == document.location.origin) {
+        Ajax.Log.addFrontError(obj).catch(() => void 0);
+        modal("Wystąpił błąd", "error")
+    }
 });
-addEventListener('unhandledrejection', e=> {
+addEventListener('unhandledrejection', e => {
     let obj = {
         message: e.reason.message,
         stack: e.reason.stack
     };
-    Ajax.Log.addFrontError(obj).catch(()=>{});
+    Ajax.Log.addFrontError(obj).catch(() => {
+    });
     modal("Wystąpił błąd", "error")
 });
 window.dbgAjax = Ajax;
