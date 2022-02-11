@@ -19,7 +19,8 @@ abstract class Repository
 
     public $archiveMode = self::ArchiveMode_All;
 
-    abstract public function defaultTable():string;
+    abstract public function defaultTable(): string;
+
     public function getById(int $id)
     {
         $defaultTable = $this->defaultTable();
@@ -34,6 +35,11 @@ abstract class Repository
     public function insert($data)
     {
         return DB::insert($this->defaultTable(), $data);
+    }
+
+    public function insertMultiple($data)
+    {
+        return DB::insertMultiple($this->defaultTable(), $data);
     }
 
     public function getSelect()
