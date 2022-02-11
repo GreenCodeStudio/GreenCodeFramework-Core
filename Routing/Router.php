@@ -207,7 +207,7 @@ class Router
             $name = $matches[1];
             $controllerInfo = new \StdClass();
             $controllerInfo->module = $module;
-            if (str_ends_with($name, $this->controllerType)) {
+            if (substr($name, -strlen($this->controllerType))==$this->controllerType) {
                 $controllerInfo->name = substr($name, 0, -strlen($this->controllerType));
             } else {
                 $controllerInfo->name = $name;
