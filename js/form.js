@@ -8,7 +8,9 @@ export class FormManager {
         const formElements = this.form.elements;
         for (const elem of formElements) {
             let value = this.parseFormItemNameRead(elem, data);
-            if (elem.type == 'checkbox') {
+            if (elem instanceof HTMLButtonElement) {
+                //do nothing
+            } else if (elem.type == 'checkbox') {
                 elem.checked = value && value != '0'
             } else if (elem.type == 'datetime-local') {
                 if (value)
@@ -70,13 +72,16 @@ export class FormManager {
         return obj[nameParsed[1]];
     }
 
-    getData() {
+    getData(submitter) {
         let data = {};
         let formElements = this.form.elements;
         for (var elem of formElements) {
             if (elem.type == 'checkbox' || elem.type == 'radio') {
                 if (!elem.checked)
                     continue;
+            }
+            if (elem instanceof HTMLButtonElement && elem != submitter) {
+                continue
             }
             this.parseFormItemNameWrite(elem, data, elem.value);
         }
@@ -85,7 +90,7 @@ export class FormManager {
 
     formSubmitted(e) {
         e.preventDefault();
-        this.submit(this.getData());
+        this.submit(this.getData(e.submitter));
     }
 
     /**
