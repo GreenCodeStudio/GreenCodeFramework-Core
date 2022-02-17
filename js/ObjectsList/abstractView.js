@@ -26,4 +26,14 @@ export class AbstractView extends HTMLElement {
             this.body.appendChild(tr);
         }
     }
+
+    onScroll(e) {
+        if (this.onPaginationChanged) {
+            let start = Math.round(this.scrollTop / this.rowHeight);
+            let passedStart = Math.floor(start / 20) * 20 - 20;
+            if (passedStart < 0)
+                passedStart = 0;
+            this.onPaginationChanged(passedStart);
+        }
+    }
 }

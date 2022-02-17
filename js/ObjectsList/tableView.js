@@ -351,16 +351,6 @@ export class TableView extends AbstractView {
         document.execCommand("copy");
         setTimeout(() => this.copyForced = null, 100);
     }
-
-    onScroll(e) {
-        if (this.onPaginationChanged) {
-            let start = Math.round(this.scrollTop / 41);
-            let passedStart = Math.floor(start / 20) * 20 - 20;
-            if (passedStart < 0)
-                passedStart = 0;
-            this.onPaginationChanged(passedStart);
-        }
-    }
 }
 
 customElements.define('table-view', TableView);

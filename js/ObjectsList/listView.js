@@ -12,6 +12,7 @@ export class ListView extends AbstractView {
 
     init() {
         this.body = this.addChild('.bodyContainer').addChild('.body');
+        this.addEventListener('scroll', this.onScroll.bind(this));
     }
 
     calcMaxVisibleItems(height) {
