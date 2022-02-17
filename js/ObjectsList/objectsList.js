@@ -3,6 +3,7 @@ import {t} from "../../i18n.xml";
 import {PaginationButtons} from "./paginationButtons";
 import {ContextMenu} from "../contextMenu";
 import {ConcurencyLimiter} from "../utils/concurencyLimiter";
+import {IdsSet} from "./idsSet";
 
 export class ObjectsList extends HTMLElement {
     constructor(datasource) {
@@ -16,7 +17,7 @@ export class ObjectsList extends HTMLElement {
         this.start = 0;
         this.limit = 10
         this.total = 0;
-        this.selected = new Set();
+        this.selected = new IdsSet();
         this.selectedMain = null;
         this.dataById = new Map();
         this.initFoot();
@@ -79,11 +80,11 @@ export class ObjectsList extends HTMLElement {
     }
 
     getSelectedData() {
-        let ids = [];
-        if (this.selectedMain)
-            ids.push(this.selectedMain);
-        ids = [...ids, ...Array.from(this.selected).filter(id => id != this.selectedMain)];
-        return ids.map(id => this.dataById.get(parseInt(id)));
+        let data = Array.from(this.dataById).filter(([id, row]) => this.selected.has(id)).map(([id, row]) => row);
+        if (data.length > 0) return data;
+        else if (this.dataById[this.selectedMain])
+            return [this.dataById[this.selectedMain]]
+        else return [];
     }
 
     initFoot() {

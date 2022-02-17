@@ -305,6 +305,12 @@ export class TableView extends HTMLElement {
 
             this.refreshSelectedClasses();
             e.preventDefault();
+        } else if (e.key === 'a') {
+            if (e.ctrlKey)
+                this.objectsList.selected.selectAll();
+
+            this.refreshSelectedClasses();
+            e.preventDefault();
         }
     }
 
