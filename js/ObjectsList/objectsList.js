@@ -11,6 +11,7 @@ export class ObjectsList extends HTMLElement {
         this.columns = [];
         this.generateActions = () => {
         };
+        this.icon = 'icon-document';
         this.loadConcurencyLimiter = new ConcurencyLimiter();
         this.datasource = datasource;
         this.datasource.onchange = () => this.refresh();

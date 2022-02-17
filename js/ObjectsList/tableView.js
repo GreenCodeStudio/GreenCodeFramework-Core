@@ -82,7 +82,7 @@ export class TableView extends HTMLElement {
 
     fillRowContent(tr, data) {
         tr.children.removeAll();
-        tr.addChild('.td.icon');
+        tr.addChild('.td.icon', {className:this.objectsList.icon});
         for (let column of this.objectsList.columns) {
             let td = tr.addChild('.td');
             td.append(column.content(data));
