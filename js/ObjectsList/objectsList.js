@@ -1,4 +1,5 @@
 import {TableView} from "./tableView";
+import {ListView} from "./listView";
 import {t} from "../../i18n.xml";
 import {PaginationButtons} from "./paginationButtons";
 import {ContextMenu} from "../contextMenu";
@@ -11,6 +12,7 @@ export class ObjectsList extends HTMLElement {
         this.columns = [];
         this.generateActions = () => {
         };
+        this.insideViewClass=TableView;
         this.icon = 'icon-document';
         this.loadConcurencyLimiter = new ConcurencyLimiter();
         this.datasource = datasource;
@@ -40,7 +42,7 @@ export class ObjectsList extends HTMLElement {
     async refresh() {
         this.classList.toggle('infiniteScrollEnabled', this.infiniteScrollEnabled);
 
-        if (!this.insideView)
+        if (!this.insideView || !(this.insideView instanceof this.insideViewClass))
             this.initInsideView();
 
         this.refreshLimit();
@@ -63,7 +65,10 @@ export class ObjectsList extends HTMLElement {
     }
 
     initInsideView() {
-        this.insideView = new TableView(this);
+        if(this.insideView){
+            this.insideView.remove();
+        }
+        this.insideView = new this.insideViewClass(this);
         this.insertBefore(this.insideView, this.foot);
         this.insideView.onPaginationChanged = (start, limit) => {
             if (this.start != start) {
@@ -132,6 +137,20 @@ export class ObjectsList extends HTMLElement {
             icon: 'icon-scroll',
             onclick: () => {
                 this.infiniteScrollEnabled = true;
+                this.refresh();
+            }
+        }, {
+            text: t('objectList.tableView'),
+            icon: 'icon-table',
+            onclick: () => {
+                this.insideViewClass = TableView;
+                this.refresh();
+            }
+        }, {
+            text: t('objectList.listView'),
+            icon: 'icon-table',
+            onclick: () => {
+                this.insideViewClass = ListView;
                 this.refresh();
             }
         }];
