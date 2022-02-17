@@ -59,7 +59,7 @@ export class TableView extends HTMLElement {
             isOdd = !isOdd;
         }
         let oldChildren = Array.from(this.body.children);
-        for (let tr of oldChildren.filter(tr => !newChildren.includes(tr))) {
+        for (let tr of oldChildren.filter(tr => !newChildren.includes(tr) && !tr.matches(':focus'))) {
             tr.remove();
         }
 
@@ -75,6 +75,7 @@ export class TableView extends HTMLElement {
             tr = document.create('.tr');
             tr.draggable = true;
         }
+        tr.classList.toggle('selected', this.objectsList.selected.has(data.id))
         this.fillRowContent(tr, data);
         return tr;
     }
@@ -220,9 +221,10 @@ export class TableView extends HTMLElement {
                 this.objectsList.selected.delete(row.id);
             else
                 this.objectsList.selected.add(row.id);
+
+            this.objectsList.selectedMain = row.id;
         }
 
-        this.objectsList.selectedMain = row.id;
         this.refreshSelectedClasses();
     }
 
