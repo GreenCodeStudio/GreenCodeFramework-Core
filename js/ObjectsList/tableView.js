@@ -30,6 +30,7 @@ export class TableView extends HTMLElement {
                 }
             }
         }
+        this.head.addChild('.column.actions')
 
         this.body = this.addChild('.bodyContainer').addChild('.body');
         this.setColumnsWidths();
@@ -124,7 +125,10 @@ export class TableView extends HTMLElement {
         for (let i = 0; i < widths.length; i++) {
             let node = this.head.children[i - 1];
             if (node) {
-                node.style.width = widths[i] + 'px';
+                if (i + 1 < widths.length)
+                    node.style.width = widths[i] + 1 + 'px';
+                else
+                    node.style.width = widths[i] + 'px';
                 node.style.left = sum + 'px';
             }
             sum += widths[i];
@@ -313,8 +317,7 @@ export class TableView extends HTMLElement {
     }
 
     trOnDragStart(row, oryginalTr, e) {
-        if(!this.objectsList.selected.has(row.id))
-        {
+        if (!this.objectsList.selected.has(row.id)) {
             this.objectsList.selected.clear()
             this.objectsList.selected.add(row.id)
             this.refreshSelectedClasses();
