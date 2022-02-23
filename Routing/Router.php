@@ -11,6 +11,7 @@ use CanSafeRepeatAnnotation;
 use Core\Exceptions\NotFoundException;
 use Core\Log;
 use Core\Repository\IdempodencyKeyRepostory;
+use Core\IJsonSerializable;
 use mindplay\annotations\AnnotationCache;
 use mindplay\annotations\Annotations;
 use MKrawczyk\FunQuery\FunQuery;
@@ -207,7 +208,7 @@ class Router
             $name = $matches[1];
             $controllerInfo = new \StdClass();
             $controllerInfo->module = $module;
-            if (substr($name, -strlen($this->controllerType))==$this->controllerType) {
+            if (substr($name, -strlen($this->controllerType)) == $this->controllerType) {
                 $controllerInfo->name = substr($name, 0, -strlen($this->controllerType));
             } else {
                 $controllerInfo->name = $name;
@@ -249,6 +250,9 @@ class Router
     protected function exceptionToArray(\Throwable $exception)
     {
         $ret = ['type' => get_class($exception), 'message' => $exception->getMessage(), 'code' => $exception->getCode()];
+        if ($exception instanceof IJsonSerializable) {
+            $ret = array_merge($ret, $exception->toJsonableObject());
+        }
         if ($_ENV['debug'] == 'true') {
             $stack = [['file' => $exception->getFile(), 'line' => $exception->getLine()]];
             $stack = array_merge($stack, $exception->getTrace());
