@@ -3,7 +3,11 @@ export function modal(text, type = 'info', buttons = [{text: 'ok', value: true}]
         console.log(text);
         let modalContainer=document.body.addChild('div.modalContainer');
         let modal = modalContainer.addChild('div.modal', {data:{type}});
-        modal.addChild('div.modal-text',{text});
+        let modalText=modal.addChild('div.modal-text');
+        for (const line of text.split('\r\n')) {
+            modalText.append(line);
+            modalText.addChild('br');
+        }
 
         for (let button of buttons) {
             let buttonElem = modal.addChild('button.modal-button', {text:button.text});
