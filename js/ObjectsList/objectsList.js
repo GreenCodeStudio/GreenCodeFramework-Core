@@ -10,8 +10,7 @@ export class ObjectsList extends HTMLElement {
     constructor(datasource) {
         super();
         this.columns = [];
-        this.generateActions = () => {
-        };
+        this.generateActions = () => [];
         this.insideViewClass=TableView;
         this.icon = 'icon-document';
         this.loadConcurencyLimiter = new ConcurencyLimiter();
