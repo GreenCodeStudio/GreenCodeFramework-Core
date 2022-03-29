@@ -10,6 +10,9 @@ class Formatter
 {
     public static function formatDate($datetime, bool $absolute=false)
     {
+        if($datetime==null){
+            return ' - ';
+        }
         if (!$datetime instanceof DateTime) {
             $datetime = new DateTime(($datetime));
         }

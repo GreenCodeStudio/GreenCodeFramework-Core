@@ -4,6 +4,7 @@ import {Permissions} from "./permissions";
 
 export const pageManager = {
     _constrollers: {},
+    lastController: null,
     initPage(initInfo, page, firstInit = false) {
         if (initInfo.permissions) {
             Permissions.data = initInfo.permissions;
@@ -12,10 +13,16 @@ export const pageManager = {
         if (firstInit && initInfo.controllerName == 'Cache' && initInfo.methodName == 'offline') {
             this.goto(document.location.href, {ignoreHistory: true});
         } else {
+            if (this.lastController) {
+                if (this.lastController.destroying)
+                    this.lastController.destroying();
+                this.lastController = null
+            }
             let controller = this.initController(initInfo);
             controller.then(c => {
                 if (c) {
                     page.controller = new c(page, initInfo.data);
+                    this.lastController = page.controller;
                 }
             });
             this._loadedEvent(page, initInfo.data, initInfo.controllerName.toLowerCase(), initInfo.methodName.toLowerCase());
@@ -111,8 +118,8 @@ export const pageManager = {
             ga('send', 'pageview');
         }
         if ('gtag' in window) {
-            let clearUrl=url;
-            if(clearUrl.startsWith(document.location.origin)) {
+            let clearUrl = url;
+            if (clearUrl.startsWith(document.location.origin)) {
                 clearUrl = clearUrl.substr(document.location.origin.length)
             }
             gtag('config', window.GA_MEASUREMENT_ID, {'page_path': clearUrl});
