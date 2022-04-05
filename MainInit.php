@@ -11,6 +11,7 @@ spl_autoload_register(function ($class_name) {
         include_once $path;
 });
 include_once __DIR__ . '/Debug.php';
+\Core\Log::class;//bugfix
 set_error_handler(function ($errno, $errstr, $errfile, $errline) {
     \Core\Log::ErrorHandle($errno, $errstr, $errfile, $errline);
 });
