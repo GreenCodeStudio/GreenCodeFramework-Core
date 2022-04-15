@@ -115,7 +115,11 @@ function TryOnceAjaxFunction(idempotencyKey, controller, method, ...args) {
                     try {
                         let decoded = JSON.parse(xhr.responseText);
                         showServerDebug(decoded);
-                        ConsoleCheating.eval("console.error.apply(null,data)", "", decoded.error.stack[0].file, decoded.error.stack[0].line, [decoded.error.message + '%o', decoded.error]);
+                        if (decoded.error.stack)
+                            ConsoleCheating.eval("console.error.apply(null,data)", "", decoded.error.stack[0].file, decoded.error.stack[0].line, [decoded.error.message + '%o', decoded.error]);
+                        else
+                            console.error(decoded.error.message + '%o', decoded.error);
+
                         reject(decoded.error)
                     } catch (ex) {
                         reject(new HttpErrorCode(xhr.status, xhr.statusText));

@@ -7,6 +7,7 @@ abstract class StandardController extends AbstractController
 
     private $views = [];
     private $breadcrumb;
+    protected $headLinks=[];
 
     public function __construct()
     {
