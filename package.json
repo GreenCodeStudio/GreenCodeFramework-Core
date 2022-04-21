@@ -9,7 +9,8 @@
         "prototype-extensions": "^1.8.0",
         "xmldom": "^0.4.0",
         "xml2js": "^0.4.23",
-        "active-list-renderer": "^1.0.0"
+        "active-list-renderer": "^1.0.0",
+        "mpts-loader": "^1.0.0-alpha.0"
     },
     "devDependencies": {
         "css-loader": "^3.6.0",

@@ -2,12 +2,16 @@
 
 namespace Core;
 
+use DOMDocument;
+use MKrawczyk\Mpts\Environment;
+use MKrawczyk\Mpts\Parser\XMLParser;
+
 abstract class StandardController extends AbstractController
 {
 
     private $views = [];
     private $breadcrumb;
-    protected $headLinks=[];
+    protected $headLinks = [];
 
     public function __construct()
     {
@@ -16,7 +20,7 @@ abstract class StandardController extends AbstractController
 
     public function postAction()
     {
-        require __DIR__.'/../Common/Views/template.php';
+        require __DIR__ . '/../Common/Views/template.php';
     }
 
     public function getViews()
@@ -48,16 +52,27 @@ abstract class StandardController extends AbstractController
 
     protected function addView(string $module, string $name, $data = null, string $group = 'main')
     {
-        $debugType=getDumpDebugType();
-        ob_start();
-        setDumpDebugType('html', true);
-        try {
-            require __DIR__.'/../'.$module.'/Views/'.$name.'.php';
-            $this->views[$group][] = ob_get_contents();
-        } finally {
-            setDumpDebugType($debugType, false);
+        if (file_exists(__DIR__ . '/../' . $module . '/Views/' . $name . '.php')) {
+            $debugType = getDumpDebugType();
+            ob_start();
+            setDumpDebugType('html', true);
+            try {
+                require __DIR__ . '/../' . $module . '/Views/' . $name . '.php';
+                $this->views[$group][] = ob_get_contents();
+            } finally {
+                setDumpDebugType($debugType, false);
+            }
+            ob_end_clean();
+        } else if (file_exists(__DIR__ . '/../' . $module . '/Views/' . $name . '.mpts')) {
+            $template = XMLParser::Parse(file_get_contents(__DIR__ . '/../' . $module . '/Views/' . $name . '.mpts'));
+            $env = new Environment();
+            $env->document = new DOMDocument();
+            $env->variables = $data;
+            $result = $template->execute($env);
+            $this->views[$group][] = $env->document->saveHTML($result);
+        } else {
+            throw new \Exception("Cannot find $name.php or $name.mpts in $module/Views/");
         }
-        ob_end_clean();
     }
 
     protected function showViews(string $group)
@@ -84,9 +99,9 @@ abstract class StandardController extends AbstractController
         echo '<ul>';
         foreach ($this->breadcrumb as $crumb) {
             if (!empty($crumb['url']))
-                echo '<li><a href="'.htmlspecialchars($crumb['url']).'">'.htmlspecialchars($crumb['title']).'</a></li>';
+                echo '<li><a href="' . htmlspecialchars($crumb['url']) . '">' . htmlspecialchars($crumb['title']) . '</a></li>';
             else
-                echo '<li><span>'.htmlspecialchars($crumb['title']).'</span></li>';
+                echo '<li><span>' . htmlspecialchars($crumb['title']) . '</span></li>';
         }
         echo '</ul>';
     }
