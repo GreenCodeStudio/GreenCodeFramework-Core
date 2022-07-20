@@ -68,6 +68,14 @@ abstract class StandardController extends AbstractController
             $env = new Environment();
             $env->document = new DOMDocument();
             $env->variables = $data;
+            $env->variables['dump']= function (...$args) {
+                ob_start();
+                var_dump(...$args);
+                $ret=ob_get_contents();
+                ob_end_clean();
+                return $ret;
+            };
+            $env->variables['t']=fn(...$args)=>t(...$args);
             $result = $template->execute($env);
             $this->views[$group][] = $env->document->saveHTML($result);
         } else {
