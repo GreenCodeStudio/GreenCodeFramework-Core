@@ -2,7 +2,7 @@
     "scripts": {
         "buildProd": "webpack --mode=production",
         "build": "webpack  --mode=development --watch",
-        "start": "multi-cli \"yarn.cmd build\" \"php -S 0.0.0.0:80 -f public_html/\" \"php modules/Core/initWebsocketService.php\""
+        "start": "multi-cli \"yarn.cmd build\" \"php -S 0.0.0.0:80 -t public_html\" \"php modules/Core/initWebsocketService.php\""
     },
     "dependencies": {
         "console-cheating": "^1.0.0",
