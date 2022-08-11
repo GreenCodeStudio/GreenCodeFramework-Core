@@ -34,7 +34,7 @@
             }
             if (!(Test-Path "./modules/$n"))
             {
-                git submodule add $this.ConfigGitUrl ./modules/$n
+                git submodule add -f $this.ConfigGitUrl ./modules/$n
             }
         }
         Pop-Location
