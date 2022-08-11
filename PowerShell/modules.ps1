@@ -11,7 +11,7 @@
         Push-Location (Find-ProjectDir).Fullname
         $this.Name = $name;
         $this.FolderExist = Test-Path "./modules/$name"
-        $this.FolderHasFiles = Test-Path "./modules/*"
+        $this.FolderHasFiles = Test-Path "./modules/$name/*"
         $this.HasGit = Test-Path "./modules/$name/.git"
         $this.InConfig = ($configModules | ? Name -EQ $name).Length -gt 0
         if ($this.InConfig)
