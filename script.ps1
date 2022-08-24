@@ -282,7 +282,7 @@ function Out-FileUtf8NoBom
 }
 function Enable-PhpDebug
 {
-    SET XDEBUG_CONFIG = "idekey=session_name"
+    $env:XDEBUG_SESSION = 1
 }
 
 function Start-WebSocketServer
