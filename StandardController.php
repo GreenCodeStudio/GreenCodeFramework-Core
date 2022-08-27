@@ -67,7 +67,7 @@ abstract class StandardController extends AbstractController
             $template = XMLParser::Parse(file_get_contents(__DIR__ . '/../' . $module . '/Views/' . $name . '.mpts'));
             $env = new Environment();
             $env->document = new DOMDocument();
-            $env->variables = $data;
+            $env->variables = (array)$data;
             $env->variables['dump']= function (...$args) {
                 ob_start();
                 var_dump(...$args);
@@ -78,6 +78,21 @@ abstract class StandardController extends AbstractController
             $env->variables['t']=fn(...$args)=>t(...$args);
             $result = $template->execute($env);
             $this->views[$group][] = $env->document->saveHTML($result);
+        } else {
+            throw new \Exception("Cannot find $name.php or $name.mpts in $module/Views/");
+        }
+    }
+    protected function insertView(string $module, string $name, $data = null)
+    {
+        if (file_exists(__DIR__ . '/../' . $module . '/Views/' . $name . '.php')) {
+            require __DIR__ . '/../' . $module . '/Views/' . $name . '.php';
+        } else if (file_exists(__DIR__ . '/../' . $module . '/Views/' . $name . '.mpts')) {
+            $template = XMLParser::Parse(file_get_contents(__DIR__ . '/../' . $module . '/Views/' . $name . '.mpts'));
+            $env = new Environment();
+            $env->document = new DOMDocument();
+            $env->variables = (array)$data;
+            $result = $template->execute($env);
+            echo $env->document->saveHTML($result);
         } else {
             throw new \Exception("Cannot find $name.php or $name.mpts in $module/Views/");
         }
