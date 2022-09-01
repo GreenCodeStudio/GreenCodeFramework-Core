@@ -2,6 +2,10 @@ function Init-Project
 {
     Test-Requirements
     Push-Location (Find-ProjectDir).Fullname
+
+    git submodule sync --recursive
+    git submodule update --init --recursive
+
     $dirs = "js", "scss", "modules", "cache", "public_html", "public_html/dist"
     $dirs | %{
         if (!(test-path $_))
