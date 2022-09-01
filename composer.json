@@ -6,7 +6,6 @@
         "cboden/ratchet": "^0.4.1",
         "textalk/websocket": "^1.2",
         "php-amqplib/php-amqplib": "^3.0.0",
-        "vlucas/phpdotenv": "4.2.0",
         "mkrawczyk/funquery": "^v1.9.2",
         "mkrawczyk/mpts": "^0.1.0"
     },
@@ -15,7 +14,7 @@
     },
     "config": {
         "platform": {
-            "php": "8.0"
+            "php": "^8.0"
         }
     }
 }

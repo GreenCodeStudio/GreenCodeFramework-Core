@@ -1,21 +1,20 @@
 <?php
 
-include_once __DIR__.'/../../vendor/autoload.php';
+include_once __DIR__ . '/../vendor/autoload.php';
 
-use Dotenv\Repository\Adapter\EnvConstAdapter;
-use Dotenv\Repository\Adapter\ServerConstAdapter;
-use Dotenv\Repository\RepositoryBuilder;
-use Dotenv\Dotenv;
 
-$repository = RepositoryBuilder::create()
-    ->withReaders([
-        new EnvConstAdapter(),
-    ])
-    ->withWriters([
-        new EnvConstAdapter(),
-        new ServerConstAdapter(),
-    ])
-    ->immutable()
-    ->make();
-$dotenv = Dotenv::create($repository, __DIR__.'/../../');
-$dotenv->load();
+if (is_file(__DIR__ . '/../../.env')) {
+    $content = file_get_contents(__DIR__ . '/../../.env');
+    foreach (explode("\n", $content) as $line) {
+        $equalIndex = strpos($line, '=');
+        if ($equalIndex > 0) {
+            $name = trim(substr($line, 0, $equalIndex));
+            $value = trim(substr($line, $equalIndex + 1));
+            if ($value[0] == "'") {
+                $value = substr($value, 1, -1);
+            }
+            $_ENV[$name] = $value;
+        }
+    }
+}
+

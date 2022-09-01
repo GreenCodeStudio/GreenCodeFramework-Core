@@ -286,7 +286,7 @@ function Out-FileUtf8NoBom
 }
 function Enable-PhpDebug
 {
-    SET XDEBUG_CONFIG = "idekey=session_name"
+    $env:XDEBUG_SESSION = 1
 }
 
 function Start-WebSocketServer
@@ -299,6 +299,23 @@ function Start-DevServer([int] $port = 80)
     Push-Location (Find-ProjectDir).Fullname
     cd public_html
     php -S 0.0.0.0:$port
+}
+
+function Analyze-Problems{
+try{
+Get-Command yarn
+}catch{
+echo "Yarn not found, download from https://yarnpkg.com/getting-started/install"
+}
+
+try{
+Get-Command php
+}catch{
+echo "php not found"
+}
+
+Get-ProjectModules | ft *
+
 }
 function Test-Requirements
 {
@@ -320,3 +337,9 @@ if ((test-path modules/Core) -and (test-path vendor))
 {
     Load-AvaibleMethods
 }
+
+echo "common commands:"
+echo "    Build-Project"
+echo "    Analyze-Problems"
+echo "    Start-Project"
+echo "    Repair-Build"

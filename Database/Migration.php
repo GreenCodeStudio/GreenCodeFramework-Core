@@ -200,7 +200,7 @@ abstract class Migration
         }
         $null = strtoupper($old->null ?? 'NO') == strtoupper($new->null ?? 'NO');
         $autoincrement = strtoupper($old->autoincrement??'NO') == strtoupper($new->autoincrement??'NO');
-        $default = strtoupper($old->default??null) === strtoupper($new->default??null);
+        $default = strtoupper($old->default??'null') === strtoupper($new->default??'null');
         return $name && $type && $null && $autoincrement&& $default;
     }
 
