@@ -1,8 +1,14 @@
 let listeners = [];
 
-const connection = new WebSocket(((location.protocol == "https:") ? 'wss://' : 'ws://') + location.host + '/websocket');
-
+let connection;
+if(document.location.host=='localhost'){
+    connection = new WebSocket('ws://localhost:'+webSocketPort);
+}else {
+    connection = new WebSocket(((location.protocol == "https:") ? 'wss://' : 'ws://') + location.host + '/websocket');
+}
 connection.onmessage = msg => WebSocketReceiver.messageReceived(msg);
+
+
 
 export class WebSocketReceiver {
     static addListener(path, callback) {
