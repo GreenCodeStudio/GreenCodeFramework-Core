@@ -15,8 +15,8 @@
     "devDependencies": {
         "css-loader": "^3.6.0",
         "mini-css-extract-plugin": "^2.1.0",
-        "node-sass": "^6.0.1",
-        "sass-loader": "^13.0.2",
+        "node-sass": "^7.0.3",
+        "sass-loader": "^13.1.0",
         "style-loader": "^1.3.0",
         "util.merge-packages": "^0.0.19",
         "webpack": "^5.45.1",
