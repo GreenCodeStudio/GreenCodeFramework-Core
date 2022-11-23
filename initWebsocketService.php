@@ -9,4 +9,5 @@ spl_autoload_register(function ($class_name) {
 
 include_once __DIR__.'/loadDotEnv.php';
 include_once __DIR__.'/Debug.php';
+include_once __DIR__.'/../../vendor/autoload.php';
 \Core\WebSocket\Server::init();

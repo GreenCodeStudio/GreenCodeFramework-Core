@@ -2,20 +2,21 @@
     "scripts": {
         "buildProd": "webpack --mode=production",
         "build": "webpack  --mode=development --watch",
-        "start": "multi-cli \"yarn.cmd build\" \"php -S 0.0.0.0:80 -f public_html/\" \"php modules/Core/initWebsocketService.php\""
+        "start": "multi-cli \"yarn.cmd build\" \"php -S 0.0.0.0:80 -t public_html\" \"php modules/Core/initWebsocketService.php\""
     },
     "dependencies": {
         "console-cheating": "^1.0.0",
-        "prototype-extensions": "^1.8.0",
+        "prototype-extensions": "^1.10.0",
         "xmldom": "^0.4.0",
         "xml2js": "^0.4.23",
-        "active-list-renderer": "^1.0.0"
+        "active-list-renderer": "^1.0.0",
+        "mpts-loader": "^1.0.0-alpha.0"
     },
     "devDependencies": {
         "css-loader": "^3.6.0",
         "mini-css-extract-plugin": "^2.1.0",
-        "node-sass": "^4.14.1",
-        "sass-loader": "^8.0.2",
+        "node-sass": "^7.0.3",
+        "sass-loader": "^13.1.0",
         "style-loader": "^1.3.0",
         "util.merge-packages": "^0.0.19",
         "webpack": "^5.45.1",
