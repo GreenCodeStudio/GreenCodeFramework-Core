@@ -2,6 +2,7 @@
 {
     [string]$Name;
     [Boolean]$FolderExist;
+    [Boolean]$FolderHasFiles;
     [Boolean]$HasGit;
     [Boolean]$InConfig;
     [string]$ConfigGitUrl;
@@ -10,6 +11,7 @@
         Push-Location (Find-ProjectDir).Fullname
         $this.Name = $name;
         $this.FolderExist = Test-Path "./modules/$name"
+        $this.FolderHasFiles = Test-Path "./modules/$name/*"
         $this.HasGit = Test-Path "./modules/$name/.git"
         $this.InConfig = ($configModules | ? Name -EQ $name).Length -gt 0
         if ($this.InConfig)
@@ -22,12 +24,17 @@
     Download()
     {
         Push-Location (Find-ProjectDir).Fullname
-        if (!$this.FolderExist -and $this.InConfig)
+        if (!$this.FolderHasFiles -and $this.InConfig)
         {
             $n = $this.name;
+            if ((Test-Path "./modules/$n")){
+                if (!(Test-Path "./modules/$n/*")){
+                    rm "./modules/$n";
+                }
+            }
             if (!(Test-Path "./modules/$n"))
             {
-                git submodule add $this.ConfigGitUrl ./modules/$n
+                git submodule add -f $this.ConfigGitUrl ./modules/$n
             }
         }
         Pop-Location

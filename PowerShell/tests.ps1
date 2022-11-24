@@ -86,7 +86,8 @@ function Run-TestEnvironment
     echo "starting etst environment"
     Push-Location (Find-ProjectDir).Fullname
     Build-Project -Production
-    cd public_html
-    Start-Job -ScriptBlock  { php -S 0.0.0.0:8080 > ../tmp/TestEnvironment.log }
-    Pop-Location
+    $job = Start-Job -ScriptBlock  {
+        php -S 0.0.0.0:8080 -t public_html *> ./tmp/TestEnvironment.log
+    }
+    return $job;
 }
