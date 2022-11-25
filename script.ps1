@@ -217,6 +217,7 @@ function Run-Command([Parameter(Mandatory = $true)][String]$controller, [Paramet
 }
 function New-SymLink($link, $target)
 {
+    echo "New-SymLink" $link $target
     if ($env:OS -Like "Windows*")
     {
         $link = $link.replace('/', '\\')
@@ -226,7 +227,7 @@ function New-SymLink($link, $target)
     }
     else
     {
-        New-Item -Path $link -ItemType SymbolicLink -Value $target
+        ln -s $target $link
     }
 }
 
