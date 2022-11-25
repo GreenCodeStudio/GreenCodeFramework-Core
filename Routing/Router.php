@@ -23,6 +23,7 @@ class Router
     {
         Log::Request($url);
         setDumpDebugType('text', false);
+        header('x-version: ' . $_ENV['VERSION'] ?? '-');
         $router = self::getHttpRouter($url);
         try {
             $router->url = $url;
