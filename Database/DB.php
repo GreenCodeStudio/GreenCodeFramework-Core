@@ -167,6 +167,8 @@ class DB
     {
         if ($input instanceof \DateTime)
             return $input->format('Y-m-d H:i:s.v');
+        else if ($input === false)
+            return 0;
         else return $input;
     }
 
