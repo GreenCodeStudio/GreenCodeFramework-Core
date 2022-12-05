@@ -4,7 +4,15 @@ include_once __DIR__ . '/../../vendor/autoload.php';
 
 
 if (is_file(__DIR__ . '/../../.env')) {
-    $content = file_get_contents(__DIR__ . '/../../.env');
+    loadEnvFile(__DIR__ . '/../../.env');
+}
+if (is_file(__DIR__ . '/../../.env.version')) {
+    loadEnvFile(__DIR__ . '/../../.env.version');
+}
+
+function loadEnvFile($path)
+{
+    $content = file_get_contents($path);
     foreach (explode("\n", $content) as $line) {
         $equalIndex = strpos($line, '=');
         if ($equalIndex > 0) {
@@ -17,4 +25,3 @@ if (is_file(__DIR__ . '/../../.env')) {
         }
     }
 }
-

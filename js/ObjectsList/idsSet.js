@@ -12,23 +12,23 @@ export class IdsSet {
     }
     has(id){
         if(this.isSelectedAll){
-            return !this.notSelected.has(id.toString())
+            return !this.notSelected.has(id?.toString())
         }else{
-            return this.selected.has(id.toString())
+            return this.selected.has(id?.toString())
         }
     }
     add(id){
         if(this.isSelectedAll){
-            this.notSelected.delete(id.toString())
+            this.notSelected.delete(id?.toString())
         }else{
-            this.selected.add(id.toString())
+            this.selected.add(id?.toString())
         }
     }
     delete(id){
         if(this.isSelectedAll){
-            this.notSelected.add(id.toString())
+            this.notSelected.add(id?.toString())
         }else{
-            this.selected.delete(id.toString())
+            this.selected.delete(id?.toString())
         }
     }
     selectAll(){

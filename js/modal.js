@@ -1,5 +1,4 @@
 export function modal(text, type = 'info', buttons = [{text: 'ok', value: true}]) {
-    return;//tmp for regulus
     return new Promise((resolve, reject) => {
         console.log(text);
         let modalContainer=document.body.addChild('div.modalContainer');
