@@ -2,9 +2,9 @@
   graph TD;
       JavaScript-->AjaxController;
       JavaScript-->|redirects to other page|PageStandardController;
-      other(Other App)-->ApiController;
-      Dev(Developer or Admin)-->|Run by powershell|ConsoleController;
-      User-->|Opens url|PageStandardController;
+      other[/Other App/]-->ApiController;
+      Dev[/Developer or Admin/]-->|Run by powershell|ConsoleController;
+      User[/User/]-->|Opens url|PageStandardController;
       PageStandardController-->Service;
       AjaxController-->Service;
       ApiController-->Service;
@@ -58,4 +58,9 @@ It is responsible for bussiness logic. In case of CRUD only operations, service 
 Service shouldn't bother in anythink related to http (unless int makes requests to other app) becouse it is work of Controller, or SQL, because it is work of repository
 
 ## Repository
-Reads and writes to database. We allways use MySQL, but repository should be writter in such way, that in case of changing database (even for no-SQL) only repositories should change. We will probably never change database, but this mindset helps keeping order in code.  
+Reads and writes to database. We allways use MySQL, but repository should be writter in such way, that in case of changing database (even for no-SQL) only repositories should change. We will probably never change database, but this mindset helps keeping order in code.
+
+## View
+View contains html.
+
+Views can be maid in plain php (.php files) or in MPTS (.mpts files). More info on [https://greencodestudio.github.io/mpts/](https://greencodestudio.github.io/mpts/)
