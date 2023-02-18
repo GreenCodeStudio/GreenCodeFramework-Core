@@ -221,7 +221,7 @@ abstract class Migration
 
     private function isIndexIdentical($indexNew, $indexOld)
     {
-        if ($indexNew->type != $indexOld->type)
+        if (($indexNew->type??'INDEX') != $indexOld->type)
             return false;
         if (count($indexNew->element) != count($indexOld->element))
             return false;

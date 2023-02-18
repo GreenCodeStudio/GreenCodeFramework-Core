@@ -25,7 +25,7 @@ addEventListener('error', e => {
     };
     if (new URL(e.filename).origin == document.location.origin) {
         Ajax.Log.addFrontError(obj).catch(() => void 0);
-        modal("Wystąpił błąd", "error")
+      //  modal("Wystąpił błąd", "error")
     }
 });
 addEventListener('unhandledrejection', e => {
@@ -35,6 +35,6 @@ addEventListener('unhandledrejection', e => {
     };
     Ajax.Log.addFrontError(obj).catch(() => {
     });
-    modal("Wystąpił błąd", "error")
+    //modal("Wystąpił błąd", "error")
 });
 window.dbgAjax = Ajax;
