@@ -24,7 +24,10 @@ class LanguagesHierarchy
         }
         if (!empty($_GET['lang'])) {
             $splitted = [$_GET['lang'], ...$splitted];
-            setcookie('lang', $_GET['lang'], time() + 1000000000);
+            setcookie('lang', $_GET['lang'], [
+                'samesite' => 'None',
+                'secure' => true,
+                'expires' => time() + 1000000000]);
         }
 
         return new LanguagesHierarchy($splitted);
