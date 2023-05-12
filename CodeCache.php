@@ -9,14 +9,18 @@
 namespace Core;
 
 
+use Core\Routing\AjaxRouter;
+use Core\Routing\Router;
+use Core\Routing\StandardRouter;
+
 class CodeCache
 {
     static public function regenerate()
     {
 
         $data = new \StdClass();
-        $data->Controllers = Router::listControllers('Controllers');
-        $data->Ajax = Router::listControllers('Ajax');
+        $data->Controllers = (new StandardRouter())->listControllers();
+        $data->Ajax = (new AjaxRouter())->listControllers();
         dump($data);
     }
 }

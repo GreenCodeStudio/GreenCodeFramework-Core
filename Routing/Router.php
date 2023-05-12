@@ -19,6 +19,11 @@ use ReflectionMethod;
 
 class Router
 {
+    protected $controller;
+
+    protected ?string $methodName;
+
+    protected ?string $controllerName;
     public static function routeHttp($url)
     {
         Log::Request($url);

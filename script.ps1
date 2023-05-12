@@ -80,7 +80,7 @@ function Prepare-Build
 
     $composerIncludes = [System.Collections.ArrayList]::new();
     Get-ChildItem modules | ? { Test-Path "modules/$( $_.Name )/composer.json" } | %{ $composerIncludes.Add("modules/$( $_.Name )/composer.json") }
-    $composer = @{ require = @{ "wikimedia/composer-merge-plugin" = "dev-master" }; extra = @{ "merge-plugin" = @{ include = $composerIncludes } } }
+    $composer = @{ require = @{ "wikimedia/composer-merge-plugin" = "dev-master" }; config = @{"allow-plugins" = @{"wikimedia/composer-merge-plugin" = true};extra = @{ "merge-plugin" = @{ include = $composerIncludes } } }
     $composer | convertto-json -Depth 10 | Out-FileUtf8NoBom "composer.json"
 }
 function Generate-Htaccess

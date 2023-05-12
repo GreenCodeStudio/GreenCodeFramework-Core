@@ -10,6 +10,7 @@ class StandardRouter extends Router
 {
     var $controllerType = 'Controllers';
 
+
     protected function findController()
     {
         $this->parseUrl();
