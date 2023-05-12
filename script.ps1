@@ -339,6 +339,15 @@ if ((test-path modules/Core) -and (test-path vendor))
     Load-AvaibleMethods
 }
 
+function Run-PhpStan
+{
+    Push-Location (Find-ProjectDir).Fullname
+
+    vendor/bin/phpstan analyse -c modules/Core/phpstan.neon modules --level 0
+
+    Pop-Location
+}
+
 echo "common commands:"
 echo "    Build-Project"
 echo "    Analyze-Problems"
