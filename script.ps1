@@ -344,8 +344,14 @@ function Run-PhpStan
     Push-Location (Find-ProjectDir).Fullname
 
     vendor/bin/phpstan analyse -c modules/Core/phpstan.neon modules --level 0
+    $code=$LASTEXITCODE
 
     Pop-Location
+
+    if ($code -ne 0)
+    {
+        exit $code
+    }
 }
 
 echo "common commands:"
