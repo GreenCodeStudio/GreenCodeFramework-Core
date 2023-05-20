@@ -146,11 +146,16 @@ function generateIdempotencyKey() {
     const uniqExecuted = /uniq=([0-9a-f]+)/.exec(document.cookie) ?? [];
     const uniq = uniqExecuted[1];
 
-    let requestCounter = localStorage.requestCounter;
-    requestCounter++;
-    if (isNaN(requestCounter))
-        requestCounter = 0;
-    localStorage.requestCounter = requestCounter;
+    let requestCounter=0;
+    try {
+        let requestCounter = localStorage.requestCounter;
+        requestCounter++;
+        if (isNaN(requestCounter))
+            requestCounter = 0;
+        localStorage.requestCounter = requestCounter;
+    }catch (e) {
+        //do nothing, ignore
+    }
 
     let time = (+new Date()).toString(16);
     let random = ("000" + (Math.random() * 0xffff).toString(16)).substr(-4);
