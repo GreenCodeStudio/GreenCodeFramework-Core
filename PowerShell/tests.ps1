@@ -65,13 +65,14 @@ function Run-E2eTests {
         if ($LASTEXITCODE -ne 0) {
             exit $LASTEXITCODE
         }
-
-        Pop-Location
     }
     catch {
         Write-Host "An error occurred:"
         Write-Host $_
-        # exit -1
+        exit -1
+    }
+    finally {
+        Pop-Location
     }
 }
 
