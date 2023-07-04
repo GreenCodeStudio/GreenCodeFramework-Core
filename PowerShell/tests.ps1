@@ -58,7 +58,7 @@ function Run-E2eTests {
         }
         Write-Host "User added"
 
-        Run-TestEnvironment 80
+        Run-TestEnvironment 8080
         Write-Host "Start Selenium"
         node ./modules/E2eTests/Test/Selenium/init.js $mail $password
 
