@@ -28,7 +28,7 @@ function Run-E2eTests {
     try {
         Push-Location (Find-ProjectDir).FullName
         Write-Host "Start of composer install"
-        composer install
+        composer update
         Write-Host "End of composer install"
 
         Write-Host "Start of migration"
