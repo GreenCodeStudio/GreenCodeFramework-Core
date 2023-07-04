@@ -58,7 +58,7 @@ function Run-E2eTests {
         }
         Write-Host "User added"
 
-        Run-TestEnvironment
+        Run-TestEnvironment 80
         Write-Host "Start Selenium"
         node ./modules/E2eTests/Test/Selenium/init.js $mail $password
 
@@ -76,13 +76,13 @@ function Run-E2eTests {
 }
 
 
-function Run-TestEnvironment
+function Run-TestEnvironment ($port)
 {
     echo "starting etst environment"
     Push-Location (Find-ProjectDir).Fullname
     Build-Project -Production
     $job = Start-Job -ScriptBlock  {
-        php -S 0.0.0.0:8080 -t public_html *> ./tmp/TestEnvironment.log
+        php -S "0.0.0.0:$port" -t public_html *> ./tmp/TestEnvironment.log
     }
     return $job;
 }
