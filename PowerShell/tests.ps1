@@ -82,7 +82,7 @@ function Run-TestEnvironment ($port)
     Push-Location (Find-ProjectDir).Fullname
     Build-Project -Production
     $job = Start-Job -ScriptBlock  {
-        php -S "0.0.0.0:$port" -t public_html *> ./tmp/TestEnvironment.log
+        php -S 0.0.0.0:8080 -t public_html *> ./tmp/TestEnvironment.log
     }
     return $job;
 }
