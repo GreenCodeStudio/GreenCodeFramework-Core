@@ -19,7 +19,7 @@ class DB
     {
         static::connect();
         $sth = static::$pdo->prepare($sql, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
-        $sth->execute(array_map('self::toSqlValue', $params));
+        $sth->execute(array_map('static::toSqlValue', $params));
         $ret = $sth->fetchAll(\PDO::FETCH_CLASS, 'stdClass');
         return $ret;
     }
@@ -28,7 +28,7 @@ class DB
     {
         static::connect();
         $sth = static::$pdo->prepare($sql, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
-        $sth->execute(array_map('self::toSqlValue', $params));
+        $sth->execute(array_map('static::toSqlValue', $params));
         while ($x = $sth->fetchObject()) {
             yield $x;
         }
@@ -61,7 +61,7 @@ class DB
         foreach ($params as $name => $value) {
             $params2[':' . $name] = $value;
         }
-        $sth->execute(array_map('self::toSqlValue', $params));
+        $sth->execute(array_map('static::toSqlValue', $params));
         $ret = $sth->fetchAll(\PDO::FETCH_ASSOC);
         return $ret;
     }
@@ -139,7 +139,7 @@ class DB
         foreach ($params as $name => $value) {
             $params2[':' . $name] = $value;
         }
-        $sth->execute(array_map('self::toSqlValue', $params));
+        $sth->execute(array_map('static::toSqlValue', $params));
     }
 
     static function insert(string $table, $data)
