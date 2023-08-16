@@ -153,6 +153,17 @@ export class ObjectsList extends HTMLElement {
                 this.refresh();
             }
         }];
+        if(this.allowTableEdit){
+            elements.push({
+                text: t('objectList.startMultiEdit'),
+                icon: 'icon-edit',
+                onclick: () => {
+                    this.insideViewClass = TableView;
+                    this.refresh();
+                    this.insideView.startMultiEdit();
+                }
+            });
+        }
         ContextMenu.openContextMenu(e, elements);
     }
 
@@ -162,6 +173,9 @@ export class ObjectsList extends HTMLElement {
         if (limit != this.limit) {
             this.refresh();
         }
+    }
+    multiEditChanged(id, data, save=false){
+        this.datasource.multiEditChanged(id, data, save);
     }
 }
 
