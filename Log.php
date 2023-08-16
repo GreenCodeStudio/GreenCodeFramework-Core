@@ -68,7 +68,7 @@ class Log
             $msg->stamp = (new \DateTime("now", new \DateTimeZone("UTC")))->format('Y-m-d H:i:s.u');
             $msg->server = $_SERVER;
             $msg->machine = gethostname();
-            $msg->debug = $_ENV['debug'] == 'true';
+            $msg->debug = $_ENV['debug']??'false' == 'true';
             $msg->projectPath = dirname(__DIR__, 2);
             $msg->user = (\Authorization\Authorization::getUserData());
             $msg->stack = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);

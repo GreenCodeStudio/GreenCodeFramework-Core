@@ -25,5 +25,13 @@
             <value lang="pl">Widok listy</value>
             <value lang="en">List view</value>
         </node>
+        <node name="startMultiEdit">
+            <value lang="pl">Rozpocznij edycję wielu</value>
+            <value lang="en">Start multi-edit</value>
+        </node>
+        <node name="saveRow">
+            <value lang="pl">Zapisz wiersz</value>
+            <value lang="en">Save a row</value>
+        </node>
     </node>
 </root>

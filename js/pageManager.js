@@ -41,8 +41,9 @@ export const pageManager = {
         if (controllerGroup.then)
             controllerGroup = await controllerGroup;
 
-        if (controllerGroup[initInfo.methodName.toLowerCase()])
-            return controllerGroup[initInfo.methodName.toLowerCase()];
+        let methodName=Object.keys(controllerGroup).find(a=>a.toLowerCase()==initInfo.methodName.toLowerCase())
+        if (controllerGroup[methodName])
+            return controllerGroup[methodName];
         else if (controllerGroup.default)
             return controllerGroup.default
         else
