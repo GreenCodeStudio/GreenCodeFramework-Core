@@ -26,6 +26,7 @@ class OfflineConstantAnnotation extends \mindplay\annotations\Annotation
 class NoAjaxLoaderAnnotation extends \mindplay\annotations\Annotation
 {
 }
+
 /**
  * @usage('method'=>true)
  */
@@ -41,9 +42,13 @@ class ApiEndpointAnnotation extends \mindplay\annotations\Annotation
 {
     public $type;
     public $url;
-    public $description="";
-    public $responses=[];
+    public $description = "";
+    public $responses = [];
+    public $tags = [];
+    public $parameters = [];
+    public $allowNotLogged = false;
 }
+
 /**
  * @usage('method'=>true)
  */

@@ -4,7 +4,10 @@
 namespace Core\Routing;
 
 
+use Authorization\Exceptions\UnauthorizedException;
 use Core\Exceptions\NotFoundException;
+use Core\Repository\IdempodencyKeyRepostory;
+use ExternalApplication\Repository\ExternalApplicationRepository;
 
 class ApiRouter extends Router
 {
@@ -29,10 +32,13 @@ class ApiRouter extends Router
                         if (strtoupper($annotation->type) === $_SERVER['REQUEST_METHOD']) {
                             $template = explode('/', trim($annotation->url, ' /'));
                             $urlArray = explode('/', trim($url, ' /'));
+                            $args = [];
                             if (count($template) == count($urlArray)) {
                                 $isMatch = true;
                                 for ($i = 0; $i < count($template); $i++) {
-                                    if ($template[$i] != ($urlArray[$i] ?? '')) {
+                                    if (str_starts_with($template[$i], '{') && str_ends_with($template[$i], '}')) {
+                                        $args[substr($template[$i], 1, strlen($template[$i]) - 2)] = $urlArray[$i];
+                                    } else if ($template[$i] != ($urlArray[$i] ?? '')) {
                                         $isMatch = false;
                                         break;
                                     }
@@ -40,7 +46,8 @@ class ApiRouter extends Router
                                 if ($isMatch) {
                                     $this->controllerName = $controller->name;
                                     $this->methodName = $method->name;
-                                    $this->args = [];
+                                    $this->args = $args;
+                                    $this->allowNotLogged = $annotation->allowNotLogged;
                                     return;
                                 }
                             }
@@ -65,5 +72,25 @@ class ApiRouter extends Router
         http_response_code($responseCode);
         $this->logExceptionIfNeeded($ex);
         echo json_encode($this->exceptionToArray($ex), JSON_PARTIAL_OUTPUT_ON_ERROR);
+    }
+
+    protected function runMethod()
+    {
+        if (!$this->allowNotLogged) {
+            $application = $this->getApplication();
+            if (empty($application))
+                throw new UnauthorizedException();
+        }
+        parent::runMethod();
+    }
+
+    private function getApplication()
+    {
+        return (new ExternalApplicationRepository())->getByToken($this->getBearerToken());
+    }
+
+    private function getBearerToken()
+    {
+        return str_replace('Bearer ', '', $_SERVER['HTTP_AUTHORIZATION']);
     }
 }

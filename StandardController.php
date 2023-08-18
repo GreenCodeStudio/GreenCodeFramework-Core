@@ -64,35 +64,50 @@ abstract class StandardController extends AbstractController
             }
             ob_end_clean();
         } else if (file_exists(__DIR__ . '/../' . $module . '/Views/' . $name . '.mpts')) {
-            $template = XMLParser::Parse(file_get_contents(__DIR__ . '/../' . $module . '/Views/' . $name . '.mpts'));
-            $env = new Environment();
-            $env->document = new DOMDocument();
-            $env->variables = (array)$data;
-            $env->variables['dump']= function (...$args) {
-                ob_start();
-                var_dump(...$args);
-                $ret=ob_get_contents();
-                ob_end_clean();
-                return $ret;
-            };
-            $env->variables['t']=fn(...$args)=>t(...$args);
-            $result = $template->execute($env);
-            $this->views[$group][] = $env->document->saveHTML($result);
+            $this->views[$group][] = $this->loadMPTS(file_get_contents(__DIR__ . '/../' . $module . '/Views/' . $name . '.mpts'), $data);
         } else {
             throw new \Exception("Cannot find $name.php or $name.mpts in $module/Views/");
         }
+    }
+    protected function loadMPTS($code, $data){
+        $template = XMLParser::Parse($code);
+        $env = new Environment();
+        $env->document = new DOMDocument();
+        $env->variables = (array)$data;
+        $env->variables['data'] = (array)$data;
+        $env->variables['dump']= function (...$args) {
+            ob_start();
+            var_dump(...$args);
+            $ret=ob_get_contents();
+            ob_end_clean();
+            return $ret;
+        };
+        $env->variables['t']=fn(...$args)=>t(...$args);
+        $env->variables['getView']=fn(...$args)=>$this->getView(...$args);
+        $result = $template->execute($env);
+        return $env->document->saveXML($result);
     }
     protected function insertView(string $module, string $name, $data = null)
     {
         if (file_exists(__DIR__ . '/../' . $module . '/Views/' . $name . '.php')) {
             require __DIR__ . '/../' . $module . '/Views/' . $name . '.php';
         } else if (file_exists(__DIR__ . '/../' . $module . '/Views/' . $name . '.mpts')) {
-            $template = XMLParser::Parse(file_get_contents(__DIR__ . '/../' . $module . '/Views/' . $name . '.mpts'));
-            $env = new Environment();
-            $env->document = new DOMDocument();
-            $env->variables = (array)$data;
-            $result = $template->execute($env);
-            echo $env->document->saveHTML($result);
+
+            echo $this->loadMPTS(file_get_contents(__DIR__ . '/../' . $module . '/Views/' . $name . '.mpts'), $data);
+        } else {
+            throw new \Exception("Cannot find $name.php or $name.mpts in $module/Views/");
+        }
+    }
+    protected function getView(string $module, string $name, $data = null)
+    {
+        if (file_exists(__DIR__ . '/../' . $module . '/Views/' . $name . '.php')) {
+            ob_start();
+            require __DIR__ . '/../' . $module . '/Views/' . $name . '.php';
+            $ret=ob_get_contents();
+            ob_end_clean();
+            return $ret;
+        } else if (file_exists(__DIR__ . '/../' . $module . '/Views/' . $name . '.mpts')) {
+            return $this->loadMPTS(file_get_contents(__DIR__ . '/../' . $module . '/Views/' . $name . '.mpts'), $data);
         } else {
             throw new \Exception("Cannot find $name.php or $name.mpts in $module/Views/");
         }
