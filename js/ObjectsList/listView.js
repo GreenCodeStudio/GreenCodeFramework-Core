@@ -41,7 +41,7 @@ export class ListView extends AbstractView {
             let keyValue = tr.addChild('.keyValue');
             let key = keyValue.addChild('strong', {text: column.name + ': '});
             let value = keyValue.addChild('span');
-            value.append(column.content(data));
+            value.append((column.content?.call(column,data)||data[column.dataName]));
         }
         let actionsTd = tr.addChild('.td.actions');
         let actions = this.objectsList.generateActions([data], 'row');

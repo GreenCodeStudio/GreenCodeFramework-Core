@@ -78,7 +78,7 @@ export class TableView extends AbstractView {
                     onchange: () => this.multiEditChanged(tr)
                 });
             } else {
-                td.append(column.content(data)||data[column.dataName]);
+                td.append(column.content?.call(column,data)||data[column.dataName]);
             }
         }
         let actionsTd = tr.addChild('.td.actions');

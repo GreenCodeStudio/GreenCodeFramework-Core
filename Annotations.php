@@ -47,6 +47,7 @@ class ApiEndpointAnnotation extends \mindplay\annotations\Annotation
     public $tags = [];
     public $parameters = [];
     public $allowNotLogged = false;
+    public $requestBody = null;
 }
 
 /**
