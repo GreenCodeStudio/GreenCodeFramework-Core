@@ -44,6 +44,13 @@ class ApiRouter extends Router
                                     }
                                 }
                                 if ($isMatch) {
+                                    if (!empty($annotation->requestBody)) {
+                                        $body = file_get_contents('php://input');
+                                        $body = json_decode($body, false);
+                                        if (empty($body))
+                                            throw new \Exception('Invalid request body');
+                                        $args = [$body, ...$args];
+                                    }
                                     $this->controllerName = $controller->name;
                                     $this->methodName = $method->name;
                                     $this->args = $args;
