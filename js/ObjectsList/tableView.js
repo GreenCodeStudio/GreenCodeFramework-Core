@@ -64,6 +64,7 @@ export class TableView extends AbstractView {
     }
 
     fillRowContent(tr, data) {
+        tr.lastData=data;
         tr.children.removeAll();
         tr.addChild('.td.icon', {className: this.objectsList.icon});
         for (let column of this.objectsList.columns) {
@@ -78,39 +79,38 @@ export class TableView extends AbstractView {
                     onchange: () => this.multiEditChanged(tr)
                 });
             } else {
-                td.append(column.content?.call(column,data)||data[column.dataName]);
+                td.append(column.content?.call(column, data) || data[column.dataName]);
             }
         }
         let actionsTd = tr.addChild('.td.actions');
         let actions = this.objectsList.generateActions([data], 'row');
-        if(this.multiEdit && data.__isMultirowEdited) {
-            actions=[
+        if (this.multiEdit && data.__isMultirowEdited) {
+            actions = [
                 {
                     name: t("objectList.saveRow"),
                     icon: 'icon-save',
-                    command:()=>{
+                    command: () => {
                         this.multiEditChanged(tr, true)
                     }
                 }
             ]
         }
-            for (let action of actions) {
-                let actionButton = actionsTd.addChild(action.href ? 'a.button' : 'button', {
-                    title: action.name
-                });
-                if (action.href) {
-                    actionButton.href = action.href;
-                }
-                if (action.command) {
-                    actionButton.onclick = action.command;
-                }
-                if (action.icon) {
-                    actionButton.addChild('span', {classList: [action.icon]});
-                } else {
-                    actionButton.textContent = action.name;
-                }
+        for (let action of actions) {
+            let actionButton = actionsTd.addChild(action.href ? 'a.button' : 'button', {
+                title: action.name
+            });
+            if (action.href) {
+                actionButton.href = action.href;
             }
-
+            if (action.command) {
+                actionButton.onclick = action.command;
+            }
+            if (action.icon) {
+                actionButton.addChild('span', {classList: [action.icon]});
+            } else {
+                actionButton.textContent = action.name;
+            }
+        }
 
 
         tr.dataset.row = data.id;
@@ -380,9 +380,12 @@ export class TableView extends AbstractView {
         this.multiEdit = true;
     }
 
-    multiEditChanged(tr, save=false) {
+    multiEditChanged(tr, save = false) {
         let data = [...tr.querySelectorAll('[data-name]')].map(x => [x.dataset.name, x.value]);
-        this.objectsList.multiEditChanged(tr.dataset.id, Object.fromEntries(data), save);
+        let dataObj = Object.fromEntries(data);
+        this.objectsList.multiEditChanged(tr.dataset.id, dataObj, save);
+        this.fillRowContent(tr, {...tr.lastData, ...dataObj,__isMultirowEdited: true});
+        this.setColumnsWidths();
     }
 }
 
