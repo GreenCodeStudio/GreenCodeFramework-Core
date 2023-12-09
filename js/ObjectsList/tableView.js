@@ -49,7 +49,7 @@ export class TableView extends AbstractView {
     }
 
     get rowHeight() {
-        return 41;
+        return parseFloat(this.computedStyleMap().get('--rowHeight')[0]);
     }
 
     generateRow(data) {
@@ -367,7 +367,7 @@ export class TableView extends AbstractView {
     }
 
     calcMaxVisibleItems(height) {
-        return Math.floor((height - this.head.clientHeight) / 41);
+        return Math.floor((height - this.head.clientHeight) / this.rowHeight);
     }
 
     forceCopy(rows) {
