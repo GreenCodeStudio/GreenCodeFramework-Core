@@ -99,6 +99,8 @@ export class TableView extends AbstractView {
             let actionButton = actionsTd.addChild(action.href ? 'a.button' : 'button', {
                 title: action.name
             });
+                actionButton.classList.add('action-'+(action.action??'view'));
+
             if (action.href) {
                 actionButton.href = action.href;
             }
@@ -183,6 +185,7 @@ export class TableView extends AbstractView {
         let elements = actions.map(action => ({
             text: action.name,
             icon: action.icon,
+            class:action.action?'action-'+action.action:'',
             onclick: action.command || (() => pageManager.goto(action.href))
         }));
         elements.push({
