@@ -49,7 +49,7 @@ export class TableView extends AbstractView {
     }
 
     get rowHeight() {
-        return parseFloat((this.computedStyleMap().get('--rowHeight')??[])[0]??31);
+        return parseFloat(window.getComputedStyle(this).getPropertyValue('--rowHeight')??31);
     }
 
     generateRow(data) {
