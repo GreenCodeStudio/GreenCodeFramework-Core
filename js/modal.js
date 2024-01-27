@@ -11,6 +11,9 @@ export function modal(text, type = 'info', buttons = [{text: 'ok', value: true}]
 
         for (let button of buttons) {
             let buttonElem = modal.addChild('button.modal-button', {text:button.text});
+            if(button.action){
+                buttonElem.classList.add('action-'+button.action);
+            }
             buttonElem.onclick = () => {
                 modalContainer.classList.add('closing');
                 setTimeout(() => modalContainer.remove(), 1000);
