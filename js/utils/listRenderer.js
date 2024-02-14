@@ -32,8 +32,16 @@ export class ListRenderer {
             rendered = this.renderFunction(item, rendered);
             this.map.set(key, rendered);
             wantedChildren.push(rendered);
-            rendered.style.setProperty('--list-order', i++);
-            rendered.style.setProperty('--list-count', toRender.length);
+            if(rendered instanceof DocumentFragment)
+            {
+                for (const renderedElement of rendered.children) {
+                    renderedElement.style.setProperty('--list-order', i++);
+                    renderedElement.style.setProperty('--list-count', toRender.length);
+                }
+            }else {
+                rendered.style.setProperty('--list-order', i++);
+                rendered.style.setProperty('--list-count', toRender.length);
+            }
         }
         this.changeChildrenFor(wantedChildren)
     }
@@ -95,5 +103,10 @@ export class ListRenderer {
                 }
             }
         }
+    }
+
+    add(x) {
+        this.list.push(x);
+        this.render();
     }
 }
