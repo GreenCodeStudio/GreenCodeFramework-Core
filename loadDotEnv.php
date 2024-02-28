@@ -1,13 +1,14 @@
 <?php
 
-include_once __DIR__ . '/../../vendor/autoload.php';
+include_once __DIR__.'/../../vendor/autoload.php';
 
-
-if (is_file(__DIR__ . '/../../.env')) {
-    loadEnvFile(__DIR__ . '/../../.env');
+if ($_ENV['APP_ENVIRONMENT'] ?? $_SERVER['APP_ENVIRONMENT'] ?? '' == 'test') {
+    loadEnvFile(__DIR__.'/../../.env.test');
+} else if (is_file(__DIR__.'/../../.env')) {
+    loadEnvFile(__DIR__.'/../../.env');
 }
-if (is_file(__DIR__ . '/../../.env.version')) {
-    loadEnvFile(__DIR__ . '/../../.env.version');
+if (is_file(__DIR__.'/../../.env.version')) {
+    loadEnvFile(__DIR__.'/../../.env.version');
 }
 
 function loadEnvFile($path)
