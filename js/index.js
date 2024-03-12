@@ -11,8 +11,10 @@ AjaxTask.refresh();
 
 setTimeout(() => pageManager.initPage(window.controllerInitInfo, document.querySelector('.page'), true));
 setEvent('click', 'a:not(.nativeLink)', function (e) {
-    e.preventDefault();
-    pageManager.goto(this.href);
+    if(!e.originalEvent.ctrlKey && !e.originalEvent.shiftKey && !e.originalEvent.metaKey && !e.originalEvent.altKey) {
+        e.preventDefault();
+        pageManager.goto(this.href);
+    }
 });
 addEventListener('error', e => {
     let obj = {
