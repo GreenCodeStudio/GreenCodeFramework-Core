@@ -24,65 +24,80 @@ function Run-UnitTests
         exit -1
     }
 }
-function Run-E2eTests {
-    try {
+function Run-E2eTests
+{
+    try
+    {
         Push-Location (Find-ProjectDir).FullName
         Write-Host "Start of composer install"
         composer update
         Write-Host "End of composer install"
 
         Write-Host "Start of migration"
-        try {
+        try
+        {
             Run-Command Migration preview
         }
-        catch {
+        catch
+        {
             Write-Host $_
         }
 
-        try {
+        try
+        {
             Run-Command Migration upgrade
         }
-        catch {
+        catch
+        {
             Write-Host $_
         }
         Write-Host "Migration completed"
 
         $mail = "e2etest_" + -join ((65..90) + (97..122) | Get-Random -Count 5 | ForEach-Object { [char]$_ }) + "@green-code.studio"
         $password = -join ((65..90) + (97..122) | Get-Random -Count 20 | ForEach-Object { [char]$_ })
-        try {
+        try
+        {
             $user = Run-Command User add @("Test", "Admin", $mail, $password)
             Run-Command User addAllPermissions @($user.id)
         }
-        catch {
+        catch
+        {
             Write-Host $_
         }
         Write-Host "User added"
+
 
         Run-TestEnvironment 8080
         Write-Host "Start Selenium"
         node ./modules/E2eTests/Test/Selenium/init.js $mail $password
 
-        if ($LASTEXITCODE -ne 0) {
+        if ($LASTEXITCODE -ne 0)
+        {
             exit $LASTEXITCODE
         }
 
         Pop-Location
     }
-    catch {
+    catch
+    {
         Write-Host "An error occurred:"
         Write-Host $_
-         exit -1
+        exit -1
     }
 }
 
 
-function Run-TestEnvironment ($port)
+function Run-TestEnvironment($port)
 {
     echo "starting etst environment"
     Push-Location (Find-ProjectDir).Fullname
     Build-Project -Production
     $job = Start-Job -ScriptBlock  {
-        php -S 0.0.0.0:8080 -t public_html *> ./tmp/TestEnvironment.log
-    }
+        param($app_env)
+        $env:APP_ENVIRONMENT = $app_env
+        $env:aaa = 1111
+        $ENV:bbb = 1111
+        php -S 0.0.0.0:8080 -t public_html -d variables_order= *> ./tmp/TestEnvironment.log
+    } -ArgumentList $ENV:APP_ENVIRONMENT
     return $job;
 }

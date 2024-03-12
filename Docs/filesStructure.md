@@ -1,7 +1,7 @@
 # in main directory
 (not all files/directories are allways present)
 
-### ./ApprovedScrenshots
+### ./tests/ApprovedScrenshots
 used in automated tests on selenium. Tests will run app, make screnshots and compare with these in this folder.
 
 ### ./cache
