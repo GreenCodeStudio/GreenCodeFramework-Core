@@ -23,6 +23,7 @@
         "webpack-cli": "^4.7.2",
         "path": "^0.12.7",
         "file-loader": "^6.0.0",
-        "multi-cli": "^0.1.6"
+        "multi-cli": "^0.1.6",
+        "fonteditor-core": "^2.3.3"
     }
 }

@@ -346,6 +346,8 @@ export class TableView extends AbstractView {
         let action = this.objectsList.generateActions(this.objectsList.getSelectedData(), 'dataTransfer').find(x => x.main);
         if (action && action.href) {
             dataTransfer.setData('text/uri-list', new URL(action.href, document.baseURI));
+        }if (action && action.hrefArray) {
+            dataTransfer.setData('text/uri-list', action.hrefArray.map(x=>new URL(x, document.baseURI)).map(x=>x.toString()).join("\r\n#\r\n"));
         }
         dataTransfer.setData('text/html', this.generateTableHtml(trs));
         dataTransfer.setData('text/plain', this.generateTableTextPlain(trs));
