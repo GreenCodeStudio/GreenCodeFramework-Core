@@ -8,7 +8,6 @@ import {I18nNode} from "../Core/js/Internationalization/i18nNode.js";
 import {I18nTextValue} from "../Core/js/Internationalization/i18nTextValue.js";
 import {Translator} from "../Core/js/Internationalization/translator.js";
 import {LanguagesHierarchy} from "../Core/js/Internationalization/languagesHierarchy.js";
-console.log(I18nNode);
 export const node = ${xmlToNode(doc.documentElement)};
 export const translator=new Translator(LanguagesHierarchy.default, node.node);
 export function t(q){var x=translator.translate(q);return x?x.toString():'';}

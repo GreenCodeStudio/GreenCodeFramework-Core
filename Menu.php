@@ -45,7 +45,12 @@ class Menu
                 foreach ($value as $childName=>$childElement) {
                     $ret->permission->$childName = $childElement->__toString();
                 }
-            } else
+            } else if ($name=='title'){
+                if($value->attributes()->key)
+                    $ret->title=t($value->attributes()->key->__toString());
+                else
+                    $ret->title=$value->__toString();
+            }else
                 $ret->$name = $value->__toString();
         }
         return $ret;

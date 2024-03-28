@@ -69,7 +69,6 @@ export class TableView extends AbstractView {
         tr.addChild('.td.icon', {className: this.objectsList.icon});
         for (let column of this.objectsList.columns) {
             let td = tr.addChild('.td');
-            console.log('aaa')
             if (this.multiEdit && column.dataName) {
                 tr.dataset.id = data.id;
                 td.addChild('input', {
@@ -79,7 +78,7 @@ export class TableView extends AbstractView {
                     onchange: () => this.multiEditChanged(tr)
                 });
             } else {
-                td.append(column.content?.call(column, data) || data[column.dataName]);
+                td.append(column.content?.call(column, data) || data[column.dataName]||'');
             }
         }
         let actionsTd = tr.addChild('.td.actions');

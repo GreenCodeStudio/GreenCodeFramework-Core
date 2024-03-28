@@ -9,7 +9,10 @@ export class LanguagesHierarchy {
                 if (lang == x) return x;
             }
             for (let x of available) {
-                if (x.startsWith(lang)) return x;
+                if (lang.length>=2 && x.startsWith(lang)) return x;
+            }
+            for (let x of available) {
+                if (lang.length>=2 && x.startsWith(lang.substring(0,2))) return x;
             }
         }
         return available[0];
