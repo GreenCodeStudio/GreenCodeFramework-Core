@@ -27,11 +27,8 @@ export class TableManager {
     }
 
     async refresh() {
-        const refreshSymbol = Symbol();
-        this.lastRefreshSymbol = refreshSymbol;
-        let data = await this.datasource.get(this);
-        if (this.lastRefreshSymbol == refreshSymbol)
-            this.loadData(data);
+//replaced by parent
+        console.warn('refresh not implemented')
     }
 
     get search() {

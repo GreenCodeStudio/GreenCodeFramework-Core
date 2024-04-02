@@ -69,6 +69,7 @@ export class ObjectsList extends HTMLElement {
         }
         this.insideView = new this.insideViewClass(this);
         this.insertBefore(this.insideView, this.foot);
+        this.insideView.refresh= () => this.refresh();
         this.insideView.onPaginationChanged = (start, limit) => {
             if (this.start != start) {
                 this.start = start;

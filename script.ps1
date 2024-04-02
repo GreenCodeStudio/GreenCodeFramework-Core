@@ -142,6 +142,10 @@ function Start-Project
 
     composer install
     yarn
+    Start-Job -scriptBlock {
+        param($dir)
+        cd $dir
+        php ./modules/Core/Schedule.php} -ArgumentList (Find-ProjectDir).Fullname
     yarn start
     Pop-Location
 }
@@ -352,6 +356,11 @@ function Run-PhpStan
     {
         exit $code
     }
+}
+function Run-ScheduleJobs {
+    Push-Location (Find-ProjectDir).Fullname
+
+    php modules/Core/Schedule.php
 }
 
 echo "common commands:"
