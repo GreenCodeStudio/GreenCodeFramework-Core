@@ -9,19 +9,19 @@
       AjaxController-->Service;
       ApiController-->Service;
       ConsoleController-->Service;
-      AsyncJob-->Service;
+      AsyncJob-->BussinessLogic;
       PageStandardController-->View;
       View-->|User clicks link|PageStandardController;
       View-->|user interaction|JavaScript;
       JavaScript-->|modifies view|View;
-      Service-->Repository;
-      Service-->Ratchet;
-      Ratchet-->|sends by websocket|JavaScript;
+      BussinessLogic-->Repository;
+      BussinessLogic-->Ratchet;
+      WebsocketWorker-->|sends by websocket|JavaScript;
       Repository-->Database[(Database)];
 ```
 Project is based on 3 level architecture.
 * Controller
-* Service
+* BussinessLogic
 * Repository
 
 Architecture is designed to have frontend and backend combined.
