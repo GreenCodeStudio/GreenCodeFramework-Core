@@ -15,7 +15,7 @@
       View-->|user interaction|JavaScript;
       JavaScript-->|modifies view|View;
       BussinessLogic-->Repository;
-      BussinessLogic-->Ratchet;
+      BussinessLogic-->WebsocketWorker;
       WebsocketWorker-->|sends by websocket|JavaScript;
       Repository-->Database[(Database)];
 ```
