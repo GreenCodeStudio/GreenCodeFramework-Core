@@ -5,17 +5,17 @@
       other[/Other App/]-->ApiController;
       Dev[/Developer or Admin/]-->|Run by powershell|ConsoleController;
       User[/User/]-->|Opens url|PageStandardController;
-      PageStandardController-->Service;
-      AjaxController-->Service;
-      ApiController-->Service;
-      ConsoleController-->Service;
+      PageStandardController-->BussinessLogic;
+      AjaxController-->BussinessLogic;
+      ApiController-->BussinessLogic;
+      ConsoleController-->BussinessLogic;
       AsyncJob-->BussinessLogic;
       PageStandardController-->View;
       View-->|User clicks link|PageStandardController;
       View-->|user interaction|JavaScript;
       JavaScript-->|modifies view|View;
       BussinessLogic-->Repository;
-      BussinessLogic-->Ratchet;
+      BussinessLogic-->WebsocketWorker;
       WebsocketWorker-->|sends by websocket|JavaScript;
       Repository-->Database[(Database)];
 ```
@@ -52,10 +52,10 @@ Methods in console controllers become powershell commands on server or developer
 ### AsyncJob
 This code will be executed by schedule, without any external request. Used for example to send email on certain our, or to refresh cache.
 
-## Service
-It is responsible for bussiness logic. In case of CRUD only operations, service don't du any usefull work, but please use services even then, to keep order in code
+## BussinessLogic
+It is responsible for bussiness logic. In case of CRUD only operations, BussinessLogic don't do any usefull work, but please use BussinessLogic even then, to keep order in code
 
-Service shouldn't bother in anythink related to http (unless int makes requests to other app) becouse it is work of Controller, or SQL, because it is work of repository
+BussinessLogic shouldn't bother in anythink related to http (unless int makes requests to other app) becouse it is work of Controller, or SQL, because it is work of repository
 
 ## Repository
 Reads and writes to database. We allways use MySQL, but repository should be writter in such way, that in case of changing database (even for no-SQL) only repositories should change. We will probably never change database, but this mindset helps keeping order in code.
