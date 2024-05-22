@@ -33,5 +33,21 @@
             <value lang="pl">Zapisz wiersz</value>
             <value lang="en">Save a row</value>
         </node>
+        <node name="mode">
+            <value lang="pl">Tryb</value>
+            <value lang="en">Mode</value>
+        </node>
+        <node name="view">
+            <value lang="pl">Widok</value>
+            <value lang="en">View</value>
+        </node>
+        <node name="columnEnabled">
+            <value lang="pl">Kolumna widoczna</value>
+            <value lang="en">Column enabled</value>
+        </node>
+        <node name="columnName">
+            <value lang="pl">Nazwa kolumny</value>
+            <value lang="en">Column name</value>
+        </node>
     </node>
 </root>

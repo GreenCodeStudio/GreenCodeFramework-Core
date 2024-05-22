@@ -5,13 +5,15 @@ import {PaginationButtons} from "./paginationButtons";
 import {ContextMenu} from "../contextMenu";
 import {ConcurencyLimiter} from "../utils/concurencyLimiter";
 import {IdsSet} from "./idsSet";
+import {ConfigPopup} from "./ConfigPopup";
 
 export class ObjectsList extends HTMLElement {
     constructor(datasource) {
         super();
         this.columns = [];
+        this.hiddenColumns=new Set()
         this.generateActions = () => [];
-        this.insideViewClass=TableView;
+        this.insideViewClass = TableView;
         this.icon = 'icon-document';
         this.loadConcurencyLimiter = new ConcurencyLimiter();
         this.datasource = datasource;
@@ -26,6 +28,9 @@ export class ObjectsList extends HTMLElement {
         this.addEventListener('contextmenu', e => this.showGlobalContextMenu(e));
         addEventListener('resize', e => this.resize());
         this.infiniteScrollEnabled = false;
+    }
+    get visibleColumns(){
+        return this.columns.filter(x=>!this.hiddenColumns.has(x.dataName))
     }
 
     refreshLimit() {
@@ -64,12 +69,12 @@ export class ObjectsList extends HTMLElement {
     }
 
     initInsideView() {
-        if(this.insideView){
+        if (this.insideView) {
             this.insideView.remove();
         }
         this.insideView = new this.insideViewClass(this);
         this.insertBefore(this.insideView, this.foot);
-        this.insideView.refresh= () => this.refresh();
+        this.insideView.refresh = () => this.refresh();
         this.insideView.onPaginationChanged = (start, limit) => {
             if (this.start != start) {
                 this.start = start;
@@ -96,7 +101,7 @@ export class ObjectsList extends HTMLElement {
     initFoot() {
         this.foot = this.addChild('.foot');
         let menuButton = this.foot.addChild('button.menuButton span.icon-settings');
-        menuButton.onclick = e => this.showGlobalContextMenu(e);
+        menuButton.onclick = e => this.showConfigPopup();
         this.pagination = new PaginationButtons();
         this.pagination.onpageclick = (page) => {
             this.start = page * this.limit;
@@ -154,7 +159,7 @@ export class ObjectsList extends HTMLElement {
                 this.refresh();
             }
         }];
-        if(this.allowTableEdit){
+        if (this.allowTableEdit) {
             elements.push({
                 text: t('objectList.startMultiEdit'),
                 icon: 'icon-edit',
@@ -175,8 +180,14 @@ export class ObjectsList extends HTMLElement {
             this.refresh();
         }
     }
-    multiEditChanged(id, data, save=false){
+
+    multiEditChanged(id, data, save = false) {
         this.datasource.multiEditChanged(id, data, save);
+    }
+
+    showConfigPopup() {
+        const popup = new ConfigPopup(this)
+        this.append(popup)
     }
 }
 
