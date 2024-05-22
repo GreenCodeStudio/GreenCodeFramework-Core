@@ -18,7 +18,10 @@ export class ConfigPopup extends HTMLElement {
                 objectsList.insideViewClass = ListView
             objectsList.refresh()
         }
-        this.addEventListener('blur', () => this.remove())
+        this.addEventListener('blur', () => {
+            if(!this.matches(':focus-within, :focus'))
+            this.remove();
+        })
         this.querySelector('select').focus()
         for (const checkbox of this.querySelectorAll('table input[type="checkbox"]')) {
             checkbox.onchange = () => {
@@ -30,6 +33,17 @@ export class ConfigPopup extends HTMLElement {
                 objectsList.refresh()
             }
         }
+        this.tabIndex = 0
+        setTimeout(()=>this.focus(), 1)
+        setTimeout(() => this.checkFocus(), 100)
+    }
+    checkFocus() {
+        console.log('checkFocus')
+        if (!this.matches(':focus-within, :focus'))
+            this.remove();
+
+        if(this.parentNode)
+            setTimeout(() => this.checkFocus(), 100)
     }
 }
 
