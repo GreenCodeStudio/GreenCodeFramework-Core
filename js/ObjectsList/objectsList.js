@@ -11,7 +11,7 @@ export class ObjectsList extends HTMLElement {
     constructor(datasource) {
         super();
         this.columns = [];
-        this.hiddenColumns=new Set()
+        this.hiddenColumns = new Set()
         this.generateActions = () => [];
         this.insideViewClass = TableView;
         this.icon = 'icon-document';
@@ -29,8 +29,9 @@ export class ObjectsList extends HTMLElement {
         addEventListener('resize', e => this.resize());
         this.infiniteScrollEnabled = false;
     }
-    get visibleColumns(){
-        return this.columns.filter(x=>!this.hiddenColumns.has(x.dataName))
+
+    get visibleColumns() {
+        return this.columns.filter(x => !this.hiddenColumns.has(x.dataName))
     }
 
     refreshLimit() {
@@ -186,8 +187,12 @@ export class ObjectsList extends HTMLElement {
     }
 
     showConfigPopup() {
-        const popup = new ConfigPopup(this)
-        this.append(popup)
+        if (this.querySelector('config-popup')) {
+            this.querySelector('config-popup').remove()
+        } else {
+            const popup = new ConfigPopup(this)
+            this.append(popup)
+        }
     }
 }
 
