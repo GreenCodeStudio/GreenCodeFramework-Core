@@ -90,3 +90,11 @@ function Update-ProjectModules
         Get-ProjectModules| %{ $_.Update() }
     }
 }
+
+function Add-ProjectModule($name, $url)
+{
+     $config = (Get-Content ./config.json | ConvertFrom-Json);
+     $config.packages | add-member -membertype NoteProperty -name $name -value $url
+     $config | ConvertTo-Json | Set-Content ./config.json
+     Download-ProjectModules
+}
