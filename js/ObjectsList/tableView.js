@@ -13,7 +13,7 @@ export class TableView extends AbstractView {
 
     init() {
         this.head = this.addChild('.head');
-        for (let column of this.objectsList.columns) {
+        for (let column of this.objectsList.visibleColumns) {
             let node = this.head.addChild('.column')
             node.addChild('span.name', {text: column.name});
             if (column.sortName) {
@@ -67,7 +67,7 @@ export class TableView extends AbstractView {
         tr.lastData=data;
         tr.children.removeAll();
         tr.addChild('.td.icon', {className: this.objectsList.icon});
-        for (let column of this.objectsList.columns) {
+        for (let column of this.objectsList.visibleColumns) {
             let td = tr.addChild('.td');
             if (this.multiEdit && column.dataName) {
                 tr.dataset.id = data.id;
@@ -146,7 +146,7 @@ export class TableView extends AbstractView {
     calculateColumnsWidths() {
         let needed = [{base: 30, grow: 0}];
 
-        for (let column of this.objectsList.columns) {
+        for (let column of this.objectsList.visibleColumns) {
             needed.push({base: column.width || 10, grow: typeof (column.widthGrow) == "number" ? column.widthGrow : 1});
         }
         let actionWidth = Math.ceil(Array.from(this.querySelectorAll('.td.actions')).map(x => {

@@ -20,7 +20,7 @@ export class ListView extends AbstractView {
     }
 
     get rowHeight() {
-        return Math.max(63, this.objectsList.columns.length * 21) + 20;
+        return Math.max(63, this.objectsList.visibleColumns.length * 21) + 20;
     }
 
     generateRow(data) {
@@ -37,7 +37,7 @@ export class ListView extends AbstractView {
     fillRowContent(tr, data) {
         tr.children.removeAll();
         tr.addChild('.icon', {className: this.objectsList.icon});
-        for (let column of this.objectsList.columns) {
+        for (let column of this.objectsList.visibleColumns) {
             let keyValue = tr.addChild('.keyValue');
             let key = keyValue.addChild('strong', {text: column.name + ': '});
             let value = keyValue.addChild('span');
