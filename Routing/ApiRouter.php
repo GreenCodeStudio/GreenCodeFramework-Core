@@ -11,6 +11,9 @@ use ExternalApplication\Repository\ExternalApplicationRepository;
 
 class ApiRouter extends Router
 {
+
+    private mixed $allowNotLogged;
+
     public function __construct()
     {
 

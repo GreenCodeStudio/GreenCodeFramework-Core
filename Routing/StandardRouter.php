@@ -9,6 +9,7 @@ use Authorization\Exceptions\UnauthorizedException;
 class StandardRouter extends Router
 {
     var $controllerType = 'Controllers';
+    private string|false $htmlResult;
 
 
     protected function findController()
