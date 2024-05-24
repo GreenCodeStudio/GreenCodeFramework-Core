@@ -11,6 +11,12 @@ use ExternalApplication\Repository\ExternalApplicationRepository;
 
 class ApiRouter extends Router
 {
+    public function __construct()
+    {
+
+        if (!class_exists(ExternalApplicationRepository::class))
+            return throw new \Exception('ExternalApplicationRepository not installed');
+    }
 
     var $controllerType = 'Api';
 
@@ -93,6 +99,8 @@ class ApiRouter extends Router
 
     private function getApplication()
     {
+        if (!class_exists(ExternalApplicationRepository::class))
+            return throw new \Exception('ExternalApplicationRepository not installed');
         return (new ExternalApplicationRepository())->getByToken($this->getBearerToken());
     }
 
