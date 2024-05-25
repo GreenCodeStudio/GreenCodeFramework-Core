@@ -72,6 +72,10 @@ class Router
         if (!empty($debug))
             dump($debug);
     }
+    protected function invokeVerbose()
+    {
+        $this->runMethod();
+    }
 
     protected function runMethod()
     {
@@ -161,15 +165,22 @@ class Router
         }
     }
 
-    public static function routeConsole($controllerName, $methodName, $args)
+    public static function routeConsole($controllerName, $methodName, $args, bool $verbose = false)
     {
+        if($verbose){
+            global $debugImmediate;
+            $debugImmediate = true;
+        }
         $router = new ConsoleRouter();
         try {
             $router->controllerName = $controllerName;
             $router->methodName = $methodName;
             $router->args = $args;
             $router->findController();
-            $router->invoke();
+            if($verbose)
+                $router->invokeVerbose();
+            else
+                $router->invoke();
         } catch (\Throwable $ex) {
             $router->sendBackException($ex);
             return;

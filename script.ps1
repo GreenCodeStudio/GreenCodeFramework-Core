@@ -184,6 +184,10 @@ function Get-AvaibleMethods
 {
     return Run-Command System GetMethods;
 }
+function RunVerbose-Command([Parameter(Mandatory = $true)][String]$controller, [Parameter(Mandatory = $true)][String]$action, [Object[]]$params = @()){
+    $obj = @{ controller = $controller; action = $action; args = $params;verbose=$true }
+    $obj | convertto-json | php ./modules/Core/Console.php
+}
 function Run-Command([Parameter(Mandatory = $true)][String]$controller, [Parameter(Mandatory = $true)][String]$action, [Object[]]$params = @())
 {
 

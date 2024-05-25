@@ -13,7 +13,7 @@
             <option value="listView">{{t('objectList.listView')}}</option>
         </select>
     </label>
-    <:foreach collection= categories item= category>
+    <:foreach collection=categories item=category>
         {{category.name}}
 
         <table>
