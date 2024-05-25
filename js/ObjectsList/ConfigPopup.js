@@ -6,7 +6,11 @@ import {ListView} from "./listView";
 export class ConfigPopup extends HTMLElement {
     constructor(objectsList) {
         super();
-        this.append(template({t, columns: objectsList.columns}))
+        this.append(template({
+            t,
+            categories: [...objectsList.columns.groupBy(c => c.category)]
+                .map(([category, columns]) => ({name: category ?? '', columns}))
+        }))
         this.querySelector('.mode').onchange = () => {
             objectsList.infiniteScrollEnabled = this.querySelector('.mode').value == 'scrollMode'
             objectsList.refresh()
@@ -20,7 +24,9 @@ export class ConfigPopup extends HTMLElement {
         }
         this.addEventListener('blur', () => this.remove())
         this.querySelector('select').focus()
+        console.log('ssss')
         for (const checkbox of this.querySelectorAll('table input[type="checkbox"]')) {
+            checkbox.checked = !objectsList.hiddenColumns.has(checkbox.dataset.name)
             checkbox.onchange = () => {
                 if (checkbox.checked)
                     objectsList.hiddenColumns.delete(checkbox.dataset.name)
