@@ -19,6 +19,7 @@ use ReflectionMethod;
 
 class Router
 {
+    protected $controllerType = 'unknown';
     protected $controller;
 
     protected ?string $methodName;
