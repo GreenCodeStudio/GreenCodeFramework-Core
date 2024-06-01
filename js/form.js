@@ -24,6 +24,7 @@ export class FormManager {
                     elem.value = value;
             }
         }
+        this.loadedJson = JSON.stringify(this.getData(null));
     }
 
     loadSelects(data) {
@@ -102,5 +103,16 @@ export class FormManager {
 
     reset() {
         this.form.reset();
+    }
+
+    canQuit() {
+        const currentJson = JSON.stringify(this.getData(null));
+        if (currentJson != this.loadedJson)
+            return confirm('Czy na pewno chcesz opuścić stronę? Wprowadzone zmiany nie zostaną zapisane.');
+        else return true;
+    }
+
+    markAsSaved() {
+        this.loadedJson = JSON.stringify(this.getData(null));
     }
 }
