@@ -50,7 +50,7 @@ export class ObjectsList extends HTMLElement {
 
         if (!this.insideView || !(this.insideView instanceof this.insideViewClass))
             this.initInsideView();
-        else
+        else if (this.insideView.refreshHeader)
             this.insideView.refreshHeader()
 
         this.refreshLimit();
