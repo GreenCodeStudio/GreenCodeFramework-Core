@@ -2,6 +2,7 @@ import template from './ConfigPopup.mpts';
 import {t} from '../../i18n.xml';
 import {TableView} from "./tableView";
 import {ListView} from "./listView";
+import {ColumnFilter} from "./ColumnFilter";
 
 export class ConfigPopup extends HTMLElement {
     constructor(objectsList) {
@@ -35,6 +36,16 @@ export class ConfigPopup extends HTMLElement {
 
                 objectsList.refresh()
             }
+        }
+
+        for (const filterContainer of this.querySelectorAll('table .filter')) {
+            const filter=new ColumnFilter();
+            filterContainer.append(filter)
+            filter.addEventListener('x-filter', (e) => {
+                console.log('dddd',e)
+                objectsList.columnFilters.set(filterContainer.dataset.name, e.detail)
+                objectsList.refresh()
+            });
         }
     }
 }

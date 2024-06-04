@@ -21,6 +21,7 @@
             <tr>
                 <th>{{t('objectList.columnEnabled')}}</th>
                 <th>{{t('objectList.columnName')}}</th>
+                <th>{{t('objectList.columnFilter')}}</th>
             </tr>
             </thead>
             <tbody>
@@ -32,6 +33,9 @@
                     </td>
                     <td>
                         {{column.name}}
+                    </td>
+                    <td class="filter"  data-name=column.dataName >
+
                     </td>
                 </tr>
             </:foreach>

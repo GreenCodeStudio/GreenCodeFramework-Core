@@ -13,6 +13,17 @@ export class TableView extends AbstractView {
 
     init() {
         this.head = this.addChild('.head');
+        this.refreshHeader();
+        this.body = this.addChild('.bodyContainer').addChild('.body');
+        this.setColumnsWidths();
+        addEventListener('resize', this.setColumnsWidths.bind(this))
+        addEventListener('copy', this.onCopy.bind(this));
+        this.addEventListener('scroll', this.onScroll.bind(this));
+    }
+
+    refreshHeader() {
+        while (this.head.firstChild) this.head.firstChild.remove();
+
         for (let column of this.objectsList.visibleColumns) {
             let node = this.head.addChild('.column')
             node.addChild('span.name', {text: column.name});
@@ -34,12 +45,6 @@ export class TableView extends AbstractView {
             }
         }
         this.head.addChild('.column.actions')
-
-        this.body = this.addChild('.bodyContainer').addChild('.body');
-        this.setColumnsWidths();
-        addEventListener('resize', this.setColumnsWidths.bind(this))
-        addEventListener('copy', this.onCopy.bind(this));
-        this.addEventListener('scroll', this.onScroll.bind(this));
     }
 
     loadData(data, start, limit, infiniteScrollEnabled) {
@@ -49,7 +54,7 @@ export class TableView extends AbstractView {
     }
 
     get rowHeight() {
-        return parseFloat(window.getComputedStyle(this).getPropertyValue('--rowHeight')??31);
+        return parseFloat(window.getComputedStyle(this).getPropertyValue('--rowHeight') ?? 31);
     }
 
     generateRow(data) {
@@ -64,7 +69,7 @@ export class TableView extends AbstractView {
     }
 
     fillRowContent(tr, data) {
-        tr.lastData=data;
+        tr.lastData = data;
         tr.children.removeAll();
         tr.addChild('.td.icon', {className: this.objectsList.icon});
         for (let column of this.objectsList.visibleColumns) {
@@ -78,7 +83,7 @@ export class TableView extends AbstractView {
                     onchange: () => this.multiEditChanged(tr)
                 });
             } else {
-                td.append(column.content?.call(column, data) || data[column.dataName]||'');
+                td.append(column.content?.call(column, data) || data[column.dataName] || '');
             }
         }
         let actionsTd = tr.addChild('.td.actions');
@@ -98,7 +103,7 @@ export class TableView extends AbstractView {
             let actionButton = actionsTd.addChild(action.href ? 'a.button' : 'button', {
                 title: action.name
             });
-                actionButton.classList.add('action-'+(action.action??'view'));
+            actionButton.classList.add('action-' + (action.action ?? 'view'));
 
             if (action.href) {
                 actionButton.href = action.href;
@@ -184,7 +189,7 @@ export class TableView extends AbstractView {
         let elements = actions.map(action => ({
             text: action.name,
             icon: action.icon,
-            class:action.action?'action-'+action.action:'',
+            class: action.action ? 'action-' + action.action : '',
             onclick: action.command || (() => pageManager.goto(action.href))
         }));
         elements.push({
@@ -346,8 +351,9 @@ export class TableView extends AbstractView {
         let action = this.objectsList.generateActions(this.objectsList.getSelectedData(), 'dataTransfer').find(x => x.main);
         if (action && action.href) {
             dataTransfer.setData('text/uri-list', new URL(action.href, document.baseURI));
-        }if (action && action.hrefArray) {
-            dataTransfer.setData('text/uri-list', action.hrefArray.map(x=>new URL(x, document.baseURI)).map(x=>x.toString()).join("\r\n#\r\n"));
+        }
+        if (action && action.hrefArray) {
+            dataTransfer.setData('text/uri-list', action.hrefArray.map(x => new URL(x, document.baseURI)).map(x => x.toString()).join("\r\n#\r\n"));
         }
         dataTransfer.setData('text/html', this.generateTableHtml(trs));
         dataTransfer.setData('text/plain', this.generateTableTextPlain(trs));
@@ -388,7 +394,7 @@ export class TableView extends AbstractView {
         let data = [...tr.querySelectorAll('[data-name]')].map(x => [x.dataset.name, x.value]);
         let dataObj = Object.fromEntries(data);
         this.objectsList.multiEditChanged(tr.dataset.id, dataObj, save);
-        this.fillRowContent(tr, {...tr.lastData, ...dataObj,__isMultirowEdited: true});
+        this.fillRowContent(tr, {...tr.lastData, ...dataObj, __isMultirowEdited: true});
         this.setColumnsWidths();
     }
 }

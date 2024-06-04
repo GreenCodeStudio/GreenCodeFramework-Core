@@ -25,7 +25,9 @@ export class DatasourceAjax {
             limit: options.limit,
             search: options.search,
             sort: options.sort,
-            params: this.params
+            params: this.params,
+            columnFilters: Object.fromEntries(options.columnFilters.entries()),
+            hiddenColumns: [...options.hiddenColumns],
         });
         console.log('ssss')
         for (const row of ret.rows) {

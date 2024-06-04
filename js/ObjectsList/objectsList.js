@@ -12,6 +12,7 @@ export class ObjectsList extends HTMLElement {
         super();
         this.columns = [];
         this.hiddenColumns = new Set()
+        this.columnFilters = new Map();
         this.generateActions = () => [];
         this.insideViewClass = TableView;
         this.icon = 'icon-document';
@@ -49,6 +50,8 @@ export class ObjectsList extends HTMLElement {
 
         if (!this.insideView || !(this.insideView instanceof this.insideViewClass))
             this.initInsideView();
+        else
+            this.insideView.refreshHeader()
 
         this.refreshLimit();
         const refreshSymbol = Symbol();
