@@ -24,6 +24,10 @@ class Router
     protected ?string $methodName;
 
     protected ?string $controllerName;
+    protected mixed $returned;
+    protected $url;
+    protected string $controllerClassName;
+    protected array $args;
 
     public static function routeHttp($url)
     {

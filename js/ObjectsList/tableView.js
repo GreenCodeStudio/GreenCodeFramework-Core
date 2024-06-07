@@ -13,6 +13,7 @@ export class TableView extends AbstractView {
 
     init() {
         this.head = this.addChild('.head');
+        this.head.addChild('.column.icon')
         for (let column of this.objectsList.visibleColumns) {
             let node = this.head.addChild('.column')
             node.addChild('span.name', {text: column.name});
@@ -131,7 +132,7 @@ export class TableView extends AbstractView {
         }
         let sum = 0;
         for (let i = 0; i < widths.length; i++) {
-            let node = this.head.children[i - 1];
+            let node = this.head.children[i];
             if (node) {
                 if (i + 1 < widths.length)
                     node.style.width = widths[i] + 1 + 'px';
