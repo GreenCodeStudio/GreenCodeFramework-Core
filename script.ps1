@@ -24,6 +24,72 @@ function Init-Project
         echo "<?php include_once __DIR__.'/../modules/Core/Init.php';" | Out-FileUtf8NoBom "public_html/index.php"
     }
 
+    if (!(test-path .env))
+    {
+        echo "cached_code=0
+db='mysql:dbname=example;host=localhost'
+dbUser=root
+dbSchema=example
+dbPass=pass1234
+dbDialect=mysql
+debug=true
+websocketPort=81
+UploadedFiles=UploadedFiles
+host=localhost_example
+" | Out-FileUtf8NoBom ".env"
+    }
+
+    if (!(test-path modules/Common/PageStandardController.php))
+    {
+        echo "<?php
+
+namespace Common;
+
+class PageStandardController extends \Core\StandardController
+{}
+" | Out-FileUtf8NoBom "modules/Common/PageStandardController.php"
+    }
+    if (!(test-path modules/Common/PageConsoleController.php))
+    {
+        echo "<?php
+
+namespace Common;
+
+class PageConsoleController extends \Core\ConsoleController
+{}
+" | Out-FileUtf8NoBom "modules/Common/PageConsoleController.php"
+    }
+
+    if (!(test-path modules/Common/PageAjaxController.php))
+    {
+        echo "<?php
+
+namespace Common;
+
+class PageAjaxController extends \Core\AjaxController
+{}
+" | Out-FileUtf8NoBom "modules/Common/PageAjaxController.php"
+    }
+    if (!(test-path modules/Common/Controllers)){
+        mkdir modules/Common/Controllers
+    }
+
+    if (!(test-path modules/Common/Controllers/StartController.php))
+    {
+        echo "<?php
+namespace Common\Controllers;
+use Common\PageStandardController;
+
+class StartController extends PageStandardController
+{
+    public function index()
+    {
+
+    }
+}
+" | Out-FileUtf8NoBom "modules/Common/Controllers/StartController.php"
+    }
+
     if (!(test-path public_html/.htaccess))
     {
         echo "RewriteEngine on
@@ -183,6 +249,10 @@ function Load-AvaibleMethods
 function Get-AvaibleMethods
 {
     return Run-Command System GetMethods;
+}
+function RunVerbose-Command([Parameter(Mandatory = $true)][String]$controller, [Parameter(Mandatory = $true)][String]$action, [Object[]]$params = @()){
+    $obj = @{ controller = $controller; action = $action; args = $params;verbose=$true }
+    $obj | convertto-json | php ./modules/Core/Console.php
 }
 function Run-Command([Parameter(Mandatory = $true)][String]$controller, [Parameter(Mandatory = $true)][String]$action, [Object[]]$params = @())
 {

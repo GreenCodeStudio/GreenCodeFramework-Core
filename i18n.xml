@@ -49,5 +49,9 @@
             <value lang="pl">Nazwa kolumny</value>
             <value lang="en">Column name</value>
         </node>
+        <node name="columnFilter">
+            <value lang="pl">Filtr</value>
+            <value lang="en">Filter</value>
+        </node>
     </node>
 </root>

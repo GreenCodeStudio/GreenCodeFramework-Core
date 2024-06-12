@@ -2,11 +2,16 @@ import template from './ConfigPopup.mpts';
 import {t} from '../../i18n.xml';
 import {TableView} from "./tableView";
 import {ListView} from "./listView";
+import {ColumnFilter} from "./ColumnFilter";
 
 export class ConfigPopup extends HTMLElement {
     constructor(objectsList) {
         super();
-        this.append(template({t, columns: objectsList.columns}))
+        this.append(template({
+            t,
+            categories: [...objectsList.columns.groupBy(c => c.category)]
+                .map(([category, columns]) => ({name: category ?? '', columns}))
+        }))
         this.querySelector('.mode').onchange = () => {
             objectsList.infiniteScrollEnabled = this.querySelector('.mode').value == 'scrollMode'
             objectsList.refresh()
@@ -23,7 +28,9 @@ export class ConfigPopup extends HTMLElement {
             this.remove();
         })
         this.querySelector('select').focus()
+        console.log('ssss')
         for (const checkbox of this.querySelectorAll('table input[type="checkbox"]')) {
+            checkbox.checked = !objectsList.hiddenColumns.has(checkbox.dataset.name)
             checkbox.onchange = () => {
                 if (checkbox.checked)
                     objectsList.hiddenColumns.delete(checkbox.dataset.name)
@@ -32,6 +39,16 @@ export class ConfigPopup extends HTMLElement {
 
                 objectsList.refresh()
             }
+        }
+
+        for (const filterContainer of this.querySelectorAll('table .filter')) {
+            const filter=new ColumnFilter();
+            filterContainer.append(filter)
+            filter.addEventListener('x-filter', (e) => {
+                console.log('dddd',e)
+                objectsList.columnFilters.set(filterContainer.dataset.name, e.detail)
+                objectsList.refresh()
+            });
         }
         this.tabIndex = 0
         setTimeout(()=>this.focus(), 1)

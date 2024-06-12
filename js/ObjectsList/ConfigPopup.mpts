@@ -1,33 +1,45 @@
 <form>
-<label>
-    <span>{{t('objectList.mode')}}</span>
-    <select class="mode">
-        <option value="paginationMode">{{t('objectList.paginationMode')}}</option>
-        <option value="scrollMode">{{t('objectList.scrollMode')}}</option>
-    </select>
-</label>
-<label>
-<span>{{t('objectList.view')}}</span>
-<select class="view">
-    <option value="tableView">{{t('objectList.tableView')}}</option>
-    <option value="listView">{{t('objectList.listView')}}</option>
-</select>
-</label>
-<table>
-    <thead>
-    <tr>
-        <th>{{t('objectList.columnEnabled')}}</th>
-        <th>{{t('objectList.columnName')}}</th>
-    </tr>
-    </thead>
-<tbody>
-<:foreach collection=columns item=column>
-    <tr><td>
-<input type="checkbox" checked data-name=column.dataName />
-    </td><td>
-{{column.name}}
-    </td></tr>
-</:foreach>
-</tbody>
-</table>
+    <label>
+        <span>{{t('objectList.mode')}}</span>
+        <select class="mode">
+            <option value="paginationMode">{{t('objectList.paginationMode')}}</option>
+            <option value="scrollMode">{{t('objectList.scrollMode')}}</option>
+        </select>
+    </label>
+    <label>
+        <span>{{t('objectList.view')}}</span>
+        <select class="view">
+            <option value="tableView">{{t('objectList.tableView')}}</option>
+            <option value="listView">{{t('objectList.listView')}}</option>
+        </select>
+    </label>
+    <:foreach collection=categories item=category>
+        {{category.name}}
+
+        <table>
+            <thead>
+            <tr>
+                <th>{{t('objectList.columnEnabled')}}</th>
+                <th>{{t('objectList.columnName')}}</th>
+                <th>{{t('objectList.columnFilter')}}</th>
+            </tr>
+            </thead>
+            <tbody>
+
+            <:foreach collection=category.columns item=column>
+                <tr>
+                    <td>
+                        <input type="checkbox" data-name=column.dataName />
+                    </td>
+                    <td>
+                        {{column.name}}
+                    </td>
+                    <td class="filter"  data-name=column.dataName >
+
+                    </td>
+                </tr>
+            </:foreach>
+            </tbody>
+        </table>
+    </:foreach>
 </form>

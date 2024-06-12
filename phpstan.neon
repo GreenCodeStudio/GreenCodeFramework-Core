@@ -1,5 +1,3 @@
 parameters:
     scanDirectories:
       - ../../modules
-    ignoreErrors:
-      - "#Access to an undefined property .*#"

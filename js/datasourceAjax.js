@@ -19,14 +19,20 @@ export class DatasourceAjax {
         }
     }
 
-    async get(options) {
-        const ret = await Ajax(this.controller, this.method, {
+    generateOptions(options) {
+        return {
             start: options.start,
             limit: options.limit,
             search: options.search,
             sort: options.sort,
-            params: this.params
-        });
+            params: this.params,
+            columnFilters: Object.fromEntries(options.columnFilters.entries()),
+            hiddenColumns: [...options.hiddenColumns],
+        }
+    }
+
+    async get(options) {
+        const ret = await Ajax(this.controller, this.method, this.generateOptions(options));
         console.log('ssss')
         for (const row of ret.rows) {
             if (this.multiEditChanges[row.id]) {
@@ -41,9 +47,9 @@ export class DatasourceAjax {
         console.log('ssssss')
         if (save) {
 
-             TaskNotification.Create(async () => {
-                 await Ajax(this.controller, this.multiEditMethod, [{id, data}]);
-             }, "Zapisywanie", "Zapisano");
+            TaskNotification.Create(async () => {
+                await Ajax(this.controller, this.multiEditMethod, [{id, data}]);
+            }, "Zapisywanie", "Zapisano");
             delete this.multiEditChanges[id];
         } else {
             this.multiEditChanges[id] = data;
