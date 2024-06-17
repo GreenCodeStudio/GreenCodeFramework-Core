@@ -19,7 +19,7 @@ class DB
     {
         static::connect();
         $sth = static::$pdo->prepare($sql, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
-        $sth->execute(array_map('static::toSqlValue', $params));
+        $sth->execute(array_map(fn($x)=>static::toSqlValue($x), $params));
         $ret = $sth->fetchAll(\PDO::FETCH_CLASS, 'stdClass');
         return $ret;
     }
