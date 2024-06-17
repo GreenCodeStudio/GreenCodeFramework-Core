@@ -139,7 +139,7 @@ class DB
         foreach ($params as $name => $value) {
             $params2[':' . $name] = $value;
         }
-        $sth->execute(array_map('static::toSqlValue', $params));
+        $sth->execute(array_map(fn($x)=>static::toSqlValue($x), $params));
     }
 
     static function insert(string $table, $data)
