@@ -1,14 +1,16 @@
+
+import {t} from '../../i18n.xml';
 export class ColumnFilter extends HTMLElement {
     constructor(props) {
         super(props);
         this.select = this.addChild('select')
-        this.select.addChild('option', {value: 'none', text: 'none'})
-        this.select.addChild('option', {value: 'equals', text: 'equals'})
-        this.select.addChild('option', {value: 'less', text: 'less than'})
-        this.select.addChild('option', {value: 'more', text: 'more than'})
-        this.select.addChild('option', {value: 'contains', text: 'contains'})
-        this.select.addChild('option', {value: 'oneOf', text: 'one of'})
-        this.select.addChild('option', {value: 'empty', text: 'empty'})
+        this.select.addChild('option', {value: 'none', text: t('filter.none')})
+        this.select.addChild('option', {value: 'equals', text: t('filter.equals')})
+        this.select.addChild('option', {value: 'less', text: t('filter.lessThan')})
+        this.select.addChild('option', {value: 'more', text: t('filter.greaterThan')})
+        this.select.addChild('option', {value: 'contains', text: t('filter.contains')})
+        this.select.addChild('option', {value: 'oneOf', text: t('filter.oneOf')})
+        this.select.addChild('option', {value: 'empty', text: t('filter.empty')})
         this.input = this.addChild('input')
         this.input.oninput = () => this.emit();
         this.select.onchange = () => {
