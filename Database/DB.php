@@ -125,7 +125,7 @@ class DB
     static function safeKey($val)
     {
         static::connect();
-        $clean = preg_replace('/[^A-Za-z0-9_]+/', '', $val);
+        $clean = preg_replace('/[^A-Za-z0-9_\/]+/', '', $val);
         if (static::$dialect == 'mysql')
             return '`' . $clean . '`'; else
             return '"' . $clean . '"';
