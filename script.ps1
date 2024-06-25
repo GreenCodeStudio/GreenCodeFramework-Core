@@ -433,8 +433,18 @@ function Run-ScheduleJobs {
     php modules/Core/Schedule.php
 }
 
-echo "common commands:"
-echo "    Build-Project"
-echo "    Analyze-Problems"
-echo "    Start-Project"
-echo "    Repair-Build"
+$functionName = $args[0]
+$function = Get-Command -Name $functionName
+if ($function)
+{
+    $scriptBlock=[System.Management.Automation.ScriptBlock]::Create($functionName)
+    Invoke-Command -ScriptBlock $scriptBlock -ArgumentList $args[1..($args.Length - 1)]
+}
+else
+{
+    echo "common commands:"
+    echo "    Build-Project"
+    echo "    Analyze-Problems"
+    echo "    Start-Project"
+    echo "    Repair-Build"
+}
