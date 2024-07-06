@@ -434,7 +434,13 @@ function Run-ScheduleJobs {
 }
 
 $functionName = $args[0]
-$function = Get-Command -Name $functionName
+if($functionName)
+{
+    $function = Get-Command -Name $functionName
+}else{
+    $function = $false
+
+}
 if ($function)
 {
     $scriptBlock=[System.Management.Automation.ScriptBlock]::Create($functionName)
