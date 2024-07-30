@@ -15,7 +15,7 @@ class Log
     public static function Request(string $url)
     {
         try {
-            if ($_ENV['logErrors']??'false' == 'false') return;
+            if (($_ENV['logErrors']??'false') == 'false') return;
             if (!empty($_ENV['rabbitmq_server'])) {
                 $connection = static::connect();
                 $channel = $connection->channel();
