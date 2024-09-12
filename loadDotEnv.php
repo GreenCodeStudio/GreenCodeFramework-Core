@@ -1,7 +1,7 @@
 <?php
 
 include_once __DIR__.'/../../vendor/autoload.php';
-
+$_ENV=array_merge($_ENV,getenv());
 if (is_file(__DIR__.'/../../.env.local')) {
     loadEnvFile(__DIR__.'/../../.env.local');
 }
