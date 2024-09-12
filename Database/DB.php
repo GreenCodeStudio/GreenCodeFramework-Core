@@ -142,7 +142,7 @@ class DB
         $sth->execute(array_map(fn($x)=>static::toSqlValue($x), $params));
     }
 
-    static function insert(string $table, $data)
+    static function insert(string $table, $data, ?string $schema = null)
     {
         static::connect();
         $table = static::clearName($table);
@@ -159,6 +159,8 @@ class DB
         $colsJoined = implode(',', $cols);
         $valuesJoined = implode(',', $values);
         $tableSafe = static::safeKey($table);
+        if($schema)
+            $tableSafe = static::safeKey($schema) . '.' . $tableSafe;
         static::query("INSERT INTO $tableSafe ($colsJoined) VALUES ($valuesJoined)", $dataSql);
         return static::$pdo->lastInsertId();
     }
