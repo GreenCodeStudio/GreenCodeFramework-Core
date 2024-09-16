@@ -1,11 +1,12 @@
 export class FormManager {
+    otherFormElementTypes=['select-multiple'];
     constructor(form) {
         this.form = form;
         form.addEventListener('submit', event => this.formSubmitted(event));
     }
 
     load(data) {
-        const formElements = this.form.elements;
+        const formElements =[...this.form.elements, ...this.otherFormElementTypes.flatMap(x=>[...this.form.getElementsByTagName(x)])]
         for (const elem of formElements) {
             let value = this.parseFormItemNameRead(elem, data);
             if (elem instanceof HTMLButtonElement) {
@@ -35,6 +36,12 @@ export class FormManager {
                 for (const option of data[select.dataset.foreignKey]) {
                     select.addChild('option', {value: option.id, text: option.title});
                 }
+            }
+        }
+        const selectsMultiple = this.form.querySelectorAll('select-multiple[data-foreign-key]');
+        for (const select of selectsMultiple) {
+            if (data[select.dataset.foreignKey]) {
+                select.options = data[select.dataset.foreignKey];
             }
         }
     }
@@ -85,6 +92,13 @@ export class FormManager {
                 continue
             }
             this.parseFormItemNameWrite(elem, data, elem.value);
+        }
+
+        for (const tagName of this.otherFormElementTypes) {
+            const formElements = this.form.getElementsByTagName(tagName);
+            for (const elem of formElements) {
+                this.parseFormItemNameWrite(elem, data, elem.value);
+            }
         }
         return data;
     }
