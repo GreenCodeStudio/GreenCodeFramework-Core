@@ -10,6 +10,9 @@ export const pageManager = {
             Permissions.data = initInfo.permissions;
         }
 
+        initInfo.data= initInfo.data || {};
+        initInfo.data._query= Object.fromEntries([...new URLSearchParams(document.location.search)])
+
         if (firstInit && initInfo.controllerName == 'Cache' && initInfo.methodName == 'offline') {
             this.goto(document.location.href, {ignoreHistory: true});
         } else {
