@@ -28,7 +28,7 @@ class DB
     {
         static::connect();
         $sth = static::$pdo->prepare($sql, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
-        $sth->execute(array_map(fn($x)=>static::toSqlValue($x), $params));
+        $sth->execute(array_map(fn($x) => static::toSqlValue($x), $params));
         while ($x = $sth->fetchObject()) {
             yield $x;
         }
@@ -61,7 +61,7 @@ class DB
         foreach ($params as $name => $value) {
             $params2[':' . $name] = $value;
         }
-        $sth->execute(array_map('static::toSqlValue', $params));
+        $sth->execute(array_map(fn($x) => static::toSqlValue($x), $params));
         $ret = $sth->fetchAll(\PDO::FETCH_ASSOC);
         return $ret;
     }
@@ -127,7 +127,8 @@ class DB
         static::connect();
         $clean = preg_replace('/[^A-Za-z0-9_]+/', '', $val);
         if (static::$dialect == 'mysql')
-            return '`' . $clean . '`'; else
+            return '`' . $clean . '`';
+        else
             return '"' . $clean . '"';
     }
 
@@ -139,7 +140,7 @@ class DB
         foreach ($params as $name => $value) {
             $params2[':' . $name] = $value;
         }
-        $sth->execute(array_map('static::toSqlValue', $params));
+        $sth->execute(array_map(fn($x) => static::toSqlValue($x), $params));
     }
 
     static function insert(string $table, $data)

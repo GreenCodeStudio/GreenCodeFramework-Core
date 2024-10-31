@@ -7,7 +7,7 @@
         "textalk/websocket": "^1.2",
         "php-amqplib/php-amqplib": "^3.0.0",
         "mkrawczyk/funquery": "^v1.9.2",
-        "mkrawczyk/mpts": "^v1.4.0"
+        "mkrawczyk/mpts": "^v1.4.1"
     },
     "require-dev": {
         "phpunit/phpunit": "^9.2.2",
