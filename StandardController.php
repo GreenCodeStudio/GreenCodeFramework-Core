@@ -12,6 +12,7 @@ abstract class StandardController extends AbstractController
     private $views = [];
     private $breadcrumb;
     protected $headLinks = [];
+    private ?string $canonical = null;
 
     public function __construct()
     {
@@ -147,5 +148,10 @@ abstract class StandardController extends AbstractController
     protected function pushBreadcrumb($crumb)
     {
         $this->breadcrumb[] = $crumb;
+    }
+
+    protected function setCanonical(string $string)
+    {
+        $this->canonical=$string;
     }
 }

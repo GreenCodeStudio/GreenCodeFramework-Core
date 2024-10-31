@@ -1,15 +1,20 @@
 <?php
 
 include_once __DIR__.'/../../vendor/autoload.php';
+$_ENV=array_merge($_ENV,getenv());
+if (is_file(__DIR__.'/../../.env.local')) {
+    loadEnvFile(__DIR__.'/../../.env.local');
+}
 
+if (is_file(__DIR__.'/../../.env.version')) {
+    loadEnvFile(__DIR__.'/../../.env.version');
+}
 if ($_ENV['APP_ENVIRONMENT'] ?? $_SERVER['APP_ENVIRONMENT'] ?? '' == 'test') {
     loadEnvFile(__DIR__.'/../../.env.test');
 } else if (is_file(__DIR__.'/../../.env')) {
     loadEnvFile(__DIR__.'/../../.env');
 }
-if (is_file(__DIR__.'/../../.env.version')) {
-    loadEnvFile(__DIR__.'/../../.env.version');
-}
+
 
 function loadEnvFile($path)
 {
@@ -22,7 +27,9 @@ function loadEnvFile($path)
             if ($value[0] == "'") {
                 $value = substr($value, 1, -1);
             }
-            $_ENV[$name] = $value;
+            if (!isset($_ENV[$name])) {
+                $_ENV[$name] = $value;
+            }
         }
     }
 }

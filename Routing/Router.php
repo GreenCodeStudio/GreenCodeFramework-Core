@@ -19,15 +19,16 @@ use ReflectionMethod;
 
 class Router
 {
+    protected $controllerType = 'unknown';
     protected $controller;
 
     protected ?string $methodName;
 
     protected ?string $controllerName;
-    protected mixed $returned;
-    protected $url;
-    protected string $controllerClassName;
-    protected array $args;
+    public mixed $returned;
+    public $url;
+    public array $args;
+    public string $controllerClassName;
 
     public static function routeHttp($url)
     {
@@ -71,6 +72,10 @@ class Router
         ob_get_clean();
         if (!empty($debug))
             dump($debug);
+    }
+    protected function invokeVerbose()
+    {
+        $this->runMethod();
     }
 
     protected function runMethod()
@@ -161,15 +166,22 @@ class Router
         }
     }
 
-    public static function routeConsole($controllerName, $methodName, $args)
+    public static function routeConsole($controllerName, $methodName, $args, bool $verbose = false)
     {
+        if($verbose){
+            global $debugImmediate;
+            $debugImmediate = true;
+        }
         $router = new ConsoleRouter();
         try {
             $router->controllerName = $controllerName;
             $router->methodName = $methodName;
             $router->args = $args;
             $router->findController();
-            $router->invoke();
+            if($verbose)
+                $router->invokeVerbose();
+            else
+                $router->invoke();
         } catch (\Throwable $ex) {
             $router->sendBackException($ex);
             return;

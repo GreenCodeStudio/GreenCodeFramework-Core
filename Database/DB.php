@@ -19,7 +19,7 @@ class DB
     {
         static::connect();
         $sth = static::$pdo->prepare($sql, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
-        $sth->execute(array_map('static::toSqlValue', $params));
+        $sth->execute(array_map(fn($x)=>static::toSqlValue($x), $params));
         $ret = $sth->fetchAll(\PDO::FETCH_CLASS, 'stdClass');
         return $ret;
     }
@@ -125,7 +125,7 @@ class DB
     static function safeKey($val)
     {
         static::connect();
-        $clean = preg_replace('/[^A-Za-z0-9_]+/', '', $val);
+        $clean = preg_replace('/[^A-Za-z0-9_\/]+/', '', $val);
         if (static::$dialect == 'mysql')
             return '`' . $clean . '`';
         else
@@ -143,7 +143,7 @@ class DB
         $sth->execute(array_map(fn($x) => static::toSqlValue($x), $params));
     }
 
-    static function insert(string $table, $data)
+    static function insert(string $table, $data, ?string $schema = null)
     {
         static::connect();
         $table = static::clearName($table);
@@ -160,6 +160,8 @@ class DB
         $colsJoined = implode(',', $cols);
         $valuesJoined = implode(',', $values);
         $tableSafe = static::safeKey($table);
+        if($schema)
+            $tableSafe = static::safeKey($schema) . '.' . $tableSafe;
         static::query("INSERT INTO $tableSafe ($colsJoined) VALUES ($valuesJoined)", $dataSql);
         return static::$pdo->lastInsertId();
     }

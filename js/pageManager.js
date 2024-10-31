@@ -10,6 +10,9 @@ export const pageManager = {
             Permissions.data = initInfo.permissions;
         }
 
+        initInfo.data= initInfo.data || {};
+        initInfo.data._query= Object.fromEntries([...new URLSearchParams(document.location.search)])
+
         if (firstInit && initInfo.controllerName == 'Cache' && initInfo.methodName == 'offline') {
             this.goto(document.location.href, {ignoreHistory: true});
         } else {
@@ -41,7 +44,7 @@ export const pageManager = {
         if (controllerGroup.then)
             controllerGroup = await controllerGroup;
 
-        let methodName=Object.keys(controllerGroup).find(a=>a.toLowerCase()==initInfo.methodName.toLowerCase())
+        let methodName = Object.keys(controllerGroup).find(a => a.toLowerCase() == initInfo.methodName.toLowerCase())
         if (controllerGroup[methodName])
             return controllerGroup[methodName];
         else if (controllerGroup.default)
@@ -93,6 +96,12 @@ export const pageManager = {
         return new URL(url, document.location).origin === window.location.origin;
     },
     async goto(url, options = {}) {
+        if (this.lastController && this.lastController.canQuit) {
+            let canQuitResponse = this.lastController.canQuit();
+            if (canQuitResponse === false || (await canQuitResponse) === false)
+                return;
+        }
+
         if (!this.isUrlLocal(url)) {
             document.location = url;
             return;
@@ -176,7 +185,7 @@ export const pageManager = {
             main.prepend(debugOutput);
         }
         if (status == 403 || status == 404 || status == 500) {
-            throw(data.error);
+            throw (data.error);
         }
     },
     async refresh(url, page, options = {}) {
@@ -214,7 +223,15 @@ export const pageManager = {
     ,
     registerController(name, controller) {
         this._constrollers[name.toLowerCase()] = controller;
+    },
+    hardUnload(e) {
+        if (this.lastController && this.lastController.canQuit) {
+            const result = this.lastController.canQuit(true);
+            if (result === false)
+                e.preventDefault()
+        }
     }
 };
 window.dbgPageManager = pageManager;
 addEventListener('popstate', e => pageManager.goto(location.href, {ignoreHistory: true}))
+addEventListener('beforeunload', e => pageManager.hardUnload(e))

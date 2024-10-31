@@ -49,5 +49,39 @@
             <value lang="pl">Nazwa kolumny</value>
             <value lang="en">Column name</value>
         </node>
+        <node name="columnFilter">
+            <value lang="pl">Filtr</value>
+            <value lang="en">Filter</value>
+        </node>
+    </node>
+    <node name="filter">
+        <node name="none">
+            <value lang="pl">Brak</value>
+            <value lang="en">None</value>
+        </node>
+        <node name="equals">
+            <value lang="pl">Równa się</value>
+            <value lang="en">Equals</value>
+        </node>
+        <node name="lessThan">
+            <value lang="pl">Mniejsze niż</value>
+            <value lang="en">Less than</value>
+        </node>
+        <node name="greaterThan">
+            <value lang="pl">Większe niż</value>
+            <value lang="en">Greater than</value>
+        </node>
+        <node name="contains">
+            <value lang="pl">Zawiera</value>
+            <value lang="en">Contains</value>
+        </node>
+        <node name="oneOf">
+            <value lang="pl">Jedno z</value>
+            <value lang="en">One of</value>
+        </node>
+        <node name="empty">
+            <value lang="pl">Puste</value>
+            <value lang="en">Empty</value>
+        </node>
     </node>
 </root>

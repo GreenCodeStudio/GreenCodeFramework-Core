@@ -15,7 +15,7 @@ class Log
     public static function Request(string $url)
     {
         try {
-            if ($_ENV['logErrors']??'false' == 'false') return;
+            if (($_ENV['logErrors']??'false') == 'false') return;
             if (!empty($_ENV['rabbitmq_server'])) {
                 $connection = static::connect();
                 $channel = $connection->channel();
@@ -54,7 +54,7 @@ class Log
     {
         dump("Error on line $errline in file $errfile\r\n$errstr");
         try {
-            if ($_ENV['logErrors']??'false' == 'false') return;
+            if (($_ENV['logErrors']??'false') == 'false') return;
 
             if (!empty($_ENV['rabbitmq_server'])) {
                 $connection = static::connect();
@@ -124,7 +124,7 @@ class Log
 
     public static function Exception(\Throwable $ex)
     {
-        if ($_ENV['logErrors']??'false' == 'false') return;
+        if (($_ENV['logErrors']??'false') == 'false') return;
 
         if (!empty($_ENV['rabbitmq_server'])) {
             $connection = static::connect();
@@ -152,7 +152,7 @@ class Log
 
     public static function FrontException($event)
     {
-        if ($_ENV['logErrors']??'false' == 'false') return;
+        if (($_ENV['logErrors']??'false') == 'false') return;
 
         if (!empty($_ENV['rabbitmq_server'])) {
             $connection = static::connect();

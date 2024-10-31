@@ -7,23 +7,26 @@
     "dependencies": {
         "console-cheating": "^1.0.0",
         "prototype-extensions": "^1.10.0",
-        "xmldom": "^0.4.0",
-        "xml2js": "^0.4.23",
+        "xmldom": "^0.6.0",
+        "xml2js": "^0.6.2",
         "active-list-renderer": "^1.0.0",
-        "mpts-loader": "^1.0.1"
+        "mpts-loader": "^1.1.0",
+        "@green-code-studio/objects-list": "^1.0.0",
+        "@green-code-studio/internationalization": "^1.0.4",
+        "@green-code-studio/context-menu": "^1.0.0"
     },
     "devDependencies": {
         "css-loader": "^3.6.0",
         "mini-css-extract-plugin": "^2.1.0",
-        "sass": "^1.62.0",
-        "sass-loader": "^13.1.0",
-        "style-loader": "^1.3.0",
+        "sass": "^1.77.2",
+        "sass-loader": "^14.2.1",
+        "style-loader": "^4.0.0",
         "util.merge-packages": "^0.0.19",
-        "webpack": "^5.45.1",
-        "webpack-cli": "^4.7.2",
+        "webpack": "^5.91.0",
+        "webpack-cli": "^5.1.4",
         "path": "^0.12.7",
-        "file-loader": "^6.0.0",
-        "multi-cli": "^0.1.6",
-        "fonteditor-core": "^2.3.3"
+        "file-loader": "^6.2.0",
+        "multi-cli": "^0.2.1",
+        "fonteditor-core": "^2.4.0"
     }
 }
