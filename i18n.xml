@@ -63,6 +63,10 @@
             <value lang="pl">Równa się</value>
             <value lang="en">Equals</value>
         </node>
+        <node name="notEquals">
+            <value lang="pl">Nie równa się</value>
+            <value lang="en">Not equals</value>
+        </node>
         <node name="lessThan">
             <value lang="pl">Mniejsze niż</value>
             <value lang="en">Less than</value>
