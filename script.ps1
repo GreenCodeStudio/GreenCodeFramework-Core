@@ -433,6 +433,8 @@ function Run-ScheduleJobs {
     php modules/Core/Schedule.php
 }
 
+echo "aa";
+$args | ft *
 $functionName = $args[0]
 if($functionName)
 {

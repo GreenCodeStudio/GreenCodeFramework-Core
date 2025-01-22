@@ -154,4 +154,8 @@ abstract class StandardController extends AbstractController
     {
         $this->canonical=$string;
     }
+    public function headerHtml()
+    {
+        return '';
+    }
 }
