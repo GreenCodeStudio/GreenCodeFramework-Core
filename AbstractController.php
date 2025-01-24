@@ -41,7 +41,7 @@ abstract class AbstractController
 
     public function can(string $group, string $permission):bool
     {
-        return \Authorization\Authorization::getUserData()->permissions->can($group, $permission);
+        return \Authorization\Authorization::getUserData()?->permissions->can($group, $permission)??false;
     }
 
     /**

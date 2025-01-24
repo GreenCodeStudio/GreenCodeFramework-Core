@@ -10,15 +10,18 @@ class AsyncJobRouter extends Router
 {
     var $controllerType = 'AsyncJobs';
 
-    public function findScheduleJobs()
+    public function findScheduleJobs(?string $name=null)
     {
         $controllers = $this->listControllers();
         $ret = [];
         foreach ($controllers as $controller) {
             foreach ($controller->methods as $method) {
                 foreach ($method->annotations as $annotation) {
-                    if ($annotation instanceof \ScheduleJobAnnotation)
-                        $ret[] = (object)['controller' => $controller->name, 'method' => $method->name];
+                    if ($annotation instanceof \ScheduleJobAnnotation) {
+                        if($name==null || $name = $controller->name.'\\'.$method->name) {
+                            $ret[] = (object)['controller' => $controller->name, 'method' => $method->name];
+                        }
+                    }
                 }
             }
         }
