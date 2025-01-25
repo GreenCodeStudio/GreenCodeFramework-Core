@@ -57,4 +57,9 @@ abstract class AbstractController
         http_response_code(301);
         header("location: $url");
     }
+
+    public function setData(array $data)
+    {
+        $this->initInfo->data = $data;
+    }
 }
