@@ -1,6 +1,8 @@
 <?php
 include_once __DIR__.'/MainInit.php';
-$jobs = (new \Core\Routing\AsyncJobRouter())->findScheduleJobs();
+$argv = $_SERVER['argv'];
+
+$jobs = (new \Core\Routing\AsyncJobRouter())->findScheduleJobs($argv[1]??null);
 dump($jobs);
 foreach ($jobs as $job) {
     $descriptorspec = array(
