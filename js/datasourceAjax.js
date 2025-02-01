@@ -32,7 +32,7 @@ export class DatasourceAjax {
     }
 
     async get(options) {
-        const ret = await Ajax(this.controller, this.method, {mode:'all', ...this.generateOptions(options)});
+        const ret = await Ajax(this.controller, this.method, {mode: 'all', ...this.generateOptions(options)});
         for (const row of ret.rows) {
             if (this.multiEditChanges[row.id]) {
                 Object.assign(row, this.multiEditChanges[row.id]);
@@ -42,8 +42,8 @@ export class DatasourceAjax {
         return ret;
     }
 
-    async getRows (options) {
-        const ret = await Ajax(this.controller, this.method, {mode:'rows', ...this.generateOptions(options)});
+    async getRows(options) {
+        const ret = await Ajax(this.controller, this.method, {mode: 'rows', ...this.generateOptions(options)});
         for (const row of ret.rows) {
             if (this.multiEditChanges[row.id]) {
                 Object.assign(row, this.multiEditChanges[row.id]);
@@ -53,8 +53,8 @@ export class DatasourceAjax {
         return ret;
     }
 
-    async getTotal (options) {
-        const ret = await Ajax(this.controller, this.method, {mode:'total', ...this.generateOptions(options)});
+    async getTotal(options) {
+        const ret = await Ajax(this.controller, this.method, {mode: 'total', ...this.generateOptions(options)});
         return ret;
     }
 
