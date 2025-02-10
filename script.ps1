@@ -432,7 +432,7 @@ function Run-PhpStan
 {
     Push-Location (Find-ProjectDir).Fullname
 
-    vendor/bin/phpstan analyse -c modules/Core/phpstan.neon modules --level 0
+    vendor/bin/phpstan analyse -c modules/Core/phpstan.neon modules --level 0 --memory-limit=1024G
     $code = $LASTEXITCODE
 
     Pop-Location

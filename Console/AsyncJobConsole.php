@@ -3,6 +3,7 @@
 namespace Core\Console;
 
 use MKrawczyk\FunQuery\FunQuery;
+use PipelineInput;
 
 class AsyncJobConsole extends \Core\AbstractController
 {
