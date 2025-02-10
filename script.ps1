@@ -70,7 +70,8 @@ class PageAjaxController extends \Core\AjaxController
 {}
 " | Out-FileUtf8NoBom "modules/Common/PageAjaxController.php"
     }
-    if (!(test-path modules/Common/Controllers)){
+    if (!(test-path modules/Common/Controllers))
+    {
         mkdir modules/Common/Controllers
     }
 
@@ -113,7 +114,8 @@ function Repair-Build
 }
 function Prepare-Build
 {
-    if(!(Test-Path "tmp" )){
+    if (!(Test-Path "tmp"))
+    {
         mkdir "tmp"
     }
     if (!(test-path "webpack.config.js"))
@@ -133,20 +135,20 @@ function Prepare-Build
 
     node "modules/Core/js/build.js"
 
-    Get-ChildItem modules | ? { Test-Path "modules/$( $_.Name )/dist" } | %{ New-SymLink "./public_html/dist/$($_.Name)" "../../modules/$($_.Name)/dist" }
+    Get-ChildItem modules | ? { Test-Path "modules/$( $_.Name )/dist" } | %{ New-SymLink "./public_html/dist/$( $_.Name )" "../../modules/$( $_.Name )/dist" }
 
     $file = ""
-    Get-ChildItem modules | ? { Test-Path "modules/$($_.Name)/scss/mixins.scss" } | % { $file += "@import ""./modules/" +  $_.Name + "/scss/mixins.scss"";`r`n" }
-    Get-ChildItem modules | ? { Test-Path "modules/$($_.Name)/scss/index.scss" } | % { $file += "@import ""./modules/" +  $_.Name + "/scss/index.scss"";`r`n" }
+    Get-ChildItem modules | ? { Test-Path "modules/$( $_.Name )/scss/mixins.scss" } | % { $file += "@import ""./modules/" + $_.Name + "/scss/mixins.scss"";`r`n" }
+    Get-ChildItem modules | ? { Test-Path "modules/$( $_.Name )/scss/index.scss" } | % { $file += "@import ""./modules/" + $_.Name + "/scss/index.scss"";`r`n" }
     $file | Out-FileUtf8NoBom "scssBuild.scss"
 
     $file = "import ""./scssBuild.scss"";`r`n"
-    Get-ChildItem modules | ? { Test-Path "modules/$($_.Name)/js/index.js" } | % { $file += "import  ""./modules/" + $_.Name + "/js/index"";`r`n" }
+    Get-ChildItem modules | ? { Test-Path "modules/$( $_.Name )/js/index.js" } | % { $file += "import  ""./modules/" + $_.Name + "/js/index"";`r`n" }
     $file | Out-FileUtf8NoBom "jsBuild.js"
 
     $composerIncludes = [System.Collections.ArrayList]::new();
     Get-ChildItem modules | ? { Test-Path "modules/$( $_.Name )/composer.json" } | %{ $composerIncludes.Add("modules/$( $_.Name )/composer.json") }
-    $composer = @{ require = @{ "wikimedia/composer-merge-plugin" = "dev-master" }; config = @{"allow-plugins" = @{"wikimedia/composer-merge-plugin" = $true}}; extra = @{ "merge-plugin" = @{ include = $composerIncludes } } }
+    $composer = @{ require = @{ "wikimedia/composer-merge-plugin" = "dev-master" }; config = @{ "allow-plugins" = @{ "wikimedia/composer-merge-plugin" = $true } }; extra = @{ "merge-plugin" = @{ include = $composerIncludes } } }
     $composer | convertto-json -Depth 10 | Out-FileUtf8NoBom "composer.json"
 }
 function Generate-Htaccess
@@ -211,7 +213,8 @@ function Start-Project
     Start-Job -scriptBlock {
         param($dir)
         cd $dir
-        php ./modules/Core/Schedule.php} -ArgumentList (Find-ProjectDir).Fullname
+        php ./modules/Core/Schedule.php
+    } -ArgumentList (Find-ProjectDir).Fullname
     yarn start
     Pop-Location
 }
@@ -232,14 +235,18 @@ function Load-AvaibleMethods
 {
     Get-AvaibleMethods | ? Name | % {
         $params = ($_.parameters | % {
-            if ($_.isOptional)
-            {
-                "`$$( $_.name )"
+            if ($_.isOptional){
+                $mandatory='$false'
+            }else{
+                $mandatory='$true'
             }
-            else
-            {
-                "[Parameter(Mandatory=`$true)]`$$( $_.name )"
+            if ($_.pipelineInput){
+                $valueFromPipeline='$true'
+            }else{
+                $valueFromPipeline='$false'
             }
+            "[Parameter(Mandatory=$mandatory, ValueFromPipeline=$valueFromPipeline)]`$$( $_.name )"
+
         })
         $paramsString = $params | & { $ofs = ','; "$input" }
         $paramsUse = ($_.parameters | % { "`$$( $_.name )" } | & { $ofs = ','; "$( $input )" })
@@ -250,11 +257,12 @@ function Get-AvaibleMethods
 {
     return Run-Command System GetMethods;
 }
-function RunVerbose-Command([Parameter(Mandatory = $true)][String]$controller, [Parameter(Mandatory = $true)][String]$action, [Object[]]$params = @()){
-    $obj = @{ controller = $controller; action = $action; args = $params;verbose=$true }
+function RunVerbose-Command([Parameter(Mandatory = $true)][String]$controller, [Parameter(Mandatory = $true)][String]$action, [Object[]]$params = @())
+{
+    $obj = @{ controller = $controller; action = $action; args = $params; verbose = $true }
     $obj | convertto-json | php ./modules/Core/Console.php
 }
-function Run-Command([Parameter(Mandatory = $true)][String]$controller, [Parameter(Mandatory = $true)][String]$action, [Object[]]$params = @())
+function Run-Command([Parameter(Mandatory = $true)][String]$controller, [Parameter(Mandatory = $true)][String]$action, [Parameter(ValueFromPipeline = $true)][Object[]]$params = @())
 {
 
     $obj = @{ controller = $controller; action = $action; args = $params }
@@ -376,20 +384,27 @@ function Start-DevServer([int] $port = 80)
     php -S 0.0.0.0:$port
 }
 
-function Analyze-Problems{
-try{
-Get-Command yarn
-}catch{
-echo "Yarn not found, download from https://yarnpkg.com/getting-started/install"
-}
+function Analyze-Problems
+{
+    try
+    {
+        Get-Command yarn
+    }
+    catch
+    {
+        echo "Yarn not found, download from https://yarnpkg.com/getting-started/install"
+    }
 
-try{
-Get-Command php
-}catch{
-echo "php not found"
-}
+    try
+    {
+        Get-Command php
+    }
+    catch
+    {
+        echo "php not found"
+    }
 
-Get-ProjectModules | ft *
+    Get-ProjectModules | ft *
 
 }
 function Test-Requirements
@@ -418,7 +433,7 @@ function Run-PhpStan
     Push-Location (Find-ProjectDir).Fullname
 
     vendor/bin/phpstan analyse -c modules/Core/phpstan.neon modules --level 0
-    $code=$LASTEXITCODE
+    $code = $LASTEXITCODE
 
     Pop-Location
 
@@ -427,7 +442,8 @@ function Run-PhpStan
         exit $code
     }
 }
-function Run-ScheduleJobs {
+function Run-ScheduleJobs
+{
     Push-Location (Find-ProjectDir).Fullname
 
     php modules/Core/Schedule.php
@@ -436,16 +452,18 @@ function Run-ScheduleJobs {
 echo "aa";
 $args | ft *
 $functionName = $args[0]
-if($functionName)
+if ($functionName)
 {
     $function = Get-Command -Name $functionName
-}else{
+}
+else
+{
     $function = $false
 
 }
 if ($function)
 {
-    $scriptBlock=[System.Management.Automation.ScriptBlock]::Create($functionName)
+    $scriptBlock = [System.Management.Automation.ScriptBlock]::Create($functionName)
     Invoke-Command -ScriptBlock $scriptBlock -ArgumentList $args[1..($args.Length - 1)]
 }
 else
