@@ -2,6 +2,7 @@
 
 namespace Core\Database;
 
+use Mkrawczyk\DbQueryTranslator\Driver\MySql\MySqlDriver;
 use MKrawczyk\FunQuery\FunQuery;
 
 class DB
@@ -18,8 +19,9 @@ class DB
     static function get(string $sql, $params = [])
     {
         static::connect();
+        $sql = static::translate($sql);
         $sth = static::$pdo->prepare($sql, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
-        $sth->execute(array_map(fn($x)=>static::toSqlValue($x), $params));
+        $sth->execute(array_map(fn($x) => static::toSqlValue($x), $params));
         $ret = $sth->fetchAll(\PDO::FETCH_CLASS, 'stdClass');
         return $ret;
     }
@@ -27,6 +29,8 @@ class DB
     static function iterate(string $sql, $params = [])
     {
         static::connect();
+
+        $sql = static::translate($sql);
         $sth = static::$pdo->prepare($sql, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
         $sth->execute(array_map(fn($x) => static::toSqlValue($x), $params));
         while ($x = $sth->fetchObject()) {
@@ -56,10 +60,11 @@ class DB
     static function getArray(string $sql, $params = [])
     {
         static::connect();
+        $sql = static::translate($sql);
         $sth = static::$pdo->prepare($sql, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
         $params2 = [];
         foreach ($params as $name => $value) {
-            $params2[':' . $name] = $value;
+            $params2[':'.$name] = $value;
         }
         $sth->execute(array_map(fn($x) => static::toSqlValue($x), $params));
         $ret = $sth->fetchAll(\PDO::FETCH_ASSOC);
@@ -127,18 +132,19 @@ class DB
         static::connect();
         $clean = preg_replace('/[^A-Za-z0-9_\/]+/', '', $val);
         if (static::$dialect == 'mysql')
-            return '`' . $clean . '`';
+            return '`'.$clean.'`';
         else
-            return '"' . $clean . '"';
+            return '"'.$clean.'"';
     }
 
     static function query(string $sql, $params = [])
     {
         static::connect();
+        $sql = static::translate($sql);
         $sth = static::$pdo->prepare($sql, array(\PDO::ATTR_CURSOR => \PDO::CURSOR_FWDONLY));
         $params2 = [];
         foreach ($params as $name => $value) {
-            $params2[':' . $name] = $value;
+            $params2[':'.$name] = $value;
         }
         $sth->execute(array_map(fn($x) => static::toSqlValue($x), $params));
     }
@@ -160,8 +166,8 @@ class DB
         $colsJoined = implode(',', $cols);
         $valuesJoined = implode(',', $values);
         $tableSafe = static::safeKey($table);
-        if($schema)
-            $tableSafe = static::safeKey($schema) . '.' . $tableSafe;
+        if ($schema)
+            $tableSafe = static::safeKey($schema).'.'.$tableSafe;
         static::query("INSERT INTO $tableSafe ($colsJoined) VALUES ($valuesJoined)", $dataSql);
         return static::$pdo->lastInsertId();
     }
@@ -198,16 +204,38 @@ class DB
             $row = (array)$row;
             $values = [];
             foreach ($example as $name => $value) {
-                $nameCleared = static::clearName($name) . '_' . $i;
+                $nameCleared = static::clearName($name).'_'.$i;
                 $values[] = " :$nameCleared ";
                 $dataSql[$nameCleared] = $row[$name] ?? NULL;
             }
-            $valuesJoinedArray[] = '(' . implode(',', $values) . ')';
+            $valuesJoinedArray[] = '('.implode(',', $values).')';
         }
         $colsJoined = implode(',', $cols);
         $valuesJoinedJoined = implode(',', $valuesJoinedArray);
         static::query("INSERT INTO `$table` ($colsJoined) VALUES $valuesJoinedJoined", $dataSql);
         return static::$pdo->lastInsertId();
+    }
+
+    static function translate(string $srcSql)
+    {
+        if (!empty($_ENV['dbTranslateDialect'])) {
+            if ($_ENV['dbDialect'] == 'mysql') {
+                $sourceDriver=new MySqlDriver();
+            } else {
+                throw new \Exception('Translation from '.$_ENV['dbDialect'].' is not supported');
+            }
+            $parsed = $sourceDriver->parse($srcSql);
+
+            if ($_ENV['dbTranslateDialect'] == 'mysql') {
+                $targetDriver=new MySqlDriver();
+            } else {
+                throw new \Exception('Translation to '.$_ENV['dbTranslateDialect'].' is not supported');
+            }
+            return $targetDriver->serialize($parsed);
+
+        } else {
+            return $srcSql;
+        }
     }
 
     public static function init()
