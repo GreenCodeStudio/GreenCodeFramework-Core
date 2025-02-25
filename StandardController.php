@@ -76,6 +76,7 @@ abstract class StandardController extends AbstractController
         $env->document = new DOMDocument();
         $env->variables = (array)$data;
         $env->variables['data'] = (array)$data;
+        $env->variables['formater'] = \Common\Formatter::getObject();
         $env->variables['dump']= function (...$args) {
             ob_start();
             var_dump(...$args);
