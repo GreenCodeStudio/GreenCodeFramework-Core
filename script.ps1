@@ -136,6 +136,9 @@ function Prepare-Build
     node "modules/Core/js/build.js"
 
     Get-ChildItem modules | ? { Test-Path "modules/$( $_.Name )/dist" } | %{ New-SymLink "./public_html/dist/$( $_.Name )" "../../modules/$( $_.Name )/dist" }
+   if( Test-Path "./public_html/dist/serviceWorker.js"){
+       New-SymLink "./public_html/serviceWorker.js" "./public_html/dist/serviceWorker.js"
+   }
 
     $file = ""
     Get-ChildItem modules | ? { Test-Path "modules/$( $_.Name )/scss/mixins.scss" } | % { $file += "@import ""./modules/" + $_.Name + "/scss/mixins.scss"";`r`n" }
