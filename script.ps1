@@ -137,7 +137,7 @@ function Prepare-Build
 
     Get-ChildItem modules | ? { Test-Path "modules/$( $_.Name )/dist" } | %{ New-SymLink "./public_html/dist/$( $_.Name )" "../../modules/$( $_.Name )/dist" }
    if(-not (Test-Path "./public_html/dist/serviceWorker.js")){
-       New-SymLink "./public_html/serviceWorker.js" "./public_html/dist/serviceWorker.js"
+       New-SymLink "./public_html/serviceWorker.js" "./dist/serviceWorker.js"
    }
 
     $file = ""
