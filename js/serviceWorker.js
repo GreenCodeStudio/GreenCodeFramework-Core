@@ -129,10 +129,10 @@ function checkCacheVersion(version) {
 self.addEventListener('push', function (event) {
     const data = event.data.json();
     console.log('push notification', data);
-    event.waitUntil(self.registration.showNotification(data.message, {data: {data}}));
+    event.waitUntil(self.registration.showNotification(data.message, {data}));
 });
 self.addEventListener("notificationclick", (event) => {
     event.notification.close();
-    event.waitUntil(clients.openWindow(event.notification.data.url));
+    event.waitUntil(clients.openWindow(event.notification.data.link));
 });
 setTimeout(installOffline, 20000);
