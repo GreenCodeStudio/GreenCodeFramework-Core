@@ -136,7 +136,7 @@ function Prepare-Build
     node "modules/Core/js/build.js"
 
     Get-ChildItem modules | ? { Test-Path "modules/$( $_.Name )/dist" } | %{ New-SymLink "./public_html/dist/$( $_.Name )" "../../modules/$( $_.Name )/dist" }
-   if( Test-Path "./public_html/dist/serviceWorker.js"){
+   if(-not (Test-Path "./public_html/dist/serviceWorker.js")){
        New-SymLink "./public_html/serviceWorker.js" "./public_html/dist/serviceWorker.js"
    }
 
