@@ -1,12 +1,13 @@
 export class FormManager {
-    otherFormElementTypes=['select-multiple'];
+    otherFormElementTypes = ['select-multiple'];
+
     constructor(form) {
         this.form = form;
         form.addEventListener('submit', event => this.formSubmitted(event));
     }
 
     load(data) {
-        const formElements =[...this.form.elements, ...this.otherFormElementTypes.flatMap(x=>[...this.form.getElementsByTagName(x)])]
+        const formElements = [...this.form.elements, ...this.otherFormElementTypes.flatMap(x => [...this.form.getElementsByTagName(x)])]
         for (const elem of formElements) {
             let value = this.parseFormItemNameRead(elem, data);
             if (elem instanceof HTMLButtonElement) {
@@ -103,9 +104,15 @@ export class FormManager {
         return data;
     }
 
-    formSubmitted(e) {
+    async formSubmitted(e) {
         e.preventDefault();
-        this.submit(this.getData(e.submitter));
+        this.form.classList.add('form-submitting');
+        try {
+
+            await this.submit(this.getData(e.submitter));
+        } finally {
+            this.form.classList.remove('form-submitting');
+        }
     }
 
     /**
