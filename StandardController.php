@@ -70,25 +70,28 @@ abstract class StandardController extends AbstractController
             throw new \Exception("Cannot find $name.php or $name.mpts in $module/Views/");
         }
     }
-    protected function loadMPTS($code, $data){
+
+    protected function loadMPTS($code, $data)
+    {
         $template = XMLParser::Parse($code);
         $env = new Environment();
         $env->document = new DOMDocument();
         $env->variables = (array)$data;
         $env->variables['data'] = (array)$data;
         $env->variables['formater'] = \Common\Formatter::getObject();
-        $env->variables['dump']= function (...$args) {
+        $env->variables['dump'] = function (...$args) {
             ob_start();
             var_dump(...$args);
-            $ret=ob_get_contents();
+            $ret = ob_get_contents();
             ob_end_clean();
             return $ret;
         };
-        $env->variables['t']=fn(...$args)=>t(...$args);
-        $env->variables['getView']=fn(...$args)=>$this->getView(...$args);
+        $env->variables['t'] = fn(...$args) => t(...$args);
+        $env->variables['getView'] = fn(...$args) => $this->getView(...$args);
         $result = $template->execute($env);
         return $env->document->saveXML($result);
     }
+
     protected function insertView(string $module, string $name, $data = null)
     {
         if (file_exists(__DIR__ . '/../' . $module . '/Views/' . $name . '.php')) {
@@ -100,12 +103,13 @@ abstract class StandardController extends AbstractController
             throw new \Exception("Cannot find $name.php or $name.mpts in $module/Views/");
         }
     }
+
     protected function getView(string $module, string $name, $data = null)
     {
         if (file_exists(__DIR__ . '/../' . $module . '/Views/' . $name . '.php')) {
             ob_start();
             require __DIR__ . '/../' . $module . '/Views/' . $name . '.php';
-            $ret=ob_get_contents();
+            $ret = ob_get_contents();
             ob_end_clean();
             return $ret;
         } else if (file_exists(__DIR__ . '/../' . $module . '/Views/' . $name . '.mpts')) {
@@ -153,10 +157,19 @@ abstract class StandardController extends AbstractController
 
     protected function setCanonical(string $string)
     {
-        $this->canonical=$string;
+        $this->canonical = $string;
     }
+
     public function headerHtml()
     {
         return '';
+    }
+    protected function getHeadLinks()
+    {
+        $ret=$this->headLinks;
+        if(!empty($this->canonical)){
+            $ret[] = ['rel' => 'canonical', 'href' => $this->canonical];
+        }
+        return $ret;
     }
 }
