@@ -11,7 +11,7 @@ class MigrationConsole extends \Core\AbstractController
         $migr->execute();
     }
 
-    function UpgradeByFile(string $filename = null)
+    function UpgradeByFile(?string $filename = null)
     {
         $migr = \Core\Database\Migration::factory();
         $migr->upgradeByFile($filename);
@@ -25,7 +25,7 @@ class MigrationConsole extends \Core\AbstractController
         return $migr->queries;
     }
 
-    function PreviewByFile(string $filename = null)
+    function PreviewByFile(?string $filename = null)
     {
         $migr = \Core\Database\Migration::factory();
         $migr->upgradeByFile($filename);
