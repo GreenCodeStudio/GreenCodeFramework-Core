@@ -38,10 +38,11 @@ abstract class Migration
         $tables = [];
         foreach ($tablesList as $tableName) {
             $table = new \stdClass();
-            $table->columns = DB::get("SELECT COLUMN_NAME as name, COLUMN_TYPE as type, EXTRA,  IS_NULLABLE as `null`, COLUMN_DEFAULT as `default` FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?", [$schema, $tableName->name]);
+            $table->columns = DB::get("SELECT COLUMN_NAME as name, COLUMN_TYPE as type, EXTRA,  IS_NULLABLE as `null`, COLUMN_DEFAULT as `default`, GENERATION_EXPRESSION as `generated` FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?", [$schema, $tableName->name]);
             foreach ($table->columns as &$column) {
                 if (strpos($column->EXTRA, 'auto_increment') !== false)
                     $column->autoincrement = 'YES';
+
             }
             $table->index = [];
             $indexes = DB::get("SHOW INDEX FROM ".$tableName->name);
@@ -134,7 +135,9 @@ abstract class Migration
 
                         if ($this->isIndexIdentical($indexNew, $indexOld)) {
                             $foundIdentical = true;
-                            $indexNew->addAttribute('foundIdentical', true);
+                            if (empty($indexNew->attributes()->foundIdentical)) {
+                                $indexNew->addAttribute('foundIdentical', true);
+                            }
                             break;
                         }
                     }
@@ -189,7 +192,7 @@ abstract class Migration
     private function areColsEqual($old, $new)
     {
         $name = $old->name == $new->name;
-        $type = strtoupper($old->type) == strtoupper($new->type);
+        $type = str_replace(', ', ',', strtoupper($old->type)) == str_replace(', ', ',', strtoupper($new->type));
         if (!$type) {
             foreach (static::equalTypePairs as $pair) {
                 if (in_array(strtoupper($old->type), $pair) && in_array(strtoupper($new->type), $pair)) {
@@ -199,9 +202,10 @@ abstract class Migration
             }
         }
         $null = strtoupper($old->null ?? 'NO') == strtoupper($new->null ?? 'NO');
-        $autoincrement = strtoupper($old->autoincrement??'NO') == strtoupper($new->autoincrement??'NO');
-        $default = strtoupper($old->default??'null') === strtoupper($new->default??'null');
-        return $name && $type && $null && $autoincrement&& $default;
+        $autoincrement = strtoupper($old->autoincrement ?? 'NO') == strtoupper($new->autoincrement ?? 'NO');
+        $default = strtoupper($old->default ?? 'null') === strtoupper($new->default ?? 'null');
+        $generated = strtoupper($old->generated ?? '') === strtoupper($new->generated ?? '');
+        return $name && $type && $null && $autoincrement && $default && $generated;
     }
 
     /**
@@ -211,7 +215,15 @@ abstract class Migration
     protected function createColumnSql($column)
     {
         $safename = DB::safeKey($column->name);
-        $col = $safename.' '.$column->type.' '.(strtolower($column->null) == 'yes' ? 'NULL' : 'NOT NULL');
+        $col = $safename.' '.$column->type.' ';
+
+        if (!empty($column->generated)) {
+            $col .= " GENERATED ALWAYS AS (".$column->generated.")";
+            if (!empty($column->generated->attributes()->stored) && strtolower($column->generated->attributes()->stored) == 'yes') {
+                $col .= " STORED ";
+            }
+        }
+        $col .= (strtolower($column->null) == 'yes' ? ' NULL ' : ' NOT NULL ');
         if (isset($column->default))
             $col .= ' DEFAULT '.DB::safe($column->default->__toString());
         if (!empty($column->autoincrement) && strtolower($column->autoincrement) == 'yes')
@@ -221,7 +233,7 @@ abstract class Migration
 
     private function isIndexIdentical($indexNew, $indexOld)
     {
-        if (($indexNew->type??'INDEX') != $indexOld->type)
+        if (($indexNew->type ?? 'INDEX') != $indexOld->type)
             return false;
         if (count($indexNew->element) != count($indexOld->element))
             return false;

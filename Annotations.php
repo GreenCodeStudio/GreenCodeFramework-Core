@@ -56,3 +56,8 @@ class ApiEndpointAnnotation extends \mindplay\annotations\Annotation
 class CanSafeRepeatAnnotation extends \mindplay\annotations\Annotation
 {
 }
+
+#[Attribute(Attribute::TARGET_PARAMETER)]
+class PipelineInput
+{
+}

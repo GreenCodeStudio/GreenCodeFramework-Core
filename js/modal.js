@@ -18,6 +18,7 @@ export function modal(text, type = 'info', buttons = [{text: 'ok', value: true}]
                 modalContainer.classList.add('closing');
                 setTimeout(() => modalContainer.remove(), 1000);
                 resolve(button.value);
+                if(button.onclick) button.onclick();
             };
             buttonElem.focus();
         }

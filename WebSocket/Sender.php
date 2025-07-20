@@ -14,9 +14,14 @@ class Sender
 
     static function sendToUsers(array $path, $message = null, ?array $users = null)
     {
-        if(self::isEnabled()) {
-            $payload = ['path' => $path, 'message' => $message, 'users' => $users];
-            static::connect()->send(json_encode($payload));
+        try {
+            if (self::isEnabled()) {
+                $payload = ['path' => $path, 'message' => $message, 'users' => $users];
+                static::connect()->send(json_encode($payload));
+            }
+        }catch (\WebSocket\ConnectionException $e) {
+            dump($e);
+            //ingore as it's not critical
         }
     }
 

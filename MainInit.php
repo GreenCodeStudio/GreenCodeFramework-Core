@@ -1,6 +1,5 @@
 <?php
 
-use Core\Internationalization\I18nNodeNotFoundException;
 
 error_reporting(E_ALL);
 ini_set("log_errors", 1);
@@ -17,29 +16,12 @@ set_error_handler(function ($errno, $errstr, $errfile, $errline) {
 });
 global $debugArray;
 $debugArray = [];
+
 include_once __DIR__ . '/../../vendor/autoload.php';
 
 include_once __DIR__ . '/loadDotEnv.php';
 
-
-function t($q)
-{
-    if (getenv('debug') == 'true') {
-        $value = \Core\Internationalization\Translator::$default->translate($q);
-    } else {
-        try {
-            $value = \Core\Internationalization\Translator::$default->translate($q);
-        } catch (I18nNodeNotFoundException $exception) {
-            trigger_error("Key not found in translations: $q", E_USER_WARNING);
-            return '';
-        }
-    }
-    if ($value === null) {
-        return '';
-    } else {
-        return $value . "";
-    }
-}
+include_once __DIR__ . '/InitInternationalization.php';
 
 if (empty($_COOKIE["uniq"]))
     setcookie("uniq", bin2hex(openssl_random_pseudo_bytes(4)) . uniqid(), time() + 365 * 24 * 60 * 60);

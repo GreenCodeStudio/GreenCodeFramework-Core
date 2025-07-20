@@ -97,7 +97,7 @@ async function installOffline() {
     var response = await fetch('/ajax/Cache/list', {headers: {'x-js-origin': 'true'}});
     var list = await response.json();
     let cache = await cachePromise;
-    if(!list.data?.normal) return;
+    if (!list.data?.normal) return;
     for (let filePath of list.data.normal) {
         cache.match(filePath).then(matches => {
             if (!matches || matches.headers.get('x-sw-version') !== currentVersion) {
@@ -127,7 +127,12 @@ function checkCacheVersion(version) {
 }
 
 self.addEventListener('push', function (event) {
-    const title = event.data.json().message;
-    event.waitUntil(self.registration.showNotification(title));
+    const data = event.data.json();
+    console.log('push notification', data);
+    event.waitUntil(self.registration.showNotification(data.message, {data}));
+});
+self.addEventListener("notificationclick", (event) => {
+    event.notification.close();
+    event.waitUntil(clients.openWindow(event.notification.data.link));
 });
 setTimeout(installOffline, 20000);

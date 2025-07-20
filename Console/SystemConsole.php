@@ -27,10 +27,12 @@ class SystemConsole extends \Core\AbstractController
                         $name = $parameter->name;
                         $isOptional = $parameter->isOptional();
                         $defaultValue = $isOptional ? $parameter->getDefaultValue() : NULL;
+                        $pipelineInput = !empty($parameter->getAttributes());
                         $parameter = new \stdClass();
                         $parameter->name = $name;
                         $parameter->defaultValue = $defaultValue;
                         $parameter->isOptional = $isOptional;
+                        $parameter->pipelineInput = $pipelineInput;
                     }
                     $methods[] = $method;
                 }

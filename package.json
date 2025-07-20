@@ -2,7 +2,7 @@
     "scripts": {
         "buildProd": "webpack --mode=production",
         "build": "webpack  --mode=development --watch",
-        "start": "multi-cli \"yarn.cmd build\" \"php -S 0.0.0.0:80 -t public_html\" \"php modules/Core/initWebsocketService.php\""
+        "start": "multi-cli \"cmd /c yarn.cmd build\" \"php -S 0.0.0.0:80 -t public_html\" \"php modules/Core/initWebsocketService.php\""
     },
     "dependencies": {
         "console-cheating": "^1.0.0",
@@ -11,7 +11,7 @@
         "xml2js": "^0.6.2",
         "active-list-renderer": "^1.0.0",
         "mpts-loader": "^1.1.0",
-        "@green-code-studio/objects-list": "^1.0.0",
+        "@green-code-studio/objects-list": "^1.7.1",
         "@green-code-studio/internationalization": "^1.0.4",
         "@green-code-studio/context-menu": "^1.0.0"
     },
