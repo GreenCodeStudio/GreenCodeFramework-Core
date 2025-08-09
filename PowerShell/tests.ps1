@@ -28,6 +28,7 @@ function Run-E2eTests
 {
     try
     {
+        $env:APP_ENVIRONMENT = "test"
         Push-Location (Find-ProjectDir).FullName
         Write-Host "Start of composer install"
         composer update
@@ -71,19 +72,24 @@ function Run-E2eTests
         Write-Host "Start Selenium"
         node ./modules/E2eTests/Test/Selenium/init.js $mail $password
 
+        Pop-Location
+
         if ($LASTEXITCODE -ne 0)
         {
-            exit $LASTEXITCODE
+            return $LASTEXITCODE
         }
 
-        Pop-Location
     }
     catch
     {
         Write-Host "An error occurred:"
         Write-Host $_
-        exit -1
+        return -1
     }
+}
+function Test-E2eTests
+{
+    node ./modules/E2eTests/Test/Selenium/init.js
 }
 
 
