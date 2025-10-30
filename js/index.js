@@ -11,7 +11,7 @@ AjaxTask.refresh();
 
 setTimeout(() => pageManager.initPage(window.controllerInitInfo, document.querySelector('.page'), true));
 setEvent('click', 'a:not(.nativeLink)', function (e) {
-    if(!e.originalEvent.ctrlKey && !e.originalEvent.shiftKey && !e.originalEvent.metaKey && !e.originalEvent.altKey) {
+    if(!e.originalEvent.ctrlKey && !e.originalEvent.shiftKey && !e.originalEvent.metaKey && !e.originalEvent.altKey && !e.target.target) {
         e.preventDefault();
         pageManager.goto(this.href);
     }
