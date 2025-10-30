@@ -275,13 +275,16 @@ class Router
         $this->methodName = preg_replace('/[^a-zA-Z0-9_]/', '', $methodName);
     }
 
-    protected function exceptionToArray(\Throwable $exception)
+    protected function exceptionToArray(\Throwable $exception, ?bool $enhanced=null)
     {
         $ret = ['type' => get_class($exception), 'message' => $exception->getMessage(), 'code' => $exception->getCode()];
         if ($exception instanceof IJsonSerializable) {
             $ret = array_merge($ret, $exception->toJsonableObject());
         }
-        if ($_ENV['debug'] == 'true') {
+        if($enhanced===null){
+            $enhanced=$_ENV['debug'] == 'true';
+        }
+        if ($enhanced) {
             $stack = [['file' => $exception->getFile(), 'line' => $exception->getLine()]];
             $stack = array_merge($stack, $exception->getTrace());
             $ret['stack'] = $stack;

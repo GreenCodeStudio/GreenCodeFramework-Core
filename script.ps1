@@ -263,13 +263,13 @@ function Get-AvaibleMethods
 function RunVerbose-Command([Parameter(Mandatory = $true)][String]$controller, [Parameter(Mandatory = $true)][String]$action, [Object[]]$params = @())
 {
     $obj = @{ controller = $controller; action = $action; args = $params; verbose = $true }
-    $obj | convertto-json | php ./modules/Core/Console.php
+    $obj | convertto-json | php ./modules/Core/Console.php --pwsh
 }
 function Run-Command([Parameter(Mandatory = $true)][String]$controller, [Parameter(Mandatory = $true)][String]$action, [Parameter(ValueFromPipeline = $true)][Object[]]$params = @())
 {
 
     $obj = @{ controller = $controller; action = $action; args = $params }
-    $ret = ($obj | convertto-json | php ./modules/Core/Console.php)
+    $ret = ($obj | convertto-json | php ./modules/Core/Console.php --pwsh)
     try
     {
         $retObj = $ret | ConvertFrom-Json;

@@ -19,7 +19,7 @@ class ConsoleRouter extends Router
     protected function sendBackException($ex)
     {
         global $debugArray;
-        echo json_encode(['error' => $this->exceptionToArray($ex), 'debug' => $debugArray], JSON_PARTIAL_OUTPUT_ON_ERROR);
+        echo json_encode(['error' => $this->exceptionToArray($ex, true), 'debug' => $debugArray], JSON_PARTIAL_OUTPUT_ON_ERROR);
         $debugArray = [];
     }
 
