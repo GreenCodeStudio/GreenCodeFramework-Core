@@ -281,8 +281,8 @@ function Run-Command([Parameter(Mandatory = $true)][String]$controller, [Paramet
         return;
     }
     $retObj.debug | %{
-        $line = $_.backtrace[0];
-        Write-Host ($line.function + "() " + $line.file + ":" + $line.line) -ForegroundColor blue;
+        $line = $_.backtrace?[0];
+        Write-Host ($line.function + "() " + $line?.file + ":" + $line?.line) -ForegroundColor blue;
         if ($_.jsons)
         {
             $_.jsons | %{ ConvertFrom-Json $_ }|%{
