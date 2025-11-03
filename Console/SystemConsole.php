@@ -56,4 +56,12 @@ class SystemConsole extends \Core\AbstractController
     {
         return (new AjaxRouter())->listControllers();
     }
+    function TestConsole()
+    {
+        for($i=0;$i<10;$i++){
+            echo "e $i\r\n";
+            dump("d $i\r\n");
+            sleep(1);
+        }
+    }
 }
