@@ -136,9 +136,10 @@ function Prepare-Build
     node "modules/Core/js/build.js"
 
     Get-ChildItem modules | ? { Test-Path "modules/$( $_.Name )/dist" } | %{ New-SymLink "./public_html/dist/$( $_.Name )" "../../modules/$( $_.Name )/dist" }
-   if(-not (Test-Path "./public_html/dist/serviceWorker.js")){
-       New-SymLink "./public_html/serviceWorker.js" "./dist/serviceWorker.js"
-   }
+    if (-not (Test-Path "./public_html/dist/serviceWorker.js"))
+    {
+        New-SymLink "./public_html/serviceWorker.js" "./dist/serviceWorker.js"
+    }
 
     $file = ""
     Get-ChildItem modules | ? { Test-Path "modules/$( $_.Name )/scss/mixins.scss" } | % { $file += "@import ""./modules/" + $_.Name + "/scss/mixins.scss"";`r`n" }
@@ -238,15 +239,21 @@ function Load-AvaibleMethods
 {
     Get-AvaibleMethods | ? Name | % {
         $params = ($_.parameters | % {
-            if ($_.isOptional){
-                $mandatory='$false'
-            }else{
-                $mandatory='$true'
+            if ($_.isOptional)
+            {
+                $mandatory = '$false'
             }
-            if ($_.pipelineInput){
-                $valueFromPipeline='$true'
-            }else{
-                $valueFromPipeline='$false'
+            else
+            {
+                $mandatory = '$true'
+            }
+            if ($_.pipelineInput)
+            {
+                $valueFromPipeline = '$true'
+            }
+            else
+            {
+                $valueFromPipeline = '$false'
             }
             "[Parameter(Mandatory=$mandatory, ValueFromPipeline=$valueFromPipeline)]`$$( $_.name )"
 
@@ -281,8 +288,11 @@ function Run-Command([Parameter(Mandatory = $true)][String]$controller, [Paramet
         return;
     }
     $retObj.debug | %{
-        $line = $_.backtrace?[0];
-        Write-Host ($line.function + "() " + $line?.file + ":" + $line?.line) -ForegroundColor blue;
+        if ($_.PSObject.Properties['backtrace'])
+        {
+            $line = $_.backtrace[0];
+            Write-Host ($line.function + "() " + $line.file + ":" + $line.line) -ForegroundColor blue;
+        }
         if ($_.jsons)
         {
             $_.jsons | %{ ConvertFrom-Json $_ }|%{
