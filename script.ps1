@@ -288,20 +288,26 @@ function Run-Command([Parameter(Mandatory = $true)][String]$controller, [Paramet
         return;
     }
     $retObj.debug | %{
-        if ($_.PSObject.Properties['backtrace'])
+        if ($_)
         {
-            $line = $_.backtrace[0];
-            Write-Host ($line.function + "() " + $line.file + ":" + $line.line) -ForegroundColor blue;
-        }
-        if ($_.jsons)
-        {
-            $_.jsons | %{ ConvertFrom-Json $_ }|%{
+            if ($_.PSObject)
+            {
+                if ($_.PSObject.Properties['backtrace'])
+                {
+                    $line = $_.backtrace[0];
+                    Write-Host ($line.function + "() " + $line.file + ":" + $line.line) -ForegroundColor blue;
+                }
+            }
+            if ($_.jsons)
+            {
+                $_.jsons | %{ ConvertFrom-Json $_ }|%{
+                    Write-Host $_ -ForegroundColor Green;
+                };
+            }
+            $_.strings | %{
                 Write-Host $_ -ForegroundColor Green;
             };
         }
-        $_.strings | %{
-            Write-Host $_ -ForegroundColor Green;
-        };
     }
     if ($retObj.error)
     {
