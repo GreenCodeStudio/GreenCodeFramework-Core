@@ -31,7 +31,7 @@ module.exports = {
             }]
         }, {
             test: /i18n\.xml$/,
-            use: ["./modules/Core/js/Internationalization/i18nWebpackLoader"]
+            use: ["@green-code-studio/internationalization/i18nWebpackLoader"]
         }, {
             test: /\.mpts$/,
             use: ["mpts-loader"]
