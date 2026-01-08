@@ -14,27 +14,20 @@ class Log
      */
     private static $connection;
 
-    public static function Request(string $url)
+    public static function PageOpen(string $url)
     {
         try {
-            if (($_ENV['logErrors']??'false') == 'false') return;
+            if (($_ENV['logErrors'] ?? 'false') == 'false') return;
             if (!empty($_ENV['rabbitmq_server'])) {
                 $connection = static::connect();
                 $channel = $connection->channel();
                 $channel->queue_declare('greenLogCollector_base', false, false, false, false);
 
-                $msg = new \stdClass();
-                $msg->app = $_ENV['host']??'GCS_unknown';
-                $msg->stamp=(new \DateTime("now", new \DateTimeZone("UTC")))->format('Y-m-d H:i:s.u');
+                $msg = static::getBaseMessage();
                 $msg->type = 'Event';
 
-                $msg->environment=new \stdClass();
-                $msg->environment->machineName = gethostname();
-                $msg->environment->applicationServerPath = dirname(__DIR__, 2);
-                $msg->environment->user = Authorization::getUserData()?->id ?? null;
-                $msg->environment->userAgent = $_SERVER['HTTP_USER_AGENT'] ?? null;
 
-                $msg->data=new \stdClass();
+                $msg->data = new \stdClass();
                 $msg->data->eventType = 'PageOpen';
                 $msg->data->url = $url;
 
@@ -44,6 +37,20 @@ class Log
         } catch (\Throwable $ex) {
             dump($ex);
         }
+    }
+
+    static function getBaseMessage()
+    {
+        $msg = new \stdClass();
+        $msg->app = $_ENV['host'] ?? 'GCS_unknown';
+        $msg->stamp = (new \DateTime("now", new \DateTimeZone("UTC")))->format('Y-m-d H:i:s.u');
+
+        $msg->environment = new \stdClass();
+        $msg->environment->machineName = gethostname();
+        $msg->environment->applicationServerPath = dirname(__DIR__, 2);
+        $msg->environment->user = Authorization::getUserData()?->id ?? null;
+        $msg->environment->userAgent = $_SERVER['HTTP_USER_AGENT'] ?? null;
+        $msg->environment->userIP = $_SERVER['HTTP_X_FORWARDED_FOR']??$_SERVER['REMOTE_ADDR'] ?? null;
     }
 
     static function connect()
@@ -58,7 +65,7 @@ class Log
     {
         dump("Error on line $errline in file $errfile\r\n$errstr");
         try {
-            if (($_ENV['logErrors']??'false') == 'false') return;
+            if (($_ENV['logErrors'] ?? 'false') == 'false') return;
 
             if (!empty($_ENV['rabbitmq_server'])) {
                 $connection = static::connect();
@@ -76,7 +83,7 @@ class Log
                 $msg->stamp = (new \DateTime("now", new \DateTimeZone("UTC")))->format('Y-m-d H:i:s.u');
                 $msg->server = $_SERVER;
                 $msg->machine = gethostname();
-                $msg->debug = ($_ENV['debug'] ??'false') == 'true';
+                $msg->debug = ($_ENV['debug'] ?? 'false') == 'true';
                 $msg->projectPath = dirname(__DIR__, 2);
                 $msg->user = (\Authorization\Authorization::getUserData());
                 $msg->stack = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
@@ -128,7 +135,7 @@ class Log
 
     public static function Exception(\Throwable $ex)
     {
-        if (($_ENV['logErrors']??'false') == 'false') return;
+        if (($_ENV['logErrors'] ?? 'false') == 'false') return;
 
         if (!empty($_ENV['rabbitmq_server'])) {
             $connection = static::connect();
@@ -139,7 +146,7 @@ class Log
             $msg->type = 'Error';
             $msg->lang = "php";
             $msg->level = 'Exception';
-            $msg->message = get_class($ex) . "\r\n" . $ex->getMessage();
+            $msg->message = get_class($ex)."\r\n".$ex->getMessage();
             $msg->file = $ex->getFile();
             $msg->line = $ex->getLine();
             $msg->column = null;
@@ -156,7 +163,7 @@ class Log
 
     public static function FrontException($event)
     {
-        if (($_ENV['logErrors']??'false') == 'false') return;
+        if (($_ENV['logErrors'] ?? 'false') == 'false') return;
 
         if (!empty($_ENV['rabbitmq_server'])) {
             $connection = static::connect();

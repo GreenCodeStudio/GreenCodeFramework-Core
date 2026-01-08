@@ -32,10 +32,13 @@ class Router
 
     public static function routeHttp($url)
     {
-        Log::Request($url);
         setDumpDebugType('text', false);
         header('x-version: '.($_ENV['VERSION'] ?? '-'));
         $router = self::getHttpRouter($url);
+        if($router instanceof StandardRouter || $router instanceof StandardJsonRouter) {
+            $fullUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+            Log::PageOpen($fullUrl);
+        }
         try {
             $router->url = $url;
             $router->findController();
