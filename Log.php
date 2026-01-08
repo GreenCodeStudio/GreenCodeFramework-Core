@@ -2,8 +2,10 @@
 
 namespace Core;
 
+use Authorization\Authorization;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Message\AMQPMessage;
+use stdClass;
 
 class Log
 {
@@ -19,23 +21,25 @@ class Log
             if (!empty($_ENV['rabbitmq_server'])) {
                 $connection = static::connect();
                 $channel = $connection->channel();
-                $channel->queue_declare('log', false, false, false, false);
+                $channel->queue_declare('greenLogCollector_base', false, false, false, false);
 
                 $msg = new \stdClass();
-                $msg->type = 'Request';
-                $msg->server = [];
-                $msg->hostname = $_SERVER['HTTP_HOST'] ?? null;
-                $msg->serverIP = $_SERVER['SERVER_ADDR'] ?? null;
-                $msg->userAgent = $_SERVER['HTTP_USER_AGENT'] ?? null;
-                $msg->debug = $_ENV['debug'] == 'true';
-                $msg->machine = gethostname();
-                $msg->projectPath = dirname(__DIR__, 2);
-                $msg->urlRouting = $url;
-                $msg->stamp = (new \DateTime("now", new \DateTimeZone("UTC")))->format('Y-m-d H:i:s.u');
-                $msg->user = (\Authorization\Authorization::getUserData());
+                $msg->app = $_ENV['host']??'GCS_unknown';
+                $msg->stamp=(new \DateTime("now", new \DateTimeZone("UTC")))->format('Y-m-d H:i:s.u');
+                $msg->type = 'Event';
+
+                $msg->environment=new \stdClass();
+                $msg->environment->machineName = gethostname();
+                $msg->environment->applicationServerPath = dirname(__DIR__, 2);
+                $msg->environment->user = Authorization::getUserData()?->id ?? null;
+                $msg->environment->userAgent = $_SERVER['HTTP_USER_AGENT'] ?? null;
+
+                $msg->data=new \stdClass();
+                $msg->data->eventType = 'PageOpen';
+                $msg->data->url = $url;
 
                 $amqpMsg = new AMQPMessage(json_encode($msg));
-                $channel->basic_publish($amqpMsg, '', 'log');
+                $channel->basic_publish($amqpMsg, '', 'greenLogCollector_base');
             }
         } catch (\Throwable $ex) {
             dump($ex);
@@ -129,7 +133,7 @@ class Log
         if (!empty($_ENV['rabbitmq_server'])) {
             $connection = static::connect();
             $channel = $connection->channel();
-            $channel->queue_declare('log', false, false, false, false);
+            $channel->queue_declare('greenLogCollector_base', false, false, false, false);
 
             $msg = new \stdClass();
             $msg->type = 'Error';
@@ -145,7 +149,7 @@ class Log
             $msg->stack = $ex->getTrace();
 
             $amqpMsg = new AMQPMessage(json_encode($msg));
-            $channel->basic_publish($amqpMsg, '', 'log');
+            $channel->basic_publish($amqpMsg, '', 'greenLogCollector_base');
         }
 
     }
