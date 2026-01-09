@@ -51,6 +51,8 @@ class Log
         $msg->environment->user = Authorization::getUserData()?->id ?? null;
         $msg->environment->userAgent = $_SERVER['HTTP_USER_AGENT'] ?? null;
         $msg->environment->userIP = $_SERVER['HTTP_X_FORWARDED_FOR']??$_SERVER['REMOTE_ADDR'] ?? null;
+
+        return $msg;
     }
 
     static function connect()
