@@ -9,10 +9,7 @@ use stdClass;
 
 class Log
 {
-    /**
-     * @var AMQPStreamConnection
-     */
-    private static $connection;
+    private static ?AMQPStreamConnection $connection=null;
 
     public static function PageOpen(string $url)
     {
