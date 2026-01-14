@@ -11,31 +11,41 @@ module.exports = {
         chunkFilename: '[name].[id].js'
     },
     module: {
-        rules: [{
-            test: /\.scss$/,
-            use: [
-                MiniCssExtractPlugin.loader,
-                //"style-loader", // creates style nodes from JS strings
-                "css-loader", // translates CSS into CommonJS
-                "sass-loader" // compiles Sass to CSS, using Node Sass by default
+        rules: [
+            {
+                test: /\.scss$/,
+                use: [
+                    MiniCssExtractPlugin.loader,
+                    //"style-loader", // creates style nodes from JS strings
+                    "css-loader", // translates CSS into CommonJS
+                    "sass-loader" // compiles Sass to CSS, using Node Sass by default
+                ]
+            },
+            {
+                test: /\.css$/,
+                use: [
+                    MiniCssExtractPlugin.loader,
+                    //"style-loader", // creates style nodes from JS strings
+                    "css-loader", // translates CSS into CommonJS
+                ]
+            },
+            {
+                test: /\.(woff(2)?|ttf|eoty)(\?v=\d+\.\d+\.\d+)?$/,
+                use: [{
+                    loader: 'file-loader',
+                    options: {
+                        name: '[name].[ext]',
+                        outputPath: '/fonts/'
+                    }
+                }]
+            }, {
+                test: /i18n\.xml$/,
+                use: ["@green-code-studio/internationalization/i18nWebpackLoader"]
+            }, {
+                test: /\.mpts$/,
+                use: ["mpts-loader"]
+            }
             ]
-
-        }, {
-            test: /\.(woff(2)?|ttf|eoty)(\?v=\d+\.\d+\.\d+)?$/,
-            use: [{
-                loader: 'file-loader',
-                options: {
-                    name: '[name].[ext]',
-                    outputPath: '/fonts/'
-                }
-            }]
-        }, {
-            test: /i18n\.xml$/,
-            use: ["@green-code-studio/internationalization/i18nWebpackLoader"]
-        }, {
-            test: /\.mpts$/,
-            use: ["mpts-loader"]
-        }]
     },
     plugins: [new MiniCssExtractPlugin()],
 };
