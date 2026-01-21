@@ -2,44 +2,54 @@
 
 namespace Core;
 
+use Authorization\Authorization;
 use PhpAmqpLib\Connection\AMQPStreamConnection;
 use PhpAmqpLib\Message\AMQPMessage;
+use stdClass;
 
 class Log
 {
-    /**
-     * @var AMQPStreamConnection
-     */
-    private static $connection;
+    private static ?AMQPStreamConnection $connection=null;
 
-    public static function Request(string $url)
+    public static function PageOpen(string $url)
     {
         try {
-            if (($_ENV['logErrors']??'false') == 'false') return;
+//            if (($_ENV['logErrors'] ?? 'false') == 'false') return;
             if (!empty($_ENV['rabbitmq_server'])) {
                 $connection = static::connect();
                 $channel = $connection->channel();
-                $channel->queue_declare('log', false, false, false, false);
+                $channel->queue_declare('greenLogCollector_base', false, false, false, false);
 
-                $msg = new \stdClass();
-                $msg->type = 'Request';
-                $msg->server = [];
-                $msg->hostname = $_SERVER['HTTP_HOST'] ?? null;
-                $msg->serverIP = $_SERVER['SERVER_ADDR'] ?? null;
-                $msg->userAgent = $_SERVER['HTTP_USER_AGENT'] ?? null;
-                $msg->debug = $_ENV['debug'] == 'true';
-                $msg->machine = gethostname();
-                $msg->projectPath = dirname(__DIR__, 2);
-                $msg->urlRouting = $url;
-                $msg->stamp = (new \DateTime("now", new \DateTimeZone("UTC")))->format('Y-m-d H:i:s.u');
-                $msg->user = (\Authorization\Authorization::getUserData());
+                $msg = static::getBaseMessage();
+                $msg->type = 'Event';
+
+
+                $msg->data = new \stdClass();
+                $msg->data->eventType = 'PageOpen';
+                $msg->data->url = $url;
 
                 $amqpMsg = new AMQPMessage(json_encode($msg));
-                $channel->basic_publish($amqpMsg, '', 'log');
+                $channel->basic_publish($amqpMsg, '', 'greenLogCollector_base');
             }
         } catch (\Throwable $ex) {
             dump($ex);
         }
+    }
+
+    static function getBaseMessage()
+    {
+        $msg = new \stdClass();
+        $msg->app = $_ENV['host'] ?? 'GCS_unknown';
+        $msg->stamp = (new \DateTime("now", new \DateTimeZone("UTC")))->format('Y-m-d H:i:s.u');
+
+        $msg->environment = new \stdClass();
+        $msg->environment->machineName = gethostname();
+        $msg->environment->applicationServerPath = dirname(__DIR__, 2);
+        $msg->environment->user = Authorization::getUserData()?->id ?? null;
+        $msg->environment->userAgent = $_SERVER['HTTP_USER_AGENT'] ?? null;
+        $msg->environment->userIP = $_SERVER['HTTP_X_FORWARDED_FOR']??$_SERVER['REMOTE_ADDR'] ?? null;
+
+        return $msg;
     }
 
     static function connect()
@@ -54,31 +64,25 @@ class Log
     {
         dump("Error on line $errline in file $errfile\r\n$errstr");
         try {
-            if (($_ENV['logErrors']??'false') == 'false') return;
+            if (($_ENV['logErrors'] ?? 'false') == 'false') return;
 
             if (!empty($_ENV['rabbitmq_server'])) {
                 $connection = static::connect();
                 $channel = $connection->channel();
-                $channel->queue_declare('log', false, false, false, false);
+                $channel->queue_declare('greenLogCollector_base', false, false, false, false);
 
-                $msg = new \stdClass();
+                $msg = static::getBaseMessage();
                 $msg->type = 'Error';
-                $msg->lang = "php";
-                $msg->level = self::FriendlyErrorType($errno);
-                $msg->message = $errstr;
-                $msg->file = $errfile;
-                $msg->line = $errline;
-                $msg->column = null;
-                $msg->stamp = (new \DateTime("now", new \DateTimeZone("UTC")))->format('Y-m-d H:i:s.u');
-                $msg->server = $_SERVER;
-                $msg->machine = gethostname();
-                $msg->debug = ($_ENV['debug'] ??'false') == 'true';
-                $msg->projectPath = dirname(__DIR__, 2);
-                $msg->user = (\Authorization\Authorization::getUserData());
-                $msg->stack = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+                $msg->data = new \stdClass();
+                $msg->data->level = self::FriendlyErrorType($errno);
+                $msg->data->message = $errstr;
+                $msg->data->file = $errfile;
+                $msg->data->line = $errline;
+                $msg->data->column = null;
+                $msg->data->stack = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
                 $amqpMsg = new AMQPMessage(json_encode($msg));
-                $channel->basic_publish($amqpMsg, '', 'log');
+                $channel->basic_publish($amqpMsg, '', 'greenLogCollector_base');
             }
         } catch (\Throwable $ex) {
             dump($ex);
@@ -124,35 +128,32 @@ class Log
 
     public static function Exception(\Throwable $ex)
     {
-        if (($_ENV['logErrors']??'false') == 'false') return;
+        if (($_ENV['logErrors'] ?? 'false') == 'false') return;
 
         if (!empty($_ENV['rabbitmq_server'])) {
             $connection = static::connect();
             $channel = $connection->channel();
-            $channel->queue_declare('log', false, false, false, false);
+            $channel->queue_declare('greenLogCollector_base', false, false, false, false);
 
-            $msg = new \stdClass();
+            $msg = static::getBaseMessage();
             $msg->type = 'Error';
-            $msg->lang = "php";
-            $msg->level = 'Exception';
-            $msg->message = get_class($ex) . "\r\n" . $ex->getMessage();
-            $msg->file = $ex->getFile();
-            $msg->line = $ex->getLine();
-            $msg->column = null;
-            $msg->stamp = (new \DateTime("now", new \DateTimeZone("UTC")))->format('Y-m-d H:i:s.u');
-            $msg->server = $_SERVER;
-            $msg->user = (\Authorization\Authorization::getUserData());
-            $msg->stack = $ex->getTrace();
+            $msg->data = new \stdClass();
+            $msg->data->level ='Exception';
+            $msg->data->message = get_class($ex)."\r\n".$ex->getMessage();
+            $msg->data->file = $ex->getFile();;
+            $msg->data->line = $ex->getLine();
+            $msg->data->column = null;
+            $msg->data->stack = $ex->getTrace();
 
             $amqpMsg = new AMQPMessage(json_encode($msg));
-            $channel->basic_publish($amqpMsg, '', 'log');
+            $channel->basic_publish($amqpMsg, '', 'greenLogCollector_base');
         }
 
     }
 
     public static function FrontException($event)
     {
-        if (($_ENV['logErrors']??'false') == 'false') return;
+        if (($_ENV['logErrors'] ?? 'false') == 'false') return;
 
         if (!empty($_ENV['rabbitmq_server'])) {
             $connection = static::connect();

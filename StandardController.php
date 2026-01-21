@@ -65,15 +65,15 @@ abstract class StandardController extends AbstractController
             }
             ob_end_clean();
         } else if (file_exists(__DIR__ . '/../' . $module . '/Views/' . $name . '.mpts')) {
-            $this->views[$group][] = $this->loadMPTS(file_get_contents(__DIR__ . '/../' . $module . '/Views/' . $name . '.mpts'), $data);
+            $this->views[$group][] = $this->loadMPTS(__DIR__ . '/../' . $module . '/Views/' . $name . '.mpts', $data);
         } else {
             throw new \Exception("Cannot find $name.php or $name.mpts in $module/Views/");
         }
     }
 
-    protected function loadMPTS($code, $data)
+    protected function loadMPTS($fileName, $data)
     {
-        $template = XMLParser::Parse($code);
+        $template = XMLParser::ParseFile($fileName);
         $env = new Environment();
         $env->document = new DOMDocument();
         $env->variables = (array)$data;
@@ -98,7 +98,7 @@ abstract class StandardController extends AbstractController
             require __DIR__ . '/../' . $module . '/Views/' . $name . '.php';
         } else if (file_exists(__DIR__ . '/../' . $module . '/Views/' . $name . '.mpts')) {
 
-            echo $this->loadMPTS(file_get_contents(__DIR__ . '/../' . $module . '/Views/' . $name . '.mpts'), $data);
+            echo $this->loadMPTS(__DIR__ . '/../' . $module . '/Views/' . $name . '.mpts', $data);
         } else {
             throw new \Exception("Cannot find $name.php or $name.mpts in $module/Views/");
         }
@@ -113,7 +113,7 @@ abstract class StandardController extends AbstractController
             ob_end_clean();
             return $ret;
         } else if (file_exists(__DIR__ . '/../' . $module . '/Views/' . $name . '.mpts')) {
-            return $this->loadMPTS(file_get_contents(__DIR__ . '/../' . $module . '/Views/' . $name . '.mpts'), $data);
+            return $this->loadMPTS(__DIR__ . '/../' . $module . '/Views/' . $name . '.mpts', $data);
         } else {
             throw new \Exception("Cannot find $name.php or $name.mpts in $module/Views/");
         }
