@@ -24,7 +24,7 @@ function loadEnvFile($path)
         if ($equalIndex > 0) {
             $name = trim(substr($line, 0, $equalIndex));
             $value = trim(substr($line, $equalIndex + 1));
-            if ($value[0] == "'") {
+            if (!empty($value) && $value[0] == "'") {
                 $value = substr($value, 1, -1);
             }
             if (!isset($_ENV[$name])) {
