@@ -3,6 +3,7 @@ var path = require('path');
 module.exports = {
     entry: {
         main: './jsBuild.js',
+        workers: './jsWorkersBuild.js',
         serviceWorker: './modules/Core/js/serviceWorker.js',
     }, output: {
         path: path.resolve(__dirname, './public_html') + '/dist/',

@@ -149,6 +149,9 @@ function Prepare-Build
     $file = "import ""./scssBuild.scss"";`r`n"
     Get-ChildItem modules | ? { Test-Path "modules/$( $_.Name )/js/index.js" } | % { $file += "import  ""./modules/" + $_.Name + "/js/index"";`r`n" }
     $file | Out-FileUtf8NoBom "jsBuild.js"
+    $fileWorkers = "import {InsideWorkerManager} from './modules/Core/js/insideWorkerManager';`r`n"
+    Get-ChildItem modules | ? { Test-Path "modules/$( $_.Name )/js/workers.js" } | % { $fileWorkers += "import * as " + $_.Name + " from  ""./modules/" + $_.Name + "/js/workers"";`r`n InsideWorkerManager.addModule('" + $_.Name + "'," + $_.Name + ");`r`n" }
+    $fileWorkers | Out-FileUtf8NoBom "jsWorkersBuild.js"
 
     $composerIncludes = [System.Collections.ArrayList]::new();
     Get-ChildItem modules | ? { Test-Path "modules/$( $_.Name )/composer.json" } | %{ $composerIncludes.Add("modules/$( $_.Name )/composer.json") }
