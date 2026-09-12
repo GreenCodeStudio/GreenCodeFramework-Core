@@ -312,6 +312,12 @@ class Router
         }
         $this->controller->preAction();
     }
+    protected function prepareDefaultErrorController()
+    {
+        $this->controllerClassName = "\\Core\\DefaultErrorController";
+        $this->controller = new $this->controllerClassName();
+        $this->controller->preAction();
+    }
 
     protected function findControllerClass()
     {
