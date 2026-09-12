@@ -10,6 +10,20 @@ class MigrationConsole extends \Core\AbstractController
         $migr->upgrade();
         $migr->execute();
     }
+    function UpgradeMultitenant()
+    {
+        $tenants=\Core\Database\Migration::listTenants();
+        foreach($tenants as $tenant) {
+            try {
+                dump("Upgrading tenant $tenant");
+                $migr = \Core\Database\Migration::factory($tenant);
+                $migr->upgrade();
+                $migr->execute();
+            }catch (\Throwable $exception){
+                dump($exception);
+            }
+        }
+    }
 
     function UpgradeByFile(?string $filename = null)
     {

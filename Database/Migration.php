@@ -2,8 +2,17 @@
 
 namespace Core\Database;
 
+use Core\Repository\MultitenantRepository;
+
 abstract class Migration
 {
+    private string $schema;
+
+    public function __construct(string $schema)
+    {
+        $this->schema = $schema;
+    }
+
     public const equalTypePairs = [
         ["BOOLEAN", "TINYINT(1)"],
         ["TINYINT", "TINYINT(4)"],
@@ -16,12 +25,12 @@ abstract class Migration
     ];
     public $queries = [];
 
-    public static function factory()
+    public static function factory($schema = null)
     {
         if ($_ENV['dbDialect'] == 'mysql')
-            return new MigrationMysql();
+            return new MigrationMysql($schema ?? $_ENV['dbSchema']);
         else
-            return new MigrationMssql();
+            return new MigrationMssql($schema ?? $_ENV['dbSchema']);
     }
 
     function upgrade()
@@ -31,9 +40,14 @@ abstract class Migration
         $this->prepareUpgradeQueries($new, $old);
     }
 
+    function upgradeMultitenant()
+    {
+
+    }
+
     function readOldStructure()
     {
-        $schema = $_ENV['dbSchema'];
+        $schema = $this->schema;
         $tablesList = DB::get("SELECT TABLE_NAME as name FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = ?", [$schema]);
         $tables = [];
         foreach ($tablesList as $tableName) {
@@ -369,15 +383,14 @@ abstract class Migration
 
     public function execute()
     {
-        try {
-            DB::beginTransaction();
-            foreach ($this->queries as $sql) {
-                DB::query($sql);
-            }
-            DB::commit();
-        } catch (\Throwable $ex) {
-            DB::rollBack();
-            throw $ex;
+        DB::query("USE ".DB::safeKey($this->schema));
+        foreach ($this->queries as $sql) {
+            DB::query($sql);
         }
+    }
+
+    public static function listTenants()
+    {
+        return (new MultitenantRepository())->getAll();
     }
 }
