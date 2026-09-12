@@ -49,6 +49,11 @@ class DB
             static::$pdo = new \PDO(static::$dsn, static::$user, static::$password);
             static::$password = null;
             static::$pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+            if (!empty($_ENV['dbMultitenantPrefix'])) {
+                $tenant = explode('.', $_SERVER['HTTP_HOST'])[0];
+                $dbName = $_ENV['dbMultitenantPrefix'].$tenant;
+                static::$pdo->exec("USE $dbName;");
+            }
         }
     }
 
@@ -220,14 +225,14 @@ class DB
     {
         if (!empty($_ENV['dbTranslateDialect'])) {
             if ($_ENV['dbDialect'] == 'mysql') {
-                $sourceDriver=new MySqlDriver();
+                $sourceDriver = new MySqlDriver();
             } else {
                 throw new \Exception('Translation from '.$_ENV['dbDialect'].' is not supported');
             }
             $parsed = $sourceDriver->parse($srcSql);
 
             if ($_ENV['dbTranslateDialect'] == 'mysql') {
-                $targetDriver=new MySqlDriver();
+                $targetDriver = new MySqlDriver();
             } else {
                 throw new \Exception('Translation to '.$_ENV['dbTranslateDialect'].' is not supported');
             }
