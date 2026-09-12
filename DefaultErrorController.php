@@ -3,9 +3,7 @@
 namespace Core;
 
 
-use Common\PageStandardController;
-
-class DefaultErrorController extends PageStandardController
+class DefaultErrorController extends \Core\StandardController
 {
     function index(int $responseCode)
     {
@@ -15,5 +13,9 @@ class DefaultErrorController extends PageStandardController
     public function hasPermission(string $methodName)
     {
         return true;
+    }
+    public function getPageTitle(): string
+    {
+        return "Error";
     }
 }
