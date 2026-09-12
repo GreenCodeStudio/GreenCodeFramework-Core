@@ -37,14 +37,18 @@ class StandardRouter extends Router
 
     protected function prepareErrorController($ex, $responseCode)
     {
-        if($ex instanceof UnauthorizedException){
-            $this->controllerName = 'Authorization';
-            $this->methodName = 'index';
-        }else {
-            $this->controllerName = 'Error';
-            $this->methodName = 'index';
+        try {
+            if ($ex instanceof UnauthorizedException) {
+                $this->controllerName = 'Authorization';
+                $this->methodName = 'index';
+            } else {
+                $this->controllerName = 'Error';
+                $this->methodName = 'index';
+            }
+            $this->prepareController();
+        }catch (\Throwable $ex){
+            $this->prepareDefaultErrorController();
         }
-        $this->prepareController();
         $this->prepareMethod();
         $this->controller->initInfo->error = $this->exceptionToArray($ex);
         $this->controller->initInfo->code = $responseCode;
