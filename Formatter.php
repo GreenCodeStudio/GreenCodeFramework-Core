@@ -55,8 +55,10 @@ class Formatter
         return $ret;
     }
 
-    public static function formatSeconds(float $seconds)
+    public static function formatSeconds(?float $seconds)
     {
+        if($seconds === null)
+            return '-';
         if ($seconds < 0) {
             return self::formatSeconds(-$seconds);
         }
