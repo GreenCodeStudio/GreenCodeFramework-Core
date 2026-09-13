@@ -40,11 +40,6 @@ abstract class Migration
         $this->prepareUpgradeQueries($new, $old);
     }
 
-    function upgradeMultitenant()
-    {
-
-    }
-
     function readOldStructure()
     {
         $schema = $this->schema;
