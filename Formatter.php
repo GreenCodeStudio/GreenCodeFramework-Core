@@ -39,7 +39,7 @@ class Formatter
     {
         if ($number === null)
             return '-';
-        return number_format($number, $decimals, ',', ' ');
+        return number_format($number, $decimals, '.', ' ');
     }
 
     public static function getObject()
@@ -53,5 +53,18 @@ class Formatter
             };
         }
         return $ret;
+    }
+
+    public static function formatSeconds(float $seconds)
+    {
+        if ($seconds < 0) {
+            return self::formatSeconds(-$seconds);
+        }
+        if ($seconds > 1) {
+            return self::formatNumber($seconds, 2)." s";
+        } else {
+            return self::formatNumber($seconds * 1000, 2)." ms";
+
+        }
     }
 }
