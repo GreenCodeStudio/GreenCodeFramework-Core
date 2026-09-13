@@ -7,7 +7,7 @@ try {
         $input = json_decode(preg_replace("/^\xEF\xBB\xBF/", '', file_get_contents('php://stdin')));
         \Core\Routing\Router::routeConsole($input->controller, $input->action, $input->args, $input->verbose ?? false);
     } else {
-        \Core\Routing\Router::routeConsole($argv[1], $argv[2], [], true);
+        \Core\Routing\Router::routeConsole($argv[1], $argv[2], array_slice($argv, 3), true);
     }
 }catch (\Throwable $e){
     var_dump($e);
