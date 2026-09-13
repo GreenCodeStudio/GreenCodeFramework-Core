@@ -50,9 +50,11 @@ class DB
             static::$password = null;
             static::$pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
             if (!empty($_ENV['dbMultitenantPrefix'])) {
-                $tenant = explode('.', $_SERVER['HTTP_HOST'])[0];
-                $dbName = $_ENV['dbMultitenantPrefix'].$tenant;
-                static::$pdo->exec("USE $dbName;");
+                $tenant = explode('.', $_SERVER['HTTP_HOST']??'')[0];
+                if(!empty($tenant)) {
+                    $dbName = $_ENV['dbMultitenantPrefix'].$tenant;
+                    static::$pdo->exec("USE $dbName;");
+                }
             }
         }
     }
