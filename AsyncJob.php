@@ -13,4 +13,7 @@ include_once __DIR__.'/Routing/Router.php';
 include_once __DIR__.'/Debug.php';
 \Core\Database\DB::init();
 $input = json_decode(file_get_contents('php://stdin'));
+if(!empty($input->database)) {
+    \Core\Database\DB::query("USE ".\Core\Database\DB::safeKey($input->database));
+}
 \Core\Routing\Router::routeAsyncJob($input->controller, $input->action, $input->args);

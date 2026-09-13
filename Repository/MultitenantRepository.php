@@ -14,6 +14,6 @@ class MultitenantRepository
         }
         $all = DB::get("SHOW DATABASES");
         dump($all);
-        return FunQuery::from($all)->filter(fn($x) => str_starts_with($x->Database, $_ENV['dbMultitenantPrefix']))->map(fn($x) => $x->Database);
+        return FunQuery::from($all)->filter(fn($x) => str_starts_with($x->Database, $_ENV['dbMultitenantPrefix']))->map(fn($x) => $x->Database)->toArray();
     }
 }
