@@ -359,5 +359,6 @@ class Router
         $this->controller->initInfo->controllerName = $this->controllerName;
         $this->controller->initInfo->methodName = $this->methodName;
         $this->controller->initInfo->methodArguments = $this->args;
+        $this->controller->initInfo->version = $_ENV['VERSION'] ?? '-';
     }
 }
