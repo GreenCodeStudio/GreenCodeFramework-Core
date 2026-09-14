@@ -10,8 +10,8 @@ export const pageManager = {
             Permissions.data = initInfo.permissions;
         }
 
-        initInfo.data= initInfo.data || {};
-        initInfo.data._query= Object.fromEntries([...new URLSearchParams(document.location.search)])
+        initInfo.data = initInfo.data || {};
+        initInfo.data._query = Object.fromEntries([...new URLSearchParams(document.location.search)])
 
         if (firstInit && initInfo.controllerName == 'Cache' && initInfo.methodName == 'offline') {
             this.goto(document.location.href, {ignoreHistory: true});
@@ -81,7 +81,7 @@ export const pageManager = {
             xhr.setRequestHeader('x-json', 1);
             xhr.onload = () => {
                 let data = JSON.parse(xhr.responseText);
-                resolve({data, status: xhr.status});
+                resolve({data, status: xhr.status, version: xhr.getResponseHeader('x-version')});
             };
             xhr.onerror = (ex) => {
                 reject(ex);
@@ -118,7 +118,11 @@ export const pageManager = {
             document.querySelectorAll('[data-views="main"] > .page.removing').forEach(x => x.remove());
         }, 500);
         let startDate = new Date();
-        const {data, status} = await this.load(url);
+        const {data, status, version} = await this.load(url);
+        if(version?.length > 1 && window.controllerInitInfo?.version?.length>1 && version != window.controllerInitInfo.version){
+            document.location = url;
+            return;
+        }
         await waitPromise;//for better UX
         if (this.currentLoadingSymbol != currentLoadingSymbol)//other request
             return;
