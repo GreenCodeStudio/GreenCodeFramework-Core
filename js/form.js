@@ -136,4 +136,13 @@ export class FormManager {
     markAsSaved() {
         this.loadedJson = JSON.stringify(this.getData(null));
     }
+
+    loadUrlQuery() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const data={};
+        for (const [key, value] of urlParams.entries()) {
+            data[key] = value;
+        }
+        this.load(data);
+    }
 }
