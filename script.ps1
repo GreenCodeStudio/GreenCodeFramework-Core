@@ -75,7 +75,7 @@ class PageAjaxController extends \Core\AjaxController
         mkdir modules/Common/Controllers
     }
 
-    if (!(test-path modules/Common/Controllers/StartController.php))
+    if (!(test-path modules/*/Controllers/StartController.php))
     {
         echo "<?php
 namespace Common\Controllers;
