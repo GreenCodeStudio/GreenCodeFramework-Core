@@ -3,12 +3,13 @@ import {WebSocketReceiver} from "./webSocketReceiver";
 import {TaskNotification} from "../../Notifications/js/TaskNotification";
 
 export class DatasourceAjax {
-    constructor(controller, method, webSocketPath = [], params = null, multiEditMethod = null) {
+    constructor(controller, method, webSocketPath = [], params = null, multiEditMethod = null, canGetSummary = false) {
         this.controller = controller;
         this.method = method;
         this.params = params;
         this.multiEditChanges = {};
         this.multiEditMethod = multiEditMethod;
+        this.canGetSummary = canGetSummary;
         if (webSocketPath.length > 0 && webSocketPath[0].toString().trim() !== "") {
             WebSocketReceiver.addListener(webSocketPath, () => {
                 console.log('Datasource ajax updated');
@@ -55,6 +56,11 @@ export class DatasourceAjax {
 
     async getTotal(options) {
         const ret = await Ajax(this.controller, this.method, {mode: 'total', ...this.generateOptions(options)});
+        return ret;
+    }
+
+    async getSummary(options) {
+        const ret = await Ajax(this.controller, this.method, {mode: 'summary', ...this.generateOptions(options)});
         return ret;
     }
 
