@@ -8,6 +8,7 @@ use Authorization\Authorization;
 use Authorization\Exceptions\NoPermissionException;
 use Authorization\Exceptions\UnauthorizedException;
 use CanSafeRepeatAnnotation;
+use Core\EventDispatcher;
 use Core\Exceptions\NotFoundException;
 use Core\Log;
 use Core\Repository\IdempodencyKeyRepostory;
@@ -43,6 +44,12 @@ class Router
             $router->url = $url;
             $router->findController();
             $router->invoke();
+            EventDispatcher::dispatch("Core","routeInvoked",(object)[
+                'controllerType'=>$router->controllerType,
+                'userAgent' => $_SERVER['HTTP_USER_AGENT'] ?? '',
+                'ipAddress' => $_SERVER['REMOTE_ADDR'] ?? '',
+                'url' => ($_SERVER['REQUEST_SCHEME'] ?? 'http').'://'.($_SERVER['HTTP_HOST'] ?? '(unknown)').($_SERVER['REQUEST_URI'] ?? ''),
+            ]);
         } catch (\Throwable $ex) {
             $router->sendBackException($ex);
             return;
