@@ -49,6 +49,7 @@ class Router
                 'userAgent' => $_SERVER['HTTP_USER_AGENT'] ?? '',
                 'ipAddress' => $_SERVER['REMOTE_ADDR'] ?? '',
                 'url' => ($_SERVER['REQUEST_SCHEME'] ?? 'http').'://'.($_SERVER['HTTP_HOST'] ?? '(unknown)').($_SERVER['REQUEST_URI'] ?? ''),
+                'pageOpenIdentifier'=>$router->controller?->initInfo?->pageOpenIdentifier??null,
             ]);
         } catch (\Throwable $ex) {
             $router->sendBackException($ex);
