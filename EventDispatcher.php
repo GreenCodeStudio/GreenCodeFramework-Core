@@ -17,7 +17,7 @@ class EventDispatcher
                 if ($listener instanceof AbstractEventListener) {
                     $listener->created = new \DateTime();
                     if (class_exists("Authorization\Authorization")) {
-                        $listener->user = \Authorization\Authorization::getUserInfo();
+                        $listener->user = \Authorization\Authorization::getUserData();
                     }
                 }
                 if (method_exists($listener, $eventName)) {
