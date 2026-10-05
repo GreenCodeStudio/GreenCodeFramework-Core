@@ -16,6 +16,7 @@ abstract class StandardController extends AbstractController
 
     public function __construct()
     {
+        parent::__construct();
         $this->breadcrumb = [['title' => t('Core.mainPage'), 'url' => '/']];
     }
 

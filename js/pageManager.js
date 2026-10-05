@@ -28,7 +28,7 @@ export const pageManager = {
                     this.lastController = page.controller;
                 }
             });
-            this._loadedEvent(page, initInfo.data, initInfo.controllerName.toLowerCase(), initInfo.methodName.toLowerCase());
+            this._loadedEvent(page, initInfo.data, initInfo.controllerName.toLowerCase(), initInfo.methodName.toLowerCase(), initInfo);
         }
     },
     async initController(initInfo) {
@@ -62,16 +62,16 @@ export const pageManager = {
         }
         this._onLoad[controller][method].push(callback);
     },
-    _loadedEvent(page, data, controller = null, method = null) {
+    _loadedEvent(page, data, controller = null, method = null, initInfo = null) {
         if (this._onLoad[controller] && this._onLoad[controller][method])
             for (let callback of this._onLoad[controller][method])
-                callback(page, data);
+                callback(page, data, initInfo);
         if (this._onLoad[controller] && this._onLoad[controller][null])
             for (let callback of this._onLoad[controller][null])
-                callback(page, data);
+                callback(page, data, initInfo);
         if (this._onLoad[null] && this._onLoad[null][null])
             for (let callback of this._onLoad[null][null])
-                callback(page, data);
+                callback(page, data, initInfo);
 
     },
     load(url) {

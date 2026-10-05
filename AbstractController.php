@@ -12,6 +12,7 @@ abstract class AbstractController
     public function __construct()
     {
         $this->initInfo = new \stdClass();
+        $this->initInfo->pageOpenIdentifier = md5(uniqid('', true));
     }
 
     public function preAction()
@@ -39,9 +40,9 @@ abstract class AbstractController
         return true;
     }
 
-    public function can(string $group, string $permission):bool
+    public function can(string $group, string $permission): bool
     {
-        return \Authorization\Authorization::getUserData()?->permissions->can($group, $permission)??false;
+        return \Authorization\Authorization::getUserData()?->permissions->can($group, $permission) ?? false;
     }
 
     /**
@@ -52,6 +53,7 @@ abstract class AbstractController
         if (!$this->can($group, $permission))
             throw new NoPermissionException();
     }
+
     public function redirect(string $url)
     {
         http_response_code(301);
