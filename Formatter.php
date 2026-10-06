@@ -54,7 +54,21 @@ class Formatter
         }
         return $ret;
     }
-
+    public static function formatSecondsBig(?float $seconds)
+    {
+        if ($seconds === null)
+            return '-';
+        if ($seconds < 0) {
+            return self::formatSeconds(-$seconds);
+        }
+        if ($seconds > 3600) {
+            return floor($seconds/3600)."h ".floor($seconds/60)."m ".self::formatNumber($seconds%60, 0)." s";
+        } else if ($seconds > 60) {
+            return floor($seconds/60)."m ".self::formatNumber($seconds%60, 0)." s";
+        } else {
+            return self::formatNumber($seconds, 0)." s";
+        }
+    }
     public static function formatSeconds(?float $seconds)
     {
         if($seconds === null)
