@@ -24,7 +24,7 @@ export const pageManager = {
             let controller = this.initController(initInfo);
             controller.then(c => {
                 if (c) {
-                    page.controller = new c(page, initInfo.data);
+                    page.controller = new c(page, initInfo.data, initInfo);
                     this.lastController = page.controller;
                 }
             });

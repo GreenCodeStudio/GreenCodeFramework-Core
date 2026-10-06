@@ -90,7 +90,7 @@ abstract class StandardController extends AbstractController
         $env->variables['t'] ??= fn(...$args) => t(...$args);
         $env->variables['getView'] ??= fn(...$args) => $this->getView(...$args);
         $result = $template->execute($env);
-        return $env->document->saveXML($result);
+        return $env->document->saveXML($result, LIBXML_NOEMPTYTAG);
     }
 
     protected function insertView(string $module, string $name, $data = null)
