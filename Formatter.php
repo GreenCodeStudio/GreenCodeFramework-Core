@@ -62,7 +62,7 @@ class Formatter
             return self::formatSeconds(-$seconds);
         }
         if ($seconds > 3600) {
-            return floor($seconds/3600)."h ".floor($seconds/60)."m ".self::formatNumber($seconds%60, 0)." s";
+            return floor($seconds/3600)."h ".(floor($seconds/60)%60)."m ".self::formatNumber($seconds%60, 0)." s";
         } else if ($seconds > 60) {
             return floor($seconds/60)."m ".self::formatNumber($seconds%60, 0)." s";
         } else {
