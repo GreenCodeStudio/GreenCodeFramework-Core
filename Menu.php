@@ -9,6 +9,8 @@
 namespace Core;
 
 
+use MKrawczyk\FunQuery\FunQuery;
+
 class Menu
 {
     function readMenu()
@@ -27,7 +29,7 @@ class Menu
                 }
             }
         }
-        return $root;
+        return FunQuery::from($root)->sort(fn($a) => ($a?->order ?? 0))->toArray();
     }
 
     private function getAsStdClass(\SimpleXMLElement $element)
