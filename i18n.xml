@@ -4,67 +4,93 @@
         <value lang="pl">Strona główna</value>
         <value lang="en">Main page</value>
         <value lang="de">Startseite</value>
+        <value lang="cs">Hlavní stránka</value>
+        <value lang="ua">Головна сторінка</value>
     </node>
     <node name="objectList">
         <node name="search">
             <value lang="pl">Szukaj</value>
             <value lang="en">Search</value>
             <value lang="de">Suchen</value>
+            <value lang="cs">Hledat</value>
+            <value lang="ua">Пошук</value>
         </node>
         <node name="paginationMode">
             <value lang="pl">Tryb paginacji</value>
             <value lang="en">Pagination mode</value>
             <value lang="de">Paginierungsmodus</value>
+            <value lang="cs">Režim stránkování</value>
+            <value lang="ua">Режим пагінації</value>
         </node>
         <node name="scrollMode">
             <value lang="pl">Tryb scrollowania</value>
             <value lang="en">Scroll mode</value>
             <value lang="de">Scroll-Modus</value>
+            <value lang="cs">Režim posouvání</value>
+            <value lang="ua">Режим прокручування</value>
         </node>
         <node name="tableView">
             <value lang="pl">Widok tabeli</value>
             <value lang="en">Table view</value>
             <value lang="de">Tabellenansicht</value>
+            <value lang="cs">Zobrazení tabulky</value>
+            <value lang="ua">Табличний вигляд</value>
         </node>
         <node name="listView">
             <value lang="pl">Widok listy</value>
             <value lang="en">List view</value>
             <value lang="de">Listenansicht</value>
+            <value lang="cs">Zobrazení seznamu</value>
+            <value lang="ua">Вид списку</value>
         </node>
         <node name="startMultiEdit">
             <value lang="pl">Rozpocznij edycję wielu</value>
             <value lang="en">Start multi-edit</value>
             <value lang="de">Mehrfachbearbeitung starten</value>
+            <value lang="cs">Spustit hromadnou úpravu</value>
+            <value lang="ua">Почати масове редагування</value>
         </node>
         <node name="saveRow">
             <value lang="pl">Zapisz wiersz</value>
             <value lang="en">Save a row</value>
             <value lang="de">Zeile speichern</value>
+            <value lang="cs">Uložit řádek</value>
+            <value lang="ua">Зберегти рядок</value>
         </node>
         <node name="mode">
             <value lang="pl">Tryb</value>
             <value lang="en">Mode</value>
             <value lang="de">Modus</value>
+            <value lang="cs">Režim</value>
+            <value lang="ua">Режим</value>
         </node>
         <node name="view">
             <value lang="pl">Widok</value>
             <value lang="en">View</value>
             <value lang="de">Ansicht</value>
+            <value lang="cs">Zobrazení</value>
+            <value lang="ua">Вид</value>
         </node>
         <node name="columnEnabled">
             <value lang="pl">Kolumna widoczna</value>
             <value lang="en">Column enabled</value>
             <value lang="de">Spalte sichtbar</value>
+            <value lang="cs">Sloupec povolen</value>
+            <value lang="ua">Стовпець увімкнено</value>
         </node>
         <node name="columnName">
             <value lang="pl">Nazwa kolumny</value>
             <value lang="en">Column name</value>
             <value lang="de">Spaltenname</value>
+            <value lang="cs">Název sloupce</value>
+            <value lang="ua">Назва стовпця</value>
         </node>
         <node name="columnFilter">
             <value lang="pl">Filtr</value>
             <value lang="en">Filter</value>
             <value lang="de">Filter</value>
+            <value lang="cs">Filtr</value>
+            <value lang="ua">Фільтр</value>
         </node>
     </node>
     <node name="filter">
@@ -72,41 +98,57 @@
             <value lang="pl">Brak</value>
             <value lang="en">None</value>
             <value lang="de">Keine</value>
+            <value lang="cs">Žádný</value>
+            <value lang="ua">Немає</value>
         </node>
         <node name="equals">
             <value lang="pl">Równa się</value>
             <value lang="en">Equals</value>
             <value lang="de">Gleich</value>
+            <value lang="cs">Rovná se</value>
+            <value lang="ua">Дорівнює</value>
         </node>
         <node name="notEquals">
             <value lang="pl">Nie równa się</value>
             <value lang="en">Not equals</value>
             <value lang="de">Nicht gleich</value>
+            <value lang="cs">Nerovná se</value>
+            <value lang="ua">Не дорівнює</value>
         </node>
         <node name="lessThan">
             <value lang="pl">Mniejsze niż</value>
             <value lang="en">Less than</value>
             <value lang="de">Kleiner als</value>
+            <value lang="cs">Menší než</value>
+            <value lang="ua">Менше ніж</value>
         </node>
         <node name="greaterThan">
             <value lang="pl">Większe niż</value>
             <value lang="en">Greater than</value>
             <value lang="de">Größer als</value>
+            <value lang="cs">Větší než</value>
+            <value lang="ua">Більше ніж</value>
         </node>
         <node name="contains">
             <value lang="pl">Zawiera</value>
             <value lang="en">Contains</value>
             <value lang="de">Enthält</value>
+            <value lang="cs">Obsahuje</value>
+            <value lang="ua">Містить</value>
         </node>
         <node name="oneOf">
             <value lang="pl">Jedno z</value>
             <value lang="en">One of</value>
             <value lang="de">Eines von</value>
+            <value lang="cs">Jedno z</value>
+            <value lang="ua">Одне з</value>
         </node>
         <node name="empty">
             <value lang="pl">Puste</value>
             <value lang="en">Empty</value>
             <value lang="de">Leer</value>
+            <value lang="cs">Prázdné</value>
+            <value lang="ua">Порожнє</value>
         </node>
     </node>
 </root>
