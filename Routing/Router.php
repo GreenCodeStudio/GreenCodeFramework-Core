@@ -50,6 +50,7 @@ class Router
                 'ipAddress' => $_SERVER['REMOTE_ADDR'] ?? '',
                 'url' => ($_SERVER['REQUEST_SCHEME'] ?? 'http').'://'.($_SERVER['HTTP_HOST'] ?? '(unknown)').($_SERVER['REQUEST_URI'] ?? ''),
                 'pageOpenIdentifier'=>$router->controller?->initInfo?->pageOpenIdentifier??null,
+                'headers'=> getallheaders()
             ]);
         } catch (\Throwable $ex) {
             $router->sendBackException($ex);
