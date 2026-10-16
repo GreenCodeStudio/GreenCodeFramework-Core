@@ -176,6 +176,7 @@ function Generate-Htaccess
             Header set Expires 0
         </Else>
         Header set Service-Worker-Allowed "/"
+        Header set Accept-CH "Sec-CH-UA, Sec-CH-UA-Model, Sec-CH-DPR, Sec-CH-Prefers-Color-Scheme, Sec-CH-UA-Arch, Sec-CH-UA-Full-Version-List, Sec-CH-UA-Mobile, Sec-CH-UA-Platform, Sec-CH-UA-Platform-Version, Sec-CH-UA-Bitness, Sec-CH-UA-Form-Factors, Sec-CH-UA-WoW64, Sec-CH-Viewport-Height, Sec-CH-Viewport-Width, Sec-CH-Width, Sec-Purpose"
         Header set x-sw-version "${timestamp}"
         <FilesMatch "/dist/.*">
             Header set x-sw-cache "1"
