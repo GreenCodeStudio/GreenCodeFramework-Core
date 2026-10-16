@@ -35,6 +35,7 @@ class Router
     {
         setDumpDebugType('text', false);
         header('x-version: '.($_ENV['VERSION'] ?? '-'));
+        header('Accept-CH: Sec-CH-UA, Sec-CH-UA-Model, Sec-CH-DPR, Sec-CH-Prefers-Color-Scheme, Sec-CH-UA-Arch, Sec-CH-UA-Full-Version-List, Sec-CH-UA-Mobile, Sec-CH-UA-Platform, Sec-CH-UA-Platform-Version, Sec-CH-UA-Bitness, Sec-CH-UA-Form-Factors, Sec-CH-UA-WoW64, Sec-CH-Viewport-Height, Sec-CH-Viewport-Width, Sec-CH-Width, Sec-Purpose');
         $router = self::getHttpRouter($url);
         if($router instanceof StandardRouter || $router instanceof StandardJsonRouter) {
             $fullUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
