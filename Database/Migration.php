@@ -54,7 +54,7 @@ abstract class Migration
 
             }
             $table->index = [];
-            $indexes = DB::get("SHOW INDEX FROM ".$tableName->name);
+            $indexes = DB::get("SHOW INDEX FROM ".$schema.".".$tableName->name);
             $namedIndexes = [];
             foreach ($indexes as $index) {
                 $namedIndexes[$index->Key_name][$index->Seq_in_index - 1] = $index;
