@@ -28,3 +28,18 @@ Each <table> has:
 * <reference> - for FOREIGN key
   * attribute name="" - name of table that is referenced
   * <element> - name of the column in the referenced table
+
+
+after creating db.xml, to check:
+
+```pwsh
+. ./script.ps1
+preview-migration
+```
+
+and to execute
+
+```pwsh
+. ./script.ps1
+upgrade-migration
+```
