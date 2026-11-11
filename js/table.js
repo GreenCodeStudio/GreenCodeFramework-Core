@@ -181,6 +181,7 @@ export class TableManager {
             elements = Array.from(buttons).map(b => ({
                 text: b.title || b.textContent,
                 icon: (b.querySelector('.icon, [class^="icon-"], [class*=" icon-"]') || {}).className,
+                href: b.href,
                 onclick: e => b.click()
             }));
         }
