@@ -166,7 +166,7 @@ function Prepare-Build
     Get-ChildItem modules | ? { Test-Path "modules/$( $_.Name )/.agents/agents.md" } | % { $file += "[" + $_.Name + "](../modules/" + $_.Name + "/.agents/agents.md)`r`n" }
     $file | Out-FileUtf8NoBom "./.agents/agents.md"
 
-    Get-ChildItem modules | ? { Test-Path "modules/$( $_.Name )/.agents/skills" } | % { copy "modules/$( $_.Name )/.agents/skills" "./.agents/skills" -Recurse -Force }
+    Get-ChildItem modules | ? { Test-Path "modules/$( $_.Name )/.agents/skills" } | % { copy "modules/$( $_.Name )/.agents/skills" ".agents/skills" -Recurse -Force }
 }
 function Generate-Htaccess
 {
