@@ -67,6 +67,8 @@ class Router
             return new ApiRouter();
         } else if (substr($url, 0, 6) === '/ajax/') {
             return new AjaxRouter();
+        }else if (substr($url, 0, 13) === '/.well-known/') {
+            return new WellKnownRouter();
         } else {
             setDumpDebugType('text', false);
             if (isset($_SERVER['HTTP_X_JSON'])) {
