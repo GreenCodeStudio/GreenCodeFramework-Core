@@ -50,6 +50,25 @@ class ApiEndpointAnnotation extends \mindplay\annotations\Annotation
     public $requestBody = null;
 }
 
+#[Attribute(Attribute::TARGET_METHOD)]
+class ApiEndpoint
+{
+    public function __construct(
+        public $type,
+        public $url,
+        public $tags = [],
+        public $description = "",
+        public $responses = [],
+        public $parameters = [],
+        public $allowNotLogged = false,
+        public $requestBody = null,
+    )
+    {
+
+    }
+
+}
+
 /**
  * @usage('method'=>true)
  */

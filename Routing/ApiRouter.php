@@ -37,7 +37,7 @@ class ApiRouter extends Router
         foreach ($list as $controller) {
             foreach ($controller->methods as $method) {
                 foreach ($method->annotations as $annotation) {
-                    if ($annotation instanceof \ApiEndpointAnnotation) {
+                    if ($annotation instanceof \ApiEndpointAnnotation||$annotation instanceof \ApiEndpoint) {
                         if (strtoupper($annotation->type) === $_SERVER['REQUEST_METHOD']) {
                             $template = explode('/', trim($annotation->url, ' /'));
                             $urlArray = explode('/', trim($url, ' /'));

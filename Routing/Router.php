@@ -69,6 +69,8 @@ class Router
             return new AjaxRouter();
         }else if (substr($url, 0, 13) === '/.well-known/') {
             return new WellKnownRouter();
+        }else if ($url=='/mcp') {
+            return new McpRouter();
         } else {
             setDumpDebugType('text', false);
             if (isset($_SERVER['HTTP_X_JSON'])) {
@@ -270,6 +272,11 @@ class Router
                     $methodInfo->name = $methodReflect->getName();
                     $methodInfo->parameters = $methodReflect->getParameters();
                     $methodInfo->annotations = $annotations;
+                    $attributes = $methodReflect->getAttributes();
+                    foreach ($attributes as $attribute) {
+                        $instance = $attribute->newInstance();
+                        $methodInfo->annotations[] = $instance;
+                    }
                     $controllerInfo->methods[$methodReflect->getName()] = $methodInfo;
                 }
             } catch (\Throwable $ex) {
